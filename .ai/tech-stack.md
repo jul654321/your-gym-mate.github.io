@@ -6,6 +6,7 @@
 - **Shadcn UI:** UI components library
 - **Taiwind:** CSS library
 - **TypeScript:** Type-safe JavaScript for all frontend code
+- **IndexDB** support
 - **RWD** support
 - **PWA** support
 
