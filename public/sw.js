@@ -1,0 +1,133 @@
+// Service Worker for Your Gym Mate PWA
+// Minimal, deterministic SW with cache-first for static assets
+// and network-first for dynamic data
+
+const CACHE_NAME = "gymmate-static-v1";
+const RUNTIME_CACHE = "gymmate-runtime-v1";
+
+// Static assets to precache - will be updated by build process
+const ASSETS = [
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/apple-touch-icon.png",
+];
+
+// Install event: precache static assets
+self.addEventListener("install", (event) => {
+  console.log("[SW] Installing service worker...");
+  event.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => {
+        console.log("[SW] Precaching static assets");
+        return cache.addAll(ASSETS);
+      })
+      .then(() => {
+        console.log("[SW] Skip waiting");
+        return self.skipWaiting();
+      })
+  );
+});
+
+// Activate event: clean up old caches and take control
+self.addEventListener("activate", (event) => {
+  console.log("[SW] Activating service worker...");
+  event.waitUntil(
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
+              console.log("[SW] Deleting old cache:", cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+      .then(() => {
+        console.log("[SW] Claiming clients");
+        return self.clients.claim();
+      })
+  );
+});
+
+// Fetch event: cache-first for static, network-first for dynamic
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests
+  if (request.method !== "GET") {
+    return;
+  }
+
+  // Skip chrome-extension and other non-http(s) requests
+  if (!url.protocol.startsWith("http")) {
+    return;
+  }
+
+  // Network-first for API-like endpoints (future-proofing)
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/data/")) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Clone and cache successful responses
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if network fails
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+
+  // Cache-first for static assets
+  event.respondWith(
+    caches.match(request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      // If not in cache, fetch from network
+      return fetch(request)
+        .then((response) => {
+          // Don't cache non-successful responses
+          if (!response || response.status !== 200 || response.type === "error") {
+            return response;
+          }
+
+          // Clone and cache for next time
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => {
+            cache.put(request, responseClone);
+          });
+
+          return response;
+        })
+        .catch(() => {
+          // If both cache and network fail, return offline page or error
+          // For now, just fail silently
+          console.error("[SW] Failed to fetch:", request.url);
+        });
+    })
+  );
+});
+
+// Message handler for skip waiting
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    console.log("[SW] Received SKIP_WAITING message");
+    self.skipWaiting();
+  }
+});
