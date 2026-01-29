@@ -1,0 +1,164 @@
+---
+name: PWA implementation rules
+overview: Project-wide rules to ensure the app is an installable, offline-capable PWA (React + TS + Tailwind + idb).
+alwaysApply: true
+---
+
+# PWA Rules (project-wide)
+
+Purpose
+
+Provide concise, actionable rules and small examples so all frontend engineers implement PWA features consistently: manifest, service worker, offline data (IndexedDB), SW registration/update UX, and iOS installability.
+
+High-level rules
+
+- Manifest & icons: ship a standards-compliant `public/manifest.json` and iOS meta/icons in `public/`.
+- Service worker: minimal, deterministic SW. Cache-first for static assets; network-first for API-like reads. No background sync/push for MVP.
+- Offline data: use IndexedDB (`idb`) as single source of truth for app data. All CRUD must work offline and persist across restarts.
+- Register SW only in production, guard unsupported browsers, and surface a non-blocking update prompt when a new SW is available.
+- Version the DB schema and store migrations under `src/lib/db/migrations/`.
+- Privacy: keep data local; any telemetry must be opt-in and documented.
+
+Concrete rules & examples
+
+1. Manifest & iOS meta
+
+- Add `public/manifest.json` with name, short_name, start_url, display: `standalone`, background_color, theme_color, and icons (192 & 512).
+- Add `<link rel="manifest" href="/manifest.json">` to `public/index.html` and include iOS meta tags (`apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style`) and an `apple-touch-icon`.
+
+Example manifest:
+
+```json
+{
+  "name": "Your Gym Mate",
+  "short_name": "GymMate",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5a4",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
+```
+
+2. Service Worker (public/sw.js)
+
+- Keep SW minimal and deterministic. Use a versioned cache name (e.g. `gymmate-static-v1`).
+- Static assets: cache-first. API/data: network-first, falling back to IndexedDB or cache when offline.
+- Do NOT rely on background sync or push for MVP.
+- When a new SW is installed and takes control, show a non-blocking prompt to the user to refresh.
+
+SW skeleton:
+
+```javascript
+const CACHE_NAME = "gymmate-static-v1";
+const ASSETS = [
+  "/index.html",
+  "/styles.css",
+  "/main.js",
+  "/icons/icon-192.png",
+];
+
+self.addEventListener("install", (e) => {
+  e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS)));
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (e) => {
+  e.waitUntil(self.clients.claim());
+});
+
+self.addEventListener("fetch", (e) => {
+  const url = new URL(e.request.url);
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/data/")) {
+    // network-first for dynamic data
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
+  // cache-first for static
+  e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));
+});
+```
+
+3. SW registration & update handling (React + TS)
+
+- Register only in production and when `serviceWorker` exists on `navigator`.
+- Provide an `onUpdate` callback to display update UI (toast / non-blocking banner).
+
+Register example:
+
+```ts
+export function registerServiceWorker(onUpdate: () => void) {
+  if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((reg) => {
+        reg.onupdatefound = () => {
+          const inst = reg.installing;
+          inst?.addEventListener("statechange", () => {
+            if (
+              inst.state === "installed" &&
+              navigator.serviceWorker.controller
+            ) {
+              onUpdate();
+            }
+          });
+        };
+      })
+      .catch(() => {});
+  }
+}
+```
+
+4. IndexedDB & offline data rules
+
+- Use `idb` or a lightweight wrapper in `src/lib/db/` exposing async CRUD and migrations.
+- Single source of truth: UI reads should reflect IndexedDB state (or an in-memory cache synchronized to IDB).
+- Optimistic writes: write to IDB immediately so UI updates offline.
+- Always bump DB version and add deterministic migration code under `src/lib/db/migrations/`.
+- Provide an export utility (CSV) that reads from IDB for backups/sharing.
+
+idb example:
+
+```ts
+import { openDB } from "idb";
+const DB_NAME = "your-gym-mate-v1";
+const storeNames = {
+  exercises: "exercises",
+  sessions: "sessions",
+  sets: "sets",
+};
+export async function getDB() {
+  return openDB(DB_NAME, 1, {
+    upgrade(db) {
+      db.createObjectStore(storeNames.exercises, { keyPath: "id" });
+      db.createObjectStore(storeNames.sessions, { keyPath: "id" });
+      db.createObjectStore(storeNames.sets, { keyPath: "id" });
+    },
+  });
+}
+```
+
+5. Testing & acceptance
+
+- Manual & automated checks should cover:
+  - Installable on iOS (add to home screen) and launches full-screen.
+  - CRUD works offline and persists after reloads.
+  - SW update flow surfaces prompt and refresh works.
+  - Migrations upgrade data safely across DB versions.
+
+Developer notes
+
+- Preferred library for IDB: `idb`. Workbox is acceptable if the team understands its build complexity.
+- Document local dev flow regarding SW (HTTPS or localhost) and how to simulate SW in dev.
+
+Files to add
+
+- public/manifest.json, public/sw.js, public/icons/\*
+- src/serviceWorker/register.ts
+- src/lib/db/\* (wrapper, migrations)
+- src/components/InstallPrompt.tsx (optional)
+
+If you want file-scoped rules instead of project-wide, request globs (e.g. `**/*.tsx`, `public/**`) and I will produce a variant.
