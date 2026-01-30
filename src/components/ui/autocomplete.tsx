@@ -225,19 +225,21 @@ export function Autocomplete<T>({
                           : "text-slate-700 hover:bg-slate-50"
                       )}
                     >
-                      <div className="flex items-center justify-between text-sm font-medium">
-                        <span>{option.label}</span>
-                        {option.meta && (
-                          <span className="text-xs text-slate-500">
-                            {option.meta}
-                          </span>
+                      <div className="flex gap-1 items-center w-full text-left">
+                        <div className="flex items-center justify-between text-sm font-medium">
+                          <span>{option.label}</span>
+                          {option.meta && (
+                            <span className="text-xs text-slate-500">
+                              {option.meta}
+                            </span>
+                          )}
+                        </div>
+                        {option.description && (
+                          <p className="text-xs text-slate-500">
+                            {option.description}
+                          </p>
                         )}
                       </div>
-                      {option.description && (
-                        <p className="text-xs text-slate-500">
-                          {option.description}
-                        </p>
-                      )}
                     </Button>
                   </li>
                 );

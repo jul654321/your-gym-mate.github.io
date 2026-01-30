@@ -7,6 +7,7 @@ import { useExercises, useCreateExercise } from "../../hooks/useExercises";
 interface ExerciseAutocompleteProps {
   value?: string;
   onChange: (exerciseId: string, exercise: ExerciseDTO) => void;
+  onClear?: () => void;
   placeholder?: string;
   label: string;
   error?: string;
@@ -16,6 +17,7 @@ interface ExerciseAutocompleteProps {
 export function ExerciseAutocomplete({
   value,
   onChange,
+  onClear,
   placeholder = "Search exercises...",
   label,
   error,
@@ -109,6 +111,7 @@ export function ExerciseAutocomplete({
   const handleClear = () => {
     setQuery("");
     setClearedValue(value);
+    onClear?.();
   };
 
   return (
