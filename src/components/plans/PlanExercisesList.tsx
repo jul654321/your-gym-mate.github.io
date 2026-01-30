@@ -17,6 +17,11 @@ interface PlanExercisesListProps {
       defaultReps?: string;
       defaultWeight?: string;
       optionalAlternativeExerciseId?: string;
+      alternativeDefaults?: {
+        sets?: string;
+        reps?: string;
+        weight?: string;
+      };
     }
   >;
 }

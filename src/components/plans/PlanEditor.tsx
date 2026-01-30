@@ -109,6 +109,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
             defaultReps: pe.defaultReps,
             defaultWeight: pe.defaultWeight,
             optionalAlternativeExerciseId: pe.optionalAlternativeExerciseId,
+            alternativeDefaults: pe.alternativeDefaults,
           })),
           updatedAt: Date.now(),
         };
@@ -128,6 +129,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
             defaultReps: pe.defaultReps,
             defaultWeight: pe.defaultWeight,
             optionalAlternativeExerciseId: pe.optionalAlternativeExerciseId,
+            alternativeDefaults: pe.alternativeDefaults,
           })),
           exerciseIds: form.planExercises
             .map((pe) => pe.exerciseId!)

@@ -3,6 +3,13 @@ import { v4 as uuidv4 } from "uuid";
 import type { UUID } from "../types";
 
 // Form model types as defined in the plan
+export type PlanExerciseAlternativeDefaultsFormModel = {
+  sets?: number;
+  reps?: number;
+  weight?: number;
+  notes?: string;
+};
+
 export type PlanExerciseFormModel = {
   id: UUID; // planExercise id
   exerciseId?: UUID; // selected exercise id (required before save)
@@ -11,6 +18,7 @@ export type PlanExerciseFormModel = {
   defaultReps?: number;
   defaultWeight?: number;
   optionalAlternativeExerciseId?: UUID | null;
+  alternativeDefaults?: PlanExerciseAlternativeDefaultsFormModel;
   notes?: string;
 };
 
@@ -32,6 +40,11 @@ export type PlanFormErrors = {
       defaultReps?: string;
       defaultWeight?: string;
       optionalAlternativeExerciseId?: string;
+      alternativeDefaults?: {
+        sets?: string;
+        reps?: string;
+        weight?: string;
+      };
     }
   >;
 };
@@ -73,6 +86,12 @@ function planFormReducer(
             defaultReps: undefined,
             defaultWeight: undefined,
             optionalAlternativeExerciseId: null,
+            alternativeDefaults: {
+              sets: undefined,
+              reps: undefined,
+              weight: undefined,
+              notes: "",
+            },
             notes: "",
           },
         ],
@@ -130,6 +149,11 @@ export function validatePlanForm(form: PlanFormModel): PlanFormErrors {
       defaultReps?: string;
       defaultWeight?: string;
       optionalAlternativeExerciseId?: string;
+      alternativeDefaults?: {
+        sets?: string;
+        reps?: string;
+        weight?: string;
+      };
     }
   > = {};
 
@@ -140,6 +164,11 @@ export function validatePlanForm(form: PlanFormModel): PlanFormErrors {
       defaultReps?: string;
       defaultWeight?: string;
       optionalAlternativeExerciseId?: string;
+      alternativeDefaults?: {
+        sets?: string;
+        reps?: string;
+        weight?: string;
+      };
     } = {};
 
     // Exercise ID required
@@ -167,6 +196,39 @@ export function validatePlanForm(form: PlanFormModel): PlanFormErrors {
     ) {
       exErrors.optionalAlternativeExerciseId =
         "Alternative cannot be the same as primary exercise";
+    }
+
+    if (exercise.alternativeDefaults) {
+      const altErrors: {
+        sets?: string;
+        reps?: string;
+        weight?: string;
+      } = {};
+
+      if (
+        exercise.alternativeDefaults.sets !== undefined &&
+        exercise.alternativeDefaults.sets < 1
+      ) {
+        altErrors.sets = "Sets must be at least 1";
+      }
+
+      if (
+        exercise.alternativeDefaults.reps !== undefined &&
+        exercise.alternativeDefaults.reps < 0
+      ) {
+        altErrors.reps = "Reps must be 0 or greater";
+      }
+
+      if (
+        exercise.alternativeDefaults.weight !== undefined &&
+        exercise.alternativeDefaults.weight < 0
+      ) {
+        altErrors.weight = "Weight must be 0 or greater";
+      }
+
+      if (Object.keys(altErrors).length > 0) {
+        exErrors.alternativeDefaults = altErrors;
+      }
     }
 
     if (Object.keys(exErrors).length > 0) {

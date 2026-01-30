@@ -46,6 +46,14 @@ export interface PlanExerciseDTO {
   defaultReps?: number;
   defaultWeight?: number;
   optionalAlternativeExerciseId?: UUID | null;
+  alternativeDefaults?: PlanExerciseAlternativeDefaultsDTO;
+  notes?: string;
+}
+
+export interface PlanExerciseAlternativeDefaultsDTO {
+  sets?: number;
+  reps?: number;
+  weight?: number;
   notes?: string;
 }
 

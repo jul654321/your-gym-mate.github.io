@@ -1,7 +1,10 @@
 import { ExerciseAutocomplete } from "./ExerciseAutocomplete";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import type { PlanExerciseFormModel } from "../../hooks/usePlanFormReducer";
+import type {
+  PlanExerciseFormModel,
+  PlanExerciseAlternativeDefaultsFormModel,
+} from "../../hooks/usePlanFormReducer";
 import type { ExerciseDTO } from "../../types";
 
 interface PlanExerciseRowProps {
@@ -19,6 +22,11 @@ interface PlanExerciseRowProps {
     defaultReps?: string;
     defaultWeight?: string;
     optionalAlternativeExerciseId?: string;
+    alternativeDefaults?: {
+      sets?: string;
+      reps?: string;
+      weight?: string;
+    };
   };
 }
 
@@ -43,6 +51,17 @@ export function PlanExerciseRow({
   const handleAlternativeSelect = (exerciseId: string) => {
     onChange({
       optionalAlternativeExerciseId: exerciseId,
+    });
+  };
+
+  const updateAlternativeDefaults = (
+    changes: Partial<PlanExerciseAlternativeDefaultsFormModel>
+  ) => {
+    onChange({
+      alternativeDefaults: {
+        ...value.alternativeDefaults,
+        ...changes,
+      },
     });
   };
 
@@ -237,6 +256,116 @@ export function PlanExerciseRow({
           placeholder="Search for an alternative..."
           excludeIds={value.exerciseId ? [value.exerciseId] : []}
         />
+      </div>
+
+      {/* Alternative default values */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-gray-700">
+          Alternative defaults
+        </p>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label
+              htmlFor={`alt-sets-${value.id}`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Sets
+            </label>
+            <Input
+              id={`alt-sets-${value.id}`}
+              type="number"
+              min={1}
+              value={value.alternativeDefaults?.sets ?? ""}
+              onChange={(e) =>
+                updateAlternativeDefaults({
+                  sets: e.target.value ? parseInt(e.target.value) : undefined,
+                })
+              }
+              placeholder="e.g. 3"
+              hasError={Boolean(errors?.alternativeDefaults?.sets)}
+            />
+            {errors?.alternativeDefaults?.sets && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.alternativeDefaults.sets}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor={`alt-reps-${value.id}`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Reps
+            </label>
+            <Input
+              id={`alt-reps-${value.id}`}
+              type="number"
+              min={0}
+              value={value.alternativeDefaults?.reps ?? ""}
+              onChange={(e) =>
+                updateAlternativeDefaults({
+                  reps: e.target.value ? parseInt(e.target.value) : undefined,
+                })
+              }
+              placeholder="e.g. 10"
+              hasError={Boolean(errors?.alternativeDefaults?.reps)}
+            />
+            {errors?.alternativeDefaults?.reps && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.alternativeDefaults.reps}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor={`alt-weight-${value.id}`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Weight (kg)
+            </label>
+            <Input
+              id={`alt-weight-${value.id}`}
+              type="number"
+              min={0}
+              step={0.5}
+              value={value.alternativeDefaults?.weight ?? ""}
+              onChange={(e) =>
+                updateAlternativeDefaults({
+                  weight: e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined,
+                })
+              }
+              placeholder="e.g. 20"
+              hasError={Boolean(errors?.alternativeDefaults?.weight)}
+            />
+            {errors?.alternativeDefaults?.weight && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.alternativeDefaults.weight}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor={`alt-notes-${value.id}`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Notes (Alternative)
+          </label>
+          <Input
+            id={`alt-notes-${value.id}`}
+            type="text"
+            value={value.alternativeDefaults?.notes ?? ""}
+            onChange={(e) =>
+              updateAlternativeDefaults({ notes: e.target.value })
+            }
+            placeholder="e.g. Use lighter weight"
+          />
+        </div>
       </div>
 
       {/* Notes */}
