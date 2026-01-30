@@ -8,6 +8,7 @@ import { Button } from "../components/ui/button";
 import { useDbInit } from "../hooks/useDbInit";
 import { useInstantiateSessionFromPlan } from "../hooks/usePlans";
 import { useCreateSession } from "../hooks/useSessions";
+import { inferSessionName } from "../lib/utils/sessionName";
 import type { CreateSessionCmd } from "../types";
 
 export function SessionsPage() {
@@ -21,18 +22,18 @@ export function SessionsPage() {
 
   const instantiatePlan = useInstantiateSessionFromPlan();
 
-  const handleCreateSession = (name: string, planId?: string | null) => {
+  const handleCreateSession = (
+    name: string,
+    planId?: string | null,
+    planName?: string | null
+  ) => {
     setCreationError(null);
-    const trimmed = name.trim();
     const now = Date.now();
-    const inferredName =
-      trimmed ||
-      `Session — ${new Intl.DateTimeFormat("en-US", {
-        dateStyle: "medium",
-      }).format(new Date(now))}`;
+    const inferredName = inferSessionName(name, planName, now);
 
     if (planId) {
       const sessionId = uuidv4();
+
       instantiatePlan.mutate(
         {
           id: sessionId,

@@ -40,11 +40,12 @@ export function useSessions(params: SessionsQueryParams = {}) {
         sessions = await index.getAll(params.status);
       } else if (params.dateRange?.from || params.dateRange?.to) {
         const index = store.index("date");
-        const range = params.dateRange.from && params.dateRange.to
-          ? IDBKeyRange.bound(params.dateRange.from, params.dateRange.to)
-          : params.dateRange.from
-          ? IDBKeyRange.lowerBound(params.dateRange.from)
-          : IDBKeyRange.upperBound(params.dateRange.to!);
+        const range =
+          params.dateRange.from && params.dateRange.to
+            ? IDBKeyRange.bound(params.dateRange.from, params.dateRange.to)
+            : params.dateRange.from
+            ? IDBKeyRange.lowerBound(params.dateRange.from)
+            : IDBKeyRange.upperBound(params.dateRange.to!);
         sessions = await index.getAll(range);
       } else {
         sessions = await store.getAll();
@@ -177,24 +178,27 @@ export function useDeleteSession() {
   return useMutation({
     mutationFn: async (cmd: DeleteSessionCmd) => {
       const db = await getDB();
-      
+
       // Delete all logged sets for this session
-      const tx = db.transaction([STORE_NAMES.sessions, STORE_NAMES.loggedSets], "readwrite");
+      const tx = db.transaction(
+        [STORE_NAMES.sessions, STORE_NAMES.loggedSets],
+        "readwrite"
+      );
       const loggedSetsStore = tx.objectStore(STORE_NAMES.loggedSets);
       const sessionStore = tx.objectStore(STORE_NAMES.sessions);
-      
+
       // Get all sets for this session
       const index = loggedSetsStore.index("sessionId");
       const sets = await index.getAll(cmd.id);
-      
+
       // Delete all sets
       await Promise.all(sets.map((set) => loggedSetsStore.delete(set.id)));
-      
+
       // Delete the session
       await sessionStore.delete(cmd.id);
-      
+
       await tx.done;
-      
+
       return { sessionId: cmd.id, deletedSets: sets.length };
     },
     onSuccess: () => {

@@ -1,14 +1,17 @@
 import { Link, useParams } from "react-router-dom";
+import { useState } from "react";
 import { useDbInit } from "../hooks/useDbInit";
 import { useSessionViewModel } from "../hooks/useSessionViewModel";
 import { SessionHeader } from "../components/sessionDetail/SessionHeader";
 import { LoggedSetsList } from "../components/sessionDetail/LoggedSetsList";
+import { EditSetModal } from "../components/sessionDetail/EditSetModal.tsx";
 import type { LoggedSetDTO } from "../types";
 
 export function SessionView() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { ready } = useDbInit();
   const viewModel = useSessionViewModel(sessionId);
+  const [editingSet, setEditingSet] = useState<LoggedSetDTO | null>(null);
 
   if (!sessionId) {
     return (
@@ -79,8 +82,8 @@ export function SessionView() {
     actions.addSet(exerciseId);
   };
 
-  const handleEditSet = (setId: string, set: LoggedSetDTO) => {
-    actions.updateSet(setId, set);
+  const handleEditSet = (_setId: string, set: LoggedSetDTO) => {
+    setEditingSet(set);
   };
 
   const handleDeleteSet = (setId: string) => {
@@ -107,6 +110,13 @@ export function SessionView() {
           isFetchingMore={fetchingMoreSets}
           isMutating={isMutating}
         />
+        {editingSet && (
+          <EditSetModal
+            key={editingSet.id}
+            set={editingSet}
+            onClose={() => setEditingSet(null)}
+          />
+        )}
       </div>
     </div>
   );

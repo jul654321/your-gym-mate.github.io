@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { usePlans } from "../hooks/usePlans";
-import { useDbInit } from "../hooks/useDbInit";
-import { PlanList } from "../components/plans/PlanList";
 import { CreatePlanFAB } from "../components/plans/CreatePlanFAB";
 import { PlanEditor } from "../components/plans/PlanEditor";
+import { PlanList } from "../components/plans/PlanList";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
+import { useDbInit } from "../hooks/useDbInit";
+import { usePlans } from "../hooks/usePlans";
 import type { PlansQueryParams } from "../types";
 
 export function PlansPage() {

@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { PlanDTO } from "../../types";
 import { Button } from "../ui/button";
 import { Pencil, Play, Trash2 } from "lucide-react";
+import { inferSessionName } from "../../lib/utils/sessionName";
 
 interface PlanRowProps {
   plan: PlanDTO;
@@ -31,6 +32,7 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
         id: sessionId,
         planId: plan.id,
         createdAt: Date.now(),
+        overrides: { name: inferSessionName(undefined, plan.name, Date.now()) },
       });
 
       // Navigate to the new session

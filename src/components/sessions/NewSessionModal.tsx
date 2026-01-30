@@ -6,7 +6,11 @@ import { usePlans } from "../../hooks/usePlans";
 interface NewSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (name: string, basedOnPlanId?: string | null) => void;
+  onCreate: (
+    name: string,
+    basedOnPlanId?: string | null,
+    planName?: string | null
+  ) => void;
   isLoading?: boolean;
   error?: string | null;
 }
@@ -35,7 +39,11 @@ export function NewSessionModal({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onCreate(name, selectedPlanId || undefined);
+    onCreate(
+      name,
+      selectedPlanId || undefined,
+      plans.find((plan) => plan.id === selectedPlanId)?.name || undefined
+    );
   };
 
   if (!isOpen) {
