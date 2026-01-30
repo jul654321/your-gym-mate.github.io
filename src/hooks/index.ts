@@ -5,3 +5,4 @@ export * from "./useExercises";
 export * from "./usePlans";
 export * from "./useSessions";
 export * from "./useLoggedSets";
+export * from "./useNavigation";
