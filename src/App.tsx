@@ -7,6 +7,7 @@ import { PlansPage } from "./pages/PlansPage";
 import { Button } from "./components/ui/button";
 import { PageShell } from "./components/layouts/PageShell";
 import { SessionsPage } from "./pages/SessionsPage";
+import { SessionView } from "./pages/SessionView";
 
 function App() {
   const { isInitialized, isLoading, error } = useDbInit();
@@ -77,7 +78,7 @@ function App() {
           <Route path="/sessions" element={<SessionsPage />} />
           <Route path="/plans" element={<PlansPage />} />
           <Route path="/" element={<HomePage />} />
-          <Route path="/sessions/:sessionId" element={<SessionPlaceholder />} />
+          <Route path="/sessions/:sessionId" element={<SessionView />} />
         </Routes>
       </PageShell>
     </Router>
@@ -104,25 +105,6 @@ function HomePage() {
       <footer className="container mx-auto px-4 py-6 text-center text-gray-600 text-sm">
         <p>Built with React + TypeScript + IndexedDB</p>
       </footer>
-    </div>
-  );
-}
-
-// Placeholder for session view (to be implemented later)
-function SessionPlaceholder() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-6xl mb-4">🏋️</div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Session View</h2>
-        <p className="text-gray-600 mb-6">This view will be implemented soon</p>
-        <Link
-          to="/plans"
-          className="inline-block px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary transition-colors"
-        >
-          ← Back to Plans
-        </Link>
-      </div>
     </div>
   );
 }
