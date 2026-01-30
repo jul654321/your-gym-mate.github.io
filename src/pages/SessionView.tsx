@@ -72,6 +72,7 @@ export function SessionView() {
     isLoadingSets: loadingSets,
     isFetchingMoreSets: fetchingMoreSets,
     hasMoreSets,
+    isMutating,
   } = viewModel;
 
   const handleAddSet = (exerciseId: string) => {
@@ -104,6 +105,7 @@ export function SessionView() {
           hasMore={hasMoreSets}
           isLoading={loadingSets}
           isFetchingMore={fetchingMoreSets}
+          isMutating={isMutating}
         />
       </div>
     </div>

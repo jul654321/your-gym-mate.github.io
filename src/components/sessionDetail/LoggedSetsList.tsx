@@ -3,6 +3,7 @@ import { LoggedSetRow } from "./LoggedSetRow";
 import type { GroupedExerciseVM } from "../../hooks/useSessionViewModel";
 import { Plus } from "lucide-react";
 import type { LoggedSetDTO } from "../../types";
+import { Fragment } from "react";
 
 interface LoggedSetsListProps {
   groupedSets: GroupedExerciseVM[];
@@ -13,6 +14,80 @@ interface LoggedSetsListProps {
   hasMore: boolean;
   isLoading?: boolean;
   isFetchingMore?: boolean;
+  isMutating?: boolean;
+}
+
+function ExerciseHeader({
+  exerciseName,
+  setCount,
+  onAdd,
+  isBusy,
+}: {
+  exerciseName: string;
+  setCount: number;
+  onAdd: () => void;
+  isBusy?: boolean;
+}) {
+  return (
+    <header className="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p className="text-sm font-semibold text-slate-900">{exerciseName}</p>
+        <p className="text-xs uppercase tracking-wide text-slate-400">
+          {setCount} set{setCount === 1 ? "" : "s"}
+        </p>
+      </div>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={onAdd}
+        disabled={isBusy}
+        aria-label={`Quick add set for ${exerciseName}`}
+      >
+        <Plus className="mr-2 h-4 w-4" aria-hidden />
+        Quick Add
+      </Button>
+    </header>
+  );
+}
+
+function ExerciseGroup({
+  group,
+  onAddSet,
+  onEditSet,
+  onDeleteSet,
+  isMutating,
+}: {
+  group: GroupedExerciseVM;
+  onAddSet: (exerciseId: string) => void;
+  onEditSet: (setId: string, set: LoggedSetDTO) => void;
+  onDeleteSet: (setId: string) => void;
+  isMutating?: boolean;
+}) {
+  if (!group.sets.length) {
+    return null;
+  }
+
+  return (
+    <article className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+      <ExerciseHeader
+        exerciseName={group.exerciseName}
+        setCount={group.sets.length}
+        onAdd={() => onAddSet(group.exerciseId)}
+        isBusy={isMutating}
+      />
+      <div className="mt-4 space-y-3">
+        {group.sets.map((set) => (
+          <LoggedSetRow
+            key={set.id}
+            set={set}
+            onEdit={(setId) => onEditSet(setId, set)}
+            onDelete={onDeleteSet}
+            isBusy={isMutating}
+          />
+        ))}
+      </div>
+    </article>
+  );
 }
 
 export function LoggedSetsList({
@@ -24,6 +99,7 @@ export function LoggedSetsList({
   hasMore,
   isLoading = false,
   isFetchingMore = false,
+  isMutating = false,
 }: LoggedSetsListProps) {
   if (isLoading && !groupedSets.length) {
     return <p className="text-sm text-slate-500">Loading logged sets…</p>;
@@ -40,38 +116,15 @@ export function LoggedSetsList({
   return (
     <div className="space-y-5">
       {groupedSets.map((group) => (
-        <article
-          key={group.exerciseId}
-          className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm"
-        >
-          <div className="mb-3 flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold text-slate-900">
-                {group.exerciseName}
-              </p>
-              <p className="text-xs uppercase tracking-wide text-slate-400">
-                {group.sets.length} sets
-              </p>
-            </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onAddSet(group.exerciseId)}
-            >
-              <Plus className="h-4 w-4" aria-hidden />
-            </Button>
-          </div>
-          <div className="space-y-3">
-            {group.sets.map((set) => (
-              <LoggedSetRow
-                key={set.id}
-                set={set}
-                onEdit={(setId) => onEditSet(setId, set)}
-                onDelete={onDeleteSet}
-              />
-            ))}
-          </div>
-        </article>
+        <Fragment key={group.exerciseId}>
+          <ExerciseGroup
+            group={group}
+            onAddSet={onAddSet}
+            onEditSet={onEditSet}
+            onDeleteSet={onDeleteSet}
+            isMutating={isMutating}
+          />
+        </Fragment>
       ))}
 
       {hasMore && (
@@ -79,7 +132,7 @@ export function LoggedSetsList({
           <Button
             variant="outline"
             onClick={onLoadMore}
-            disabled={isLoading || isFetchingMore}
+            disabled={isLoading || isFetchingMore || isMutating}
             className="px-6"
           >
             {isFetchingMore ? "Loading…" : "Load more sets"}
