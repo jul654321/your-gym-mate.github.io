@@ -9,6 +9,8 @@ interface UseDbInitResult {
   isInitialized: boolean;
   isLoading: boolean;
   error: Error | null;
+  ready: boolean;
+  upgrading: boolean;
 }
 
 /**
@@ -56,5 +58,8 @@ export function useDbInit(): UseDbInitResult {
     };
   }, []);
 
-  return { isInitialized, isLoading, error };
+  const ready = isInitialized && !isLoading && error === null;
+  const upgrading = false;
+
+  return { isInitialized, isLoading, error, ready, upgrading };
 }

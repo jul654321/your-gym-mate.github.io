@@ -6,6 +6,7 @@ import { UpdateAvailableBanner } from "./components/UpdateAvailableBanner";
 import { PlansPage } from "./pages/PlansPage";
 import { Button } from "./components/ui/button";
 import { PageShell } from "./components/layouts/PageShell";
+import { SessionsPage } from "./pages/SessionsPage";
 
 function App() {
   const { isInitialized, isLoading, error } = useDbInit();
@@ -73,6 +74,7 @@ function App() {
 
       <PageShell>
         <Routes>
+          <Route path="/sessions" element={<SessionsPage />} />
           <Route path="/plans" element={<PlansPage />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/sessions/:sessionId" element={<SessionPlaceholder />} />

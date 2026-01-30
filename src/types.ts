@@ -104,6 +104,27 @@ export interface SessionDTO {
   updatedAt?: EpochMs;
 }
 
+export type SessionListStatus = "all" | SessionStatus;
+
+export interface SessionListQueryParams {
+  status?: SessionListStatus;
+  from?: string;
+  to?: string;
+  q?: string;
+  pageSize?: number;
+  cursor?: string;
+}
+
+export interface SessionSummaryVM {
+  id: UUID;
+  name?: string;
+  date: EpochMs;
+  status: SessionStatus;
+  setCount: number;
+  volume: number;
+  sourcePlanId?: UUID | null;
+}
+
 // Session commands
 export type CreateSessionCmd = SessionDTO;
 export type UpdateSessionCmd = { id: UUID } & Partial<
