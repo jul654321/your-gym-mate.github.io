@@ -48,7 +48,7 @@ export function BottomTabBar({
           ))}
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 -top-4 flex justify-center">
+        <div className="pointer-events-none absolute inset-x-0 -top-5 flex justify-center">
           <div className="pointer-events-auto">{centerSlot}</div>
         </div>
 

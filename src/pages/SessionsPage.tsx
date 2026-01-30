@@ -9,6 +9,7 @@ import { SessionList } from "../components/sessions/SessionList";
 import { useCreateSession } from "../hooks/useSessions";
 import type { CreateSessionCmd, SessionListQueryParams } from "../types";
 import { useDbInit } from "../hooks/useDbInit";
+import { Button } from "../components/ui/button";
 
 export function SessionsPage() {
   const { ready, upgrading } = useDbInit();
@@ -88,6 +89,13 @@ export function SessionsPage() {
 
       <main className="container mx-auto px-4 py-6 space-y-6">
         <FilterBar onChange={handleFilterChange} initial={filters} />
+        <Button
+          className="w-full"
+          variant="primary"
+          onClick={() => setIsNewSessionOpen(true)}
+        >
+          Log Session
+        </Button>
         <SessionList params={filters} disableActions={disableActions} />
       </main>
 

@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Plus } from "lucide-react";
+import { Play, Plus } from "lucide-react";
 
 export interface CenterFABProps {
   onOpen: () => void;
@@ -37,7 +37,7 @@ export function CenterFAB({
       onClick={handleClick}
       disabled={disabled}
     >
-      <Plus className="h-6 w-6" aria-hidden />
+      <Play className="h-6 w-6" aria-hidden />
     </button>
   );
 }
