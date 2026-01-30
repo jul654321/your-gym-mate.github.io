@@ -9,9 +9,10 @@ alwaysApply: false
 
 - Use functional components with hooks instead of class components
 - Never use "use client" and other Next.js directives as we use React with Astro
-- Extract logic into custom hooks in `src/components/hooks`
+- Extract logic into custom hooks in `src/hooks`
+- Extract layout elements such us header, navbar, footer, wrapper and place them in `src/layouts`
+- Extract pages and place them in `src/pages`
 - Implement React.memo() for expensive components that render often with the same props
-- Utilize React.lazy() and Suspense for code-splitting and performance optimization
 - Use the useCallback hook for event handlers passed to child components to prevent unnecessary re-renders
 - Prefer useMemo for expensive calculations to avoid recomputation on every render
 - Implement useId() for generating unique IDs for accessibility attributes

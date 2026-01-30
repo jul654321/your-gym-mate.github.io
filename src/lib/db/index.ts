@@ -245,8 +245,8 @@ export function closeDB(): void {
  * Ensures proper error handling and rollback
  */
 export async function withTransaction<T>(
-  storeNames: string | string[],
-  mode: IDBTransactionMode,
+  _storeNames: string | string[],
+  _mode: IDBTransactionMode,
   callback: (db: IDBPDatabase<GymMateDB>) => Promise<T>
 ): Promise<T> {
   const db = await getDB();
