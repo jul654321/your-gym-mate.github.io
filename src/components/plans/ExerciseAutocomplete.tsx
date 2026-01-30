@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { useExercises } from "../../hooks/useExercises";
+import { v4 as uuidv4 } from "uuid";
 import { Autocomplete, type AutocompleteItem } from "../ui/autocomplete";
 import type { ExerciseDTO } from "../../types";
+import { useExercises, useCreateExercise } from "../../hooks/useExercises";
 
 interface ExerciseAutocompleteProps {
   value?: string;
@@ -22,6 +23,7 @@ export function ExerciseAutocomplete({
 }: ExerciseAutocompleteProps) {
   const [query, setQuery] = useState("");
   const [clearedValue, setClearedValue] = useState<string | undefined>();
+  const [isCreating, setIsCreating] = useState(false);
 
   const { data: exercises = [], isFetching } = useExercises({
     q: query,
@@ -43,14 +45,26 @@ export function ExerciseAutocomplete({
     (exercise) => !excludeIds.includes(exercise.id)
   );
 
-  const options: AutocompleteItem<ExerciseDTO>[] = filteredExercises.map(
-    (exercise) => ({
+  const trimmedQuery = query.trim();
+  const createOptionId = `__create__:${trimmedQuery}`;
+
+  const options: AutocompleteItem<ExerciseDTO>[] = [
+    ...(trimmedQuery
+      ? [
+          {
+            id: createOptionId,
+            label: `Add "${trimmedQuery}"`,
+            description: "Create new exercise",
+          } as AutocompleteItem<ExerciseDTO>,
+        ]
+      : []),
+    ...filteredExercises.map((exercise) => ({
       id: exercise.id,
       label: exercise.name,
       description: exercise.category,
       data: exercise,
-    })
-  );
+    })),
+  ];
 
   const showSelectedExercise =
     Boolean(selectedExercise) && clearedValue !== value && query.length === 0;
@@ -61,7 +75,31 @@ export function ExerciseAutocomplete({
     setQuery(nextValue);
   };
 
-  const handleSelect = (item: AutocompleteItem<ExerciseDTO>) => {
+  const createMutation = useCreateExercise();
+
+  const handleSelect = async (item: AutocompleteItem<ExerciseDTO>) => {
+    if (item.id.startsWith("__create__:") && trimmedQuery.length > 0) {
+      try {
+        setIsCreating(true);
+        const newExercise: ExerciseDTO = {
+          id: uuidv4(),
+          name: trimmedQuery,
+          createdAt: Date.now(),
+        };
+
+        await createMutation.mutateAsync(newExercise);
+        onChange(newExercise.id, newExercise);
+        setQuery(newExercise.name);
+        setClearedValue(undefined);
+      } catch (err) {
+        console.error("Failed to create exercise", err);
+      } finally {
+        setIsCreating(false);
+      }
+
+      return;
+    }
+
     const exercise = item.data!;
     setClearedValue(undefined);
     setQuery(exercise.name);
@@ -82,9 +120,9 @@ export function ExerciseAutocomplete({
       onSelectOption={handleSelect}
       placeholder={placeholder}
       error={error}
-      loading={isFetching}
+      loading={isFetching || isCreating}
       onClear={inputValue ? handleClear : undefined}
-      noResultsMessage="No exercises found"
+      noResultsMessage={trimmedQuery ? "No exercises found" : "No exercises"}
     />
   );
 }
