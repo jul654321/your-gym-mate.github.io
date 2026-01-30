@@ -47,11 +47,12 @@ export function useLoggedSets(params: LoggedSetsQueryParams = {}) {
       // Date range query
       else if (params.dateRange?.from || params.dateRange?.to) {
         const index = store.index("timestamp");
-        const range = params.dateRange.from && params.dateRange.to
-          ? IDBKeyRange.bound(params.dateRange.from, params.dateRange.to)
-          : params.dateRange.from
-          ? IDBKeyRange.lowerBound(params.dateRange.from)
-          : IDBKeyRange.upperBound(params.dateRange.to!);
+        const range =
+          params.dateRange.from && params.dateRange.to
+            ? IDBKeyRange.bound(params.dateRange.from, params.dateRange.to)
+            : params.dateRange.from
+            ? IDBKeyRange.lowerBound(params.dateRange.from)
+            : IDBKeyRange.upperBound(params.dateRange.to!);
         sets = await index.getAll(range);
       } else {
         sets = await store.getAll();
@@ -102,14 +103,16 @@ export function useGetLastSetForExercise(exerciseId: string) {
     queryFn: async () => {
       const db = await getDB();
       const tx = db.transaction(STORE_NAMES.loggedSets, "readonly");
-      const index = tx.objectStore(STORE_NAMES.loggedSets).index("exerciseId_timestamp");
-      
+      const index = tx
+        .objectStore(STORE_NAMES.loggedSets)
+        .index("exerciseId_timestamp");
+
       // Get all sets for this exercise, sorted by timestamp descending
       const cursor = await index.openCursor(
         IDBKeyRange.bound([exerciseId, 0], [exerciseId, Date.now()]),
         "prev"
       );
-      
+
       return cursor?.value ?? null;
     },
     enabled: !!exerciseId,
@@ -125,8 +128,15 @@ export function useCreateLoggedSet() {
   return useMutation({
     mutationFn: async (set: CreateLoggedSetCmd) => {
       const db = await getDB();
-      await db.add(STORE_NAMES.loggedSets, set);
-      return set;
+      const setToCreate: LoggedSetDTO = {
+        ...set,
+        exerciseIds: [
+          set.exerciseId,
+          ...(set.alternative ? [set.alternative.exerciseId] : []),
+        ],
+      };
+      await db.add(STORE_NAMES.loggedSets, setToCreate);
+      return setToCreate;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
@@ -156,13 +166,18 @@ export function useQuickAddSet() {
     onMutate: async (newSet) => {
       // Optimistic update
       await queryClient.cancelQueries({ queryKey: [QUERY_KEY] });
-      
+
       const previousSets = queryClient.getQueryData([QUERY_KEY]);
-      
-      queryClient.setQueryData([QUERY_KEY, { sessionId: newSet.sessionId }], (old: LoggedSetDTO[] | undefined) => {
-        return old ? [...old, newSet as LoggedSetDTO] : [newSet as LoggedSetDTO];
-      });
-      
+
+      queryClient.setQueryData(
+        [QUERY_KEY, { sessionId: newSet.sessionId }],
+        (old: LoggedSetDTO[] | undefined) => {
+          return old
+            ? [...old, newSet as LoggedSetDTO]
+            : [newSet as LoggedSetDTO];
+        }
+      );
+
       return { previousSets };
     },
     onError: (_err, _newSet, context) => {
@@ -196,12 +211,13 @@ export function useUpdateLoggedSet() {
         ...cmd,
         updatedAt: Date.now(),
         // Recalculate exerciseIds if alternative changed
-        exerciseIds: cmd.alternative !== undefined
-          ? [
-              cmd.exerciseId ?? existing.exerciseId,
-              ...(cmd.alternative ? [cmd.alternative.exerciseId] : []),
-            ]
-          : existing.exerciseIds,
+        exerciseIds:
+          cmd.alternative !== undefined
+            ? [
+                cmd.exerciseId ?? existing.exerciseId,
+                ...(cmd.alternative ? [cmd.alternative.exerciseId] : []),
+              ]
+            : existing.exerciseIds,
       };
 
       await db.put(STORE_NAMES.loggedSets, updated);
@@ -223,10 +239,10 @@ export function useDeleteLoggedSet() {
   return useMutation({
     mutationFn: async (cmd: DeleteLoggedSetCmd) => {
       const db = await getDB();
-      
+
       // TODO: Consider adding to undo_trash before deletion
       await db.delete(STORE_NAMES.loggedSets, cmd.id);
-      
+
       return cmd.id;
     },
     onSuccess: () => {

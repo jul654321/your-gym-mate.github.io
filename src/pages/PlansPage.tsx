@@ -45,21 +45,6 @@ export function PlansPage() {
       </header>
 
       <main className="container mx-auto px-4 py-6">
-        {/* Search input */}
-        <div className="mb-6">
-          <label htmlFor="search-plans" className="sr-only">
-            Search plans
-          </label>
-          <Input
-            id="search-plans"
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search plans..."
-            className="w-full"
-          />
-        </div>
-
         <Button
           className="w-full mb-6"
           onClick={handleCreateClick}

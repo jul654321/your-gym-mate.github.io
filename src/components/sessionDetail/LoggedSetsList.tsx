@@ -1,11 +1,13 @@
 import { Button } from "../ui/button";
 import { LoggedSetRow } from "./LoggedSetRow";
 import type { GroupedExerciseVM } from "../../hooks/useSessionViewModel";
+import { Plus } from "lucide-react";
+import type { LoggedSetDTO } from "../../types";
 
 interface LoggedSetsListProps {
   groupedSets: GroupedExerciseVM[];
-  onOpenQuickAdd: (exerciseId: string) => void;
-  onEditSet: (setId: string) => void;
+  onAddSet: (exerciseId: string) => void;
+  onEditSet: (setId: string, set: LoggedSetDTO) => void;
   onDeleteSet: (setId: string) => void;
   onLoadMore: () => void;
   hasMore: boolean;
@@ -15,7 +17,7 @@ interface LoggedSetsListProps {
 
 export function LoggedSetsList({
   groupedSets,
-  onOpenQuickAdd,
+  onAddSet,
   onEditSet,
   onDeleteSet,
   onLoadMore,
@@ -54,9 +56,9 @@ export function LoggedSetsList({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => onOpenQuickAdd(group.exerciseId)}
+              onClick={() => onAddSet(group.exerciseId)}
             >
-              Quick add
+              <Plus className="h-4 w-4" aria-hidden />
             </Button>
           </div>
           <div className="space-y-3">
@@ -64,7 +66,7 @@ export function LoggedSetsList({
               <LoggedSetRow
                 key={set.id}
                 set={set}
-                onEdit={onEditSet}
+                onEdit={(setId) => onEditSet(setId, set)}
                 onDelete={onDeleteSet}
               />
             ))}

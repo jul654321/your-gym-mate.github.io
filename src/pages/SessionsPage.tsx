@@ -1,42 +1,23 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { DBStatusBanner } from "../components/sessions/DBStatusBanner";
-import { FilterBar } from "../components/sessions/FilterBar";
 import { InstantiateFromPlanSheet } from "../components/sessions/InstantiateFromPlanSheet";
 import { NewSessionModal } from "../components/sessions/NewSessionModal";
 import { SessionList } from "../components/sessions/SessionList";
-import { useCreateSession } from "../hooks/useSessions";
-import { useInstantiateSessionFromPlan } from "../hooks/usePlans";
-import type { CreateSessionCmd, SessionListQueryParams } from "../types";
-import { useDbInit } from "../hooks/useDbInit";
 import { Button } from "../components/ui/button";
+import { useDbInit } from "../hooks/useDbInit";
+import { useInstantiateSessionFromPlan } from "../hooks/usePlans";
+import { useCreateSession } from "../hooks/useSessions";
+import type { CreateSessionCmd } from "../types";
 
 export function SessionsPage() {
   const { ready, upgrading } = useDbInit();
-  const [filters, setFilters] = useState<SessionListQueryParams>({
-    status: "all",
-  });
   const [isNewSessionOpen, setIsNewSessionOpen] = useState(false);
   const [isPlanSheetOpen, setIsPlanSheetOpen] = useState(false);
   const [creationError, setCreationError] = useState<string | null>(null);
   const navigate = useNavigate();
   const createSession = useCreateSession();
   const disableActions = !ready || upgrading;
-
-  const headerSubtitle = useMemo(() => {
-    if (upgrading) {
-      return "Database migration running—actions are temporarily locked.";
-    }
-    if (!ready) {
-      return "Initializing local storage before you can create or delete sessions.";
-    }
-    return "Review your workout history or boot a new session.";
-  }, [ready, upgrading]);
-
-  const handleFilterChange = (params: SessionListQueryParams) => {
-    setFilters(params);
-  };
 
   const instantiatePlan = useInstantiateSessionFromPlan();
 
@@ -106,19 +87,13 @@ export function SessionsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* <header className="bg-secondary text-slate-900 shadow-sm">
+      <header className="bg-primary text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold">Sessions</h1>
-          <p className="text-slate-700">{headerSubtitle}</p>
+          <h1 className="text-3xl font-bold">Workout Sessions</h1>
         </div>
-      </header> */}
-
-      <DBStatusBanner ready={ready} upgrading={upgrading}>
-        <p className="text-sm text-teal-100">Thanks for keeping data local.</p>
-      </DBStatusBanner>
+      </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
-        {/* <FilterBar onChange={handleFilterChange} initial={filters} /> */}
         <Button
           className="w-full"
           variant="primary"
@@ -126,14 +101,14 @@ export function SessionsPage() {
         >
           Log Session
         </Button>
-        <SessionList params={filters} disableActions={disableActions} />
+        <SessionList disableActions={disableActions} />
       </main>
 
       <NewSessionModal
         isOpen={isNewSessionOpen}
         onClose={closeNewSessionModal}
         onCreate={handleCreateSession}
-        isLoading={createSession.isLoading || instantiatePlan.isLoading}
+        isLoading={createSession.isPending || instantiatePlan.isPending}
         error={creationError}
       />
 

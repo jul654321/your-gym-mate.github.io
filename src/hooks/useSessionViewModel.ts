@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useExercises } from "./useExercises";
 import { useDeleteSession, useSession, useUpdateSession } from "./useSessions";
-import { useLoggedSets } from "./useLoggedSets";
-import type { LoggedSetDTO, SessionDTO, SessionStatus } from "../types";
+import {
+  useCreateLoggedSet,
+  useDeleteLoggedSet,
+  useLoggedSets,
+  useUpdateLoggedSet,
+} from "./useLoggedSets";
+import type { LoggedSetDTO, SessionDTO, SessionStatus, UUID } from "../types";
 
 export interface GroupedExerciseVM {
   exerciseId: string;
@@ -29,6 +34,9 @@ export interface SessionViewModel {
     toggleStatus: (status: SessionStatus) => void;
     deleteSession: () => void;
     loadMoreSets: () => void;
+    addSet: (exerciseId: string) => void;
+    deleteSet: (setId: string) => void;
+    updateSet: (setId: string, set: LoggedSetDTO) => void;
   };
   hasMoreSets: boolean;
 }
@@ -50,8 +58,11 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
   const [accumulatedSets, setAccumulatedSets] = useState<LoggedSetDTO[]>([]);
 
   useEffect(() => {
-    setPage(0);
-    setAccumulatedSets([]);
+    const reset = () => {
+      setPage(0);
+      setAccumulatedSets([]);
+    };
+    reset();
   }, [sessionId]);
 
   const loggedSetsQuery = useLoggedSets({
@@ -141,6 +152,9 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
 
   const updateSession = useUpdateSession();
   const deleteSession = useDeleteSession();
+  const createLoggedSet = useCreateLoggedSet();
+  const deleteLoggedSet = useDeleteLoggedSet();
+  const updateLoggedSet = useUpdateLoggedSet();
 
   const renameSession = useCallback(
     (name: string) => {
@@ -179,13 +193,48 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     setPage((prev) => prev + 1);
   }, [hasMoreSets, loggedSetsQuery.isFetching]);
 
+  const addSet = useCallback(
+    (exerciseId: string) => {
+      if (!sessionId) return;
+
+      createLoggedSet.mutate({
+        sessionId,
+        exerciseId,
+        weight: 0,
+        reps: 0,
+        timestamp: Date.now(),
+        createdAt: Date.now(),
+        id: crypto.randomUUID() as UUID,
+        exerciseIds: [exerciseId],
+        setIndex: 0,
+      });
+    },
+    [sessionId, createLoggedSet]
+  );
+
+  const deleteSet = useCallback(
+    (setId: string) => {
+      if (!sessionId) return;
+      deleteLoggedSet.mutate({ id: setId });
+    },
+    [sessionId, deleteLoggedSet]
+  );
+
+  const updateSet = useCallback(
+    (setId: string, set: LoggedSetDTO) => {
+      if (!sessionId) return;
+      updateLoggedSet.mutate({ ...set, id: setId });
+    },
+    [sessionId, updateLoggedSet]
+  );
+
   return {
     session: sessionQuery.data,
     groupedExercises,
     totals,
     isLoading,
     isSessionMissing,
-    isMutating: updateSession.isLoading || deleteSession.isLoading,
+    isMutating: updateSession.isPending || deleteSession.isPending,
     isLoadingSets: loggedSetsQuery.isLoading,
     isFetchingMoreSets:
       loggedSetsQuery.isFetching && !loggedSetsQuery.isLoading && page > 0,
@@ -194,6 +243,9 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
       toggleStatus,
       deleteSession: removeSession,
       loadMoreSets,
+      addSet,
+      deleteSet,
+      updateSet,
     },
     hasMoreSets,
   };

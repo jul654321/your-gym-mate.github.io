@@ -1,49 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { Pencil, X as XIcon } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import type { SessionDTO } from "../../types";
 import { Button } from "../ui/button";
-import type { SessionDTO, SessionStatus } from "../../types";
-import { Check, Pencil, Trash2, X as XIcon } from "lucide-react";
+import { Input } from "../ui/input";
 
 interface SessionHeaderProps {
   session?: SessionDTO | null;
   isBusy?: boolean;
   onRename: (name: string) => void;
-  onToggleStatus: (status: SessionStatus) => void;
-  onDelete: () => void;
 }
 
 export function SessionHeader({
   session,
   isBusy = false,
   onRename,
-  onToggleStatus,
-  onDelete,
 }: SessionHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftName, setDraftName] = useState(session?.name ?? "");
 
-  useEffect(() => {
-    setDraftName(session?.name ?? "");
-  }, [session?.name]);
-
-  const formattedDate = useMemo(() => {
-    if (!session) {
-      return "Date unknown";
-    }
-    return new Intl.DateTimeFormat("en-US", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(session.date);
-  }, [session]);
-
-  const status: SessionStatus = session?.status ?? "active";
-  const nextStatus = status === "active" ? "completed" : "active";
-
-  const statusClasses =
-    status === "completed"
-      ? "bg-green-100 text-green-800"
-      : "bg-amber-100 text-amber-800";
-
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     if (!session) {
       setIsEditing(false);
       return;
@@ -53,77 +28,124 @@ export function SessionHeader({
       onRename(trimmed);
     }
     setIsEditing(false);
-  };
+  }, [draftName, onRename, session?.name]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setDraftName(session?.name ?? "");
     setIsEditing(false);
-  };
+  }, [session?.name]);
 
-  const handleDelete = () => {
-    if (!session) return;
-    const confirmation = window.confirm(
-      "Delete this session and all its logged sets?"
-    );
-    if (confirmation) {
-      onDelete();
+  useEffect(() => {
+    if (!isEditing) {
+      return;
     }
-  };
 
-  const onToggle = () => {
-    onToggleStatus(nextStatus as SessionStatus);
-  };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        handleCancel();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleCancel, isEditing]);
 
   return (
-    <div className="bg-white shadow rounded-2xl p-5 space-y-4 md:flex md:items-center md:justify-between">
-      <div className="space-y-2 md:flex-1">
-        {isEditing ? (
-          <div className="flex gap-2">
-            <input
-              className="flex-1 rounded-md border border-slate-200 px-3 py-2 text-lg font-semibold focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
-              value={draftName}
-              onChange={(event) => setDraftName(event.target.value)}
-              disabled={isBusy}
-              aria-label="Session name"
-            />
-            <Button size="sm" onClick={handleSave} disabled={isBusy}>
-              Save
-            </Button>
+    <>
+      <header className="bg-primary text-white shadow-lg flex items-center justify-between px-4 py-6">
+        <div className="container mx-auto">
+          <h1 className="text-xl font-bold">
+            {" "}
+            {session?.name ?? "Untitled session"}
+          </h1>
+        </div>
+        <div className="space-y-2 md:flex-1">
+          <div>
             <Button
-              size="sm"
+              size="icon"
               variant="ghost"
-              onClick={handleCancel}
+              onClick={() => {
+                setDraftName(session?.name ?? "");
+                setIsEditing(true);
+              }}
               disabled={isBusy}
+              aria-label="Rename session"
             >
-              Cancel
+              <Pencil className="h-4 w-4 text-white" aria-hidden />
             </Button>
           </div>
-        ) : (
-          <div className="flex flex-wrap justify-between items-baseline gap-3">
-            <h1 className="text-xl font-semibold">
-              {session?.name ?? "Untitled session"}
-            </h1>
-            <div>
+        </div>
+      </header>
+
+      {isEditing && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-current/70 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="session-rename-title"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              handleCancel();
+            }
+          }}
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+              <h2
+                id="session-rename-title"
+                className="text-lg font-semibold text-slate-900"
+              >
+                Rename session
+              </h2>
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => setIsEditing(true)}
-                disabled={isBusy}
+                onClick={handleCancel}
+                aria-label="Close"
               >
-                <Pencil className="h-4 w-4" aria-hidden />
+                <XIcon className="h-5 w-5 text-slate-500" aria-hidden />
               </Button>
+            </div>
+            <div className="space-y-3 px-6 py-6">
+              <label
+                htmlFor="session-rename-input"
+                className="text-sm font-medium text-slate-700"
+              >
+                Session name
+              </label>
+              <Input
+                id="session-rename-input"
+                className="text-lg font-semibold"
+                value={draftName}
+                onChange={(event) => setDraftName(event.target.value)}
+                disabled={isBusy}
+                aria-label="Session name"
+                autoFocus
+              />
+            </div>
+            <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-6 py-4">
               <Button
-                size="icon"
+                size="sm"
                 variant="ghost"
-                onClick={handleDelete}
+                onClick={handleCancel}
                 disabled={isBusy}
               >
-                <Trash2 className="h-4 w-4" aria-hidden />
+                Cancel
+              </Button>
+              <Button size="sm" onClick={handleSave} disabled={isBusy}>
+                Save
               </Button>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -3,6 +3,7 @@ import { useDbInit } from "../hooks/useDbInit";
 import { useSessionViewModel } from "../hooks/useSessionViewModel";
 import { SessionHeader } from "../components/sessionDetail/SessionHeader";
 import { LoggedSetsList } from "../components/sessionDetail/LoggedSetsList";
+import type { LoggedSetDTO } from "../types";
 
 export function SessionView() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -64,33 +65,31 @@ export function SessionView() {
     );
   }
 
-  const { totals, groupedExercises, session } = viewModel;
+  const { groupedExercises, session } = viewModel;
   const loadingSets = viewModel.isLoadingSets;
   const fetchingMoreSets = viewModel.isFetchingMoreSets;
-  const handleQuickAdd = (exerciseId: string) => {
-    console.log("Quick add for exercise", exerciseId);
+  const handleAddSet = (exerciseId: string) => {
+    viewModel.actions.addSet(exerciseId);
   };
-  const handleEditSet = (setId: string) => {
-    console.log("Edit set", setId);
+  const handleEditSet = (setId: string, set: LoggedSetDTO) => {
+    viewModel.actions.updateSet(setId, set);
   };
   const handleDeleteSet = (setId: string) => {
-    console.log("Delete set", setId);
+    viewModel.actions.deleteSet(setId);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-6">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4">
-        <SessionHeader
-          session={session}
-          isBusy={viewModel.isMutating}
-          onRename={viewModel.actions.renameSession}
-          onToggleStatus={viewModel.actions.toggleStatus}
-          onDelete={viewModel.actions.deleteSession}
-        />
-
+    <div className="min-h-screen bg-slate-50">
+      <SessionHeader
+        key={session?.id}
+        session={session}
+        isBusy={viewModel.isMutating}
+        onRename={viewModel.actions.renameSession}
+      />
+      <div className="mx-auto mt-6 flex max-w-5xl flex-col gap-6 px-4">
         <LoggedSetsList
           groupedSets={groupedExercises}
-          onOpenQuickAdd={handleQuickAdd}
+          onAddSet={handleAddSet}
           onEditSet={handleEditSet}
           onDeleteSet={handleDeleteSet}
           onLoadMore={viewModel.actions.loadMoreSets}

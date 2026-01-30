@@ -1,27 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
-import type { SessionListQueryParams, SessionsQueryParams } from "../../types";
+import { useMemo, useState } from "react";
 import { useSessions } from "../../hooks/useSessions";
+import type { SessionListQueryParams, SessionsQueryParams } from "../../types";
 import { SessionRow } from "./SessionRow";
 
 const DEFAULT_PAGE_SIZE = 20;
 
 interface SessionListProps {
-  params: SessionListQueryParams;
+  params?: SessionListQueryParams;
   disableActions?: boolean;
 }
 
 export function SessionList({
-  params,
+  params = { pageSize: DEFAULT_PAGE_SIZE },
   disableActions = false,
 }: SessionListProps) {
   const [visibleCount, setVisibleCount] = useState(
     params.pageSize ?? DEFAULT_PAGE_SIZE
   );
-
-  useEffect(() => {
-    const resetCount = params.pageSize ?? DEFAULT_PAGE_SIZE;
-    setVisibleCount(resetCount);
-  }, [params.status, params.from, params.to, params.q, params.pageSize]);
 
   const queryParams = useMemo(() => {
     const status =
