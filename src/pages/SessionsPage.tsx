@@ -1,9 +1,14 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import { CreateSessionFAB } from "../components/sessions/CreateSessionFAB";
 import { DBStatusBanner } from "../components/sessions/DBStatusBanner";
 import { FilterBar } from "../components/sessions/FilterBar";
+import { InstantiateFromPlanSheet } from "../components/sessions/InstantiateFromPlanSheet";
+import { NewSessionModal } from "../components/sessions/NewSessionModal";
 import { SessionList } from "../components/sessions/SessionList";
-import type { SessionListQueryParams } from "../types";
+import { useCreateSession } from "../hooks/useSessions";
+import type { CreateSessionCmd, SessionListQueryParams } from "../types";
 import { useDbInit } from "../hooks/useDbInit";
 
 export function SessionsPage() {
@@ -11,6 +16,11 @@ export function SessionsPage() {
   const [filters, setFilters] = useState<SessionListQueryParams>({
     status: "all",
   });
+  const [isNewSessionOpen, setIsNewSessionOpen] = useState(false);
+  const [isPlanSheetOpen, setIsPlanSheetOpen] = useState(false);
+  const [creationError, setCreationError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const createSession = useCreateSession();
   const disableActions = !ready || upgrading;
 
   const headerSubtitle = useMemo(() => {
@@ -25,6 +35,43 @@ export function SessionsPage() {
 
   const handleFilterChange = (params: SessionListQueryParams) => {
     setFilters(params);
+  };
+
+  const handleCreateSession = (name: string) => {
+    setCreationError(null);
+    const trimmed = name.trim();
+    const now = Date.now();
+    const inferredName =
+      trimmed ||
+      `Session — ${new Intl.DateTimeFormat("en-US", {
+        dateStyle: "medium",
+      }).format(new Date(now))}`;
+
+    const payload: CreateSessionCmd = {
+      id: uuidv4(),
+      name: inferredName,
+      date: now,
+      status: "active",
+      createdAt: now,
+    };
+
+    createSession.mutate(payload, {
+      onSuccess: (session) => {
+        setIsNewSessionOpen(false);
+        setCreationError(null);
+        navigate(`/sessions/${session.id}`);
+      },
+      onError: (error) => {
+        setCreationError(
+          error instanceof Error ? error.message : "Failed to create session."
+        );
+      },
+    });
+  };
+
+  const closeNewSessionModal = () => {
+    setIsNewSessionOpen(false);
+    setCreationError(null);
   };
 
   return (
@@ -47,12 +94,25 @@ export function SessionsPage() {
 
       <CreateSessionFAB
         onCreate={() => {
-          // TODO: Launch new session flow
+          setIsNewSessionOpen(true);
         }}
         onInstantiate={() => {
-          // TODO: Open plan instantiation sheet
+          setIsPlanSheetOpen(true);
         }}
         disabled={disableActions}
+      />
+
+      <NewSessionModal
+        isOpen={isNewSessionOpen}
+        onClose={closeNewSessionModal}
+        onCreate={handleCreateSession}
+        isLoading={createSession.isLoading}
+        error={creationError}
+      />
+
+      <InstantiateFromPlanSheet
+        isOpen={isPlanSheetOpen}
+        onClose={() => setIsPlanSheetOpen(false)}
       />
     </div>
   );

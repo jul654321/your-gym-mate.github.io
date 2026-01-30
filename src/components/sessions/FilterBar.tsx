@@ -75,8 +75,9 @@ export function FilterBar({ onChange, initial }: FilterBarProps) {
 
   return (
     <section className="space-y-3 rounded-2xl bg-white/80 p-4 shadow-lg shadow-slate-200 backdrop-blur">
+      <h2 className="text-lg font-semibold text-slate-900">Filter Sessions</h2>
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           {STATUS_OPTIONS.map((option) => (
             <button
               key={option}
@@ -94,7 +95,7 @@ export function FilterBar({ onChange, initial }: FilterBarProps) {
                     (option?.slice(1) ?? "") || ""}
             </button>
           ))}
-        </div>
+        </div> */}
         <div className="flex gap-2">
           {PRESET_OPTIONS.map((preset) => (
             <button
@@ -109,7 +110,7 @@ export function FilterBar({ onChange, initial }: FilterBarProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:gap-4">
+      {/* <div className="flex flex-col gap-3 md:flex-row md:items-end md:gap-4">
         <div className="flex-1">
           <Input
             type="search"
@@ -140,7 +141,7 @@ export function FilterBar({ onChange, initial }: FilterBarProps) {
             Reset
           </button>
         </div>
-      </div>
+      </div> */}
     </section>
   );
 }
