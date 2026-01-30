@@ -118,7 +118,7 @@ export function SessionsPage() {
       </DBStatusBanner>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
-        <FilterBar onChange={handleFilterChange} initial={filters} />
+        {/* <FilterBar onChange={handleFilterChange} initial={filters} /> */}
         <Button
           className="w-full"
           variant="primary"

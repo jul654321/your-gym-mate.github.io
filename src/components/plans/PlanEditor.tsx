@@ -344,25 +344,13 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
             Cancel
           </Button>
 
-          <div className="flex gap-3">
-            {planId && (
-              <Button
-                onClick={handleInstantiate}
-                disabled={isSaving || isInstantiating}
-                variant="outline"
-                className="!bg-teal-50 !text-primary !border-primary hover:!bg-teal-100 disabled:current/80 disabled:cursor-not-allowed transition-colors"
-              >
-                {isInstantiating ? "Starting..." : "Start Workout"}
-              </Button>
-            )}
-            <Button
-              onClick={handleSave}
-              disabled={isSaving || isInstantiating}
-              className="px-6 py-2 font-medium"
-            >
-              {isSaving ? "Saving..." : "Save Plan"}
-            </Button>
-          </div>
+          <Button
+            onClick={handleSave}
+            disabled={isSaving || isInstantiating}
+            className="px-6 py-2 font-medium"
+          >
+            {isSaving ? "Saving..." : "Save Plan"}
+          </Button>
         </div>
       </div>
     </div>

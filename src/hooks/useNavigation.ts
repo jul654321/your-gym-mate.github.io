@@ -16,21 +16,9 @@ import type {
 
 const TAB_DEFINITIONS: TabDTO[] = [
   {
-    id: "home",
-    label: "Home",
-    path: "/",
-    icon: "home",
-  },
-  {
-    id: "sessions",
-    label: "Sessions",
-    path: "/sessions",
-    icon: "sessions",
-  },
-  {
     id: "plans",
     label: "Plans",
-    path: "/plans",
+    path: "/",
     icon: "plans",
   },
   {
@@ -41,17 +29,11 @@ const TAB_DEFINITIONS: TabDTO[] = [
     isCenter: true,
   },
   {
-    id: "dashboard",
-    label: "Dashboard",
-    path: "/dashboard",
-    icon: "dashboard",
+    id: "sessions",
+    label: "Sessions",
+    path: "/sessions",
+    icon: "sessions",
   },
-  // {
-  //   id: "settings",
-  //   label: "Settings",
-  //   path: "/settings",
-  //   icon: "settings",
-  // },
 ];
 
 const DESTRUCTIVE_TABS: Set<TabId> = new Set([

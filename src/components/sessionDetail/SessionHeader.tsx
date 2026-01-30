@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import type { SessionDTO, SessionStatus } from "../../types";
+import { Check, Pencil, Trash2, X as XIcon } from "lucide-react";
 
 interface SessionHeaderProps {
   session?: SessionDTO | null;
@@ -98,47 +99,30 @@ export function SessionHeader({
             </Button>
           </div>
         ) : (
-          <div className="flex flex-wrap items-baseline gap-3">
-            <h1 className="text-3xl font-semibold">
+          <div className="flex flex-wrap justify-between items-baseline gap-3">
+            <h1 className="text-xl font-semibold">
               {session?.name ?? "Untitled session"}
             </h1>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setIsEditing(true)}
-              disabled={isBusy}
-            >
-              Rename
-            </Button>
+            <div>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => setIsEditing(true)}
+                disabled={isBusy}
+              >
+                <Pencil className="h-4 w-4" aria-hidden />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={handleDelete}
+                disabled={isBusy}
+              >
+                <Trash2 className="h-4 w-4" aria-hidden />
+              </Button>
+            </div>
           </div>
         )}
-        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-          <span>{formattedDate}</span>
-          <span
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusClasses}`}
-          >
-            {status === "active" ? "In progress" : "Completed"}
-          </span>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        <Button
-          size="sm"
-          variant={status === "completed" ? "secondary" : "primary"}
-          onClick={onToggle}
-          disabled={isBusy}
-        >
-          Mark {nextStatus}
-        </Button>
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={handleDelete}
-          disabled={isBusy}
-        >
-          Delete
-        </Button>
       </div>
     </div>
   );

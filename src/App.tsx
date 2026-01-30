@@ -76,8 +76,8 @@ function App() {
       <PageShell>
         <Routes>
           <Route path="/sessions" element={<SessionsPage />} />
-          <Route path="/plans" element={<PlansPage />} />
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<PlansPage />} />
+          {/* <Route path="/" element={<HomePage />} /> */}
           <Route path="/sessions/:sessionId" element={<SessionView />} />
         </Routes>
       </PageShell>

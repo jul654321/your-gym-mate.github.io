@@ -76,9 +76,6 @@ export function SessionView() {
   const handleDeleteSet = (setId: string) => {
     console.log("Delete set", setId);
   };
-  const totalVolume = new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 0,
-  }).format(totals.totalVolume);
 
   return (
     <div className="min-h-screen bg-slate-50 py-6">
@@ -91,50 +88,16 @@ export function SessionView() {
           onDelete={viewModel.actions.deleteSession}
         />
 
-        <section className="rounded-2xl bg-white p-5 shadow">
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">
-                Total volume
-              </p>
-              <p className="text-3xl font-semibold text-slate-900">
-                {totalVolume}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">
-                Sets logged
-              </p>
-              <p className="text-3xl font-semibold text-slate-900">
-                {totals.totalSets}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-2xl bg-white p-5 shadow">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-slate-900">
-                Logged Sets
-              </p>
-              <p className="text-xs uppercase tracking-wide text-slate-400">
-                {groupedExercises.length} exercises
-              </p>
-            </div>
-          </div>
-
-          <LoggedSetsList
-            groupedSets={groupedExercises}
-            onOpenQuickAdd={handleQuickAdd}
-            onEditSet={handleEditSet}
-            onDeleteSet={handleDeleteSet}
-            onLoadMore={viewModel.actions.loadMoreSets}
-            hasMore={viewModel.hasMoreSets}
-            isLoading={loadingSets}
-            isFetchingMore={fetchingMoreSets}
-          />
-        </section>
+        <LoggedSetsList
+          groupedSets={groupedExercises}
+          onOpenQuickAdd={handleQuickAdd}
+          onEditSet={handleEditSet}
+          onDeleteSet={handleDeleteSet}
+          onLoadMore={viewModel.actions.loadMoreSets}
+          hasMore={viewModel.hasMoreSets}
+          isLoading={loadingSets}
+          isFetchingMore={fetchingMoreSets}
+        />
       </div>
     </div>
   );
