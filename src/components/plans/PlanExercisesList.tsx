@@ -30,7 +30,7 @@ export function PlanExercisesList({
 }: PlanExercisesListProps) {
   if (exercises.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-secondary0">
         <div className="text-4xl mb-2">🏋️</div>
         <p>No exercises added yet</p>
         <p className="text-sm">Click "Add Exercise" below to get started</p>

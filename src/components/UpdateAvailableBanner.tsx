@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { skipWaitingAndReload } from "../serviceWorker/register";
+import { Button } from "./ui/button";
 
 export function UpdateAvailableBanner() {
   const [showBanner, setShowBanner] = useState(false);
@@ -18,7 +19,7 @@ export function UpdateAvailableBanner() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 bg-teal-600 text-white p-4 shadow-lg"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-primary text-white p-4 shadow-lg"
       role="alert"
       aria-live="polite"
     >
@@ -30,20 +31,21 @@ export function UpdateAvailableBanner() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={() => setShowBanner(false)}
-            className="px-4 py-2 text-sm font-medium text-teal-600 bg-white rounded-md hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-teal-600"
+            variant="secondary"
+            className="px-4 py-2 text-sm font-medium text-primary hover:bg-teal-50 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
             aria-label="Dismiss update notification"
           >
             Later
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={skipWaitingAndReload}
-            className="px-4 py-2 text-sm font-medium bg-teal-700 rounded-md hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-teal-600"
+            className="px-4 py-2 text-sm font-medium focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
             aria-label="Update now"
           >
             Update Now
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,4 +1,6 @@
 import { ExerciseAutocomplete } from "./ExerciseAutocomplete";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import type { PlanExerciseFormModel } from "../../hooks/usePlanFormReducer";
 import type { ExerciseDTO } from "../../types";
 
@@ -55,16 +57,18 @@ export function PlanExerciseRow({
 
           {/* Move buttons */}
           <div className="flex gap-1">
-            <button
+            <Button
               type="button"
               onClick={onMoveUp}
               disabled={!canMoveUp}
-              className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+              variant="ghost"
+              size="icon"
+              className="text-slate-400 hover:text-slate-600 disabled:text-slate-400"
               aria-label="Move up"
               title="Move up"
             >
               <svg
-                className="w-4 h-4"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -76,17 +80,19 @@ export function PlanExerciseRow({
                   d="M5 15l7-7 7 7"
                 />
               </svg>
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={onMoveDown}
               disabled={!canMoveDown}
-              className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+              variant="ghost"
+              size="icon"
+              className="text-slate-400 hover:text-slate-600 disabled:text-slate-400"
               aria-label="Move down"
               title="Move down"
             >
               <svg
-                className="w-4 h-4"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -98,18 +104,21 @@ export function PlanExerciseRow({
                   d="M19 9l-7 7-7-7"
                 />
               </svg>
-            </button>
+            </Button>
           </div>
         </div>
 
-        <button
+        <Button
           type="button"
           onClick={onRemove}
-          className="p-1 text-red-600 hover:text-red-800"
+          variant="ghost"
+          size="icon"
+          className="text-red-600 hover:text-red-800"
           aria-label="Remove exercise"
+          title="Remove exercise"
         >
           <svg
-            className="w-5 h-5"
+            className="h-5 w-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -121,7 +130,7 @@ export function PlanExerciseRow({
               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
             />
           </svg>
-        </button>
+        </Button>
       </div>
 
       {/* Exercise selection */}
@@ -142,10 +151,10 @@ export function PlanExerciseRow({
           >
             Sets
           </label>
-          <input
+          <Input
             id={`sets-${value.id}`}
             type="number"
-            min="1"
+            min={1}
             value={value.defaultSets ?? ""}
             onChange={(e) =>
               onChange({
@@ -155,9 +164,7 @@ export function PlanExerciseRow({
               })
             }
             placeholder="e.g. 3"
-            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-              errors?.defaultSets ? "border-red-500" : "border-gray-300"
-            }`}
+            hasError={Boolean(errors?.defaultSets)}
           />
           {errors?.defaultSets && (
             <p className="mt-1 text-xs text-red-600">{errors.defaultSets}</p>
@@ -171,10 +178,10 @@ export function PlanExerciseRow({
           >
             Reps
           </label>
-          <input
+          <Input
             id={`reps-${value.id}`}
             type="number"
-            min="0"
+            min={0}
             value={value.defaultReps ?? ""}
             onChange={(e) =>
               onChange({
@@ -184,9 +191,7 @@ export function PlanExerciseRow({
               })
             }
             placeholder="e.g. 10"
-            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-              errors?.defaultReps ? "border-red-500" : "border-gray-300"
-            }`}
+            hasError={Boolean(errors?.defaultReps)}
           />
           {errors?.defaultReps && (
             <p className="mt-1 text-xs text-red-600">{errors.defaultReps}</p>
@@ -200,11 +205,11 @@ export function PlanExerciseRow({
           >
             Weight (kg)
           </label>
-          <input
+          <Input
             id={`weight-${value.id}`}
             type="number"
-            min="0"
-            step="0.5"
+            min={0}
+            step={0.5}
             value={value.defaultWeight ?? ""}
             onChange={(e) =>
               onChange({
@@ -214,9 +219,7 @@ export function PlanExerciseRow({
               })
             }
             placeholder="e.g. 20"
-            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-              errors?.defaultWeight ? "border-red-500" : "border-gray-300"
-            }`}
+            hasError={Boolean(errors?.defaultWeight)}
           />
           {errors?.defaultWeight && (
             <p className="mt-1 text-xs text-red-600">{errors.defaultWeight}</p>
@@ -244,13 +247,12 @@ export function PlanExerciseRow({
         >
           Notes (Optional)
         </label>
-        <input
+        <Input
           id={`notes-${value.id}`}
           type="text"
           value={value.notes ?? ""}
           onChange={(e) => onChange({ notes: e.target.value })}
           placeholder="e.g. Focus on form"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
         />
       </div>
     </div>

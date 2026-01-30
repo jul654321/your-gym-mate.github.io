@@ -1,14 +1,15 @@
-import { useState, useRef, useEffect, useId } from "react";
+import { useMemo, useState } from "react";
 import { useExercises } from "../../hooks/useExercises";
+import { Autocomplete, type AutocompleteItem } from "../ui/autocomplete";
 import type { ExerciseDTO } from "../../types";
 
 interface ExerciseAutocompleteProps {
-  value?: string; // exerciseId
+  value?: string;
   onChange: (exerciseId: string, exercise: ExerciseDTO) => void;
   placeholder?: string;
   label: string;
   error?: string;
-  excludeIds?: string[]; // IDs to exclude from suggestions
+  excludeIds?: string[];
 }
 
 export function ExerciseAutocomplete({
@@ -20,156 +21,70 @@ export function ExerciseAutocomplete({
   excludeIds = [],
 }: ExerciseAutocompleteProps) {
   const [query, setQuery] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedExercise, setSelectedExercise] = useState<ExerciseDTO | null>(
-    null
-  );
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const inputId = useId();
+  const [clearedValue, setClearedValue] = useState<string | undefined>();
 
-  const { data: exercises = [] } = useExercises({
+  const { data: exercises = [], isFetching } = useExercises({
     q: query,
     sort: "name",
     pagination: { pageSize: 10 },
   });
 
-  // Filter out excluded IDs
-  const filteredExercises = exercises.filter(
-    (ex) => !excludeIds.includes(ex.id)
-  );
-
-  // Fetch all exercises for initial value lookup
   const { data: allExercises = [] } = useExercises({});
 
-  // Load selected exercise if value provided
-  useEffect(() => {
-    if (value && !selectedExercise) {
-      const exercise = allExercises.find((ex) => ex.id === value);
-      if (exercise) {
-        setSelectedExercise(exercise);
-      }
+  const selectedExercise = useMemo(() => {
+    if (!value) {
+      return null;
     }
-  }, [value, selectedExercise, allExercises]);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node) &&
-        !inputRef.current?.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
+    return allExercises.find((item) => item.id === value) ?? null;
+  }, [allExercises, value]);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const filteredExercises = exercises.filter(
+    (exercise) => !excludeIds.includes(exercise.id)
+  );
 
-  const handleSelect = (exercise: ExerciseDTO) => {
-    setSelectedExercise(exercise);
+  const options: AutocompleteItem<ExerciseDTO>[] = filteredExercises.map(
+    (exercise) => ({
+      id: exercise.id,
+      label: exercise.name,
+      description: exercise.category,
+      data: exercise,
+    })
+  );
+
+  const showSelectedExercise =
+    Boolean(selectedExercise) && clearedValue !== value && query.length === 0;
+  const inputValue = showSelectedExercise ? selectedExercise!.name : query;
+
+  const handleInputChange = (nextValue: string) => {
+    setClearedValue(undefined);
+    setQuery(nextValue);
+  };
+
+  const handleSelect = (item: AutocompleteItem<ExerciseDTO>) => {
+    const exercise = item.data!;
+    setClearedValue(undefined);
     setQuery(exercise.name);
-    setIsOpen(false);
     onChange(exercise.id, exercise);
   };
 
   const handleClear = () => {
-    setSelectedExercise(null);
     setQuery("");
-    inputRef.current?.focus();
+    setClearedValue(value);
   };
 
   return (
-    <div className="relative">
-      <label
-        htmlFor={inputId}
-        className="block text-sm font-medium text-gray-700 mb-1"
-      >
-        {label}
-      </label>
-
-      <div className="relative">
-        <input
-          ref={inputRef}
-          id={inputId}
-          type="text"
-          value={selectedExercise ? selectedExercise.name : query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setIsOpen(true);
-            if (selectedExercise) {
-              setSelectedExercise(null);
-            }
-          }}
-          onFocus={() => setIsOpen(true)}
-          placeholder={placeholder}
-          className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-            error ? "border-red-500" : "border-gray-300"
-          }`}
-          aria-expanded={isOpen}
-          aria-autocomplete="list"
-          aria-controls={`${inputId}-listbox`}
-        />
-
-        {selectedExercise && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            aria-label="Clear selection"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        )}
-      </div>
-
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-
-      {/* Dropdown */}
-      {isOpen && filteredExercises.length > 0 && (
-        <div
-          ref={dropdownRef}
-          id={`${inputId}-listbox`}
-          role="listbox"
-          className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
-        >
-          {filteredExercises.map((exercise) => (
-            <button
-              key={exercise.id}
-              type="button"
-              role="option"
-              aria-selected={selectedExercise?.id === exercise.id}
-              onClick={() => handleSelect(exercise)}
-              className="w-full text-left px-4 py-2 hover:bg-teal-50 focus:bg-teal-50 focus:outline-none"
-            >
-              <div className="font-medium text-gray-900">{exercise.name}</div>
-              {exercise.category && (
-                <div className="text-xs text-gray-500">{exercise.category}</div>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {isOpen && query && filteredExercises.length === 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-4 text-center text-gray-500">
-          No exercises found
-        </div>
-      )}
-    </div>
+    <Autocomplete
+      label={label}
+      inputValue={inputValue}
+      onInputChange={handleInputChange}
+      options={options}
+      onSelectOption={handleSelect}
+      placeholder={placeholder}
+      error={error}
+      loading={isFetching}
+      onClear={inputValue ? handleClear : undefined}
+      noResultsMessage="No exercises found"
+    />
   );
 }

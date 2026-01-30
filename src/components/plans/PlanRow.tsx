@@ -7,6 +7,7 @@ import {
 import { ConfirmDeleteModal } from "../shared/ConfirmDeleteModal";
 import { v4 as uuidv4 } from "uuid";
 import type { PlanDTO } from "../../types";
+import { Button } from "../ui/button";
 
 interface PlanRowProps {
   plan: PlanDTO;
@@ -63,7 +64,7 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
                 <span>{exerciseCount === 1 ? "exercise" : "exercises"}</span>
               </span>
               {plan.notes && (
-                <span className="text-gray-500" title={plan.notes}>
+                <span className="text-secondary0" title={plan.notes}>
                   📝 Notes
                 </span>
               )}
@@ -72,18 +73,20 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
 
           <div className="flex items-center gap-2">
             {/* Instantiate button */}
-            <button
+            <Button
               onClick={handleInstantiate}
               disabled={!dbReady || instantiateMutation.isPending}
-              className="px-4 py-2 bg-teal-600 text-white rounded-md font-medium hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 font-medium transition-colors"
               aria-label={`Start workout from ${plan.name}`}
             >
               {instantiateMutation.isPending ? "Starting..." : "Start Workout"}
-            </button>
+            </Button>
 
             {/* Overflow menu */}
             <div className="relative">
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setShowMenu(!showMenu)}
                 className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                 aria-label="More options"
@@ -103,7 +106,7 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
                     d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
                   />
                 </svg>
-              </button>
+              </Button>
 
               {/* Dropdown menu */}
               {showMenu && (
@@ -114,24 +117,26 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
                     onClick={() => setShowMenu(false)}
                   />
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 py-1 border border-gray-200">
-                    <button
+                    <Button
                       onClick={() => {
                         setShowMenu(false);
                         onEdit(plan.id);
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      variant="ghost"
+                      className="w-full justify-between text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     >
                       Edit
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => {
                         setShowMenu(false);
                         setShowDeleteModal(true);
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      variant="ghost"
+                      className="w-full justify-between text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                     >
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </>
               )}

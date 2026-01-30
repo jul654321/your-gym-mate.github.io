@@ -1,3 +1,5 @@
+import { Button } from "../ui/button";
+
 interface CreatePlanFABProps {
   onClick: () => void;
   disabled?: boolean;
@@ -8,15 +10,17 @@ export function CreatePlanFAB({
   disabled = false,
 }: CreatePlanFABProps) {
   return (
-    <button
+    <Button
       onClick={onClick}
       disabled={disabled}
-      className="fixed bottom-6 right-6 w-14 h-14 bg-teal-600 text-white rounded-full shadow-lg hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all hover:scale-110 focus:outline-none focus:ring-4 focus:ring-teal-300"
+      variant="icon"
+      size="icon"
+      className="fixed bottom-6 right-6 shadow-2xl"
       aria-label="Create new plan"
       title={disabled ? "Database not ready" : "Create new plan"}
     >
       <svg
-        className="w-6 h-6 mx-auto"
+        className="h-5 w-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -28,6 +32,6 @@ export function CreatePlanFAB({
           d="M12 4v16m8-8H4"
         />
       </svg>
-    </button>
+    </Button>
   );
 }

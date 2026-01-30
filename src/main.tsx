@@ -1,10 +1,10 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import './index.css'
-import App from './App.tsx'
-import { registerServiceWorker } from './serviceWorker/register'
-import { exposeDevHelpers } from './lib/db/dev-helpers'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import "./index.scss";
+import App from "./App.tsx";
+import { registerServiceWorker } from "./serviceWorker/register";
+import { exposeDevHelpers } from "./lib/db/dev-helpers";
 
 // Create React Query client
 const queryClient = new QueryClient({
@@ -24,37 +24,37 @@ const queryClient = new QueryClient({
       retry: 1,
     },
   },
-})
+});
 
 // Expose dev helpers in development mode
-exposeDevHelpers()
+exposeDevHelpers();
 
 // Register service worker
 interface WindowWithUpdateCallback extends Window {
-  __setUpdateAvailable?: (value: boolean) => void
+  __setUpdateAvailable?: (value: boolean) => void;
 }
 
 registerServiceWorker({
   onUpdate: () => {
-    console.log('[App] Service worker update available')
+    console.log("[App] Service worker update available");
     // Signal the UpdateAvailableBanner to show
-    const windowWithCallback = window as WindowWithUpdateCallback
+    const windowWithCallback = window as WindowWithUpdateCallback;
     if (windowWithCallback.__setUpdateAvailable) {
-      windowWithCallback.__setUpdateAvailable(true)
+      windowWithCallback.__setUpdateAvailable(true);
     }
   },
   onSuccess: () => {
-    console.log('[App] Content cached for offline use')
+    console.log("[App] Content cached for offline use");
   },
   onError: (error) => {
-    console.error('[App] Service worker registration failed:', error)
+    console.error("[App] Service worker registration failed:", error);
   },
-})
+});
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <App />
     </QueryClientProvider>
-  </StrictMode>,
-)
+  </StrictMode>
+);

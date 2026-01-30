@@ -14,6 +14,7 @@ import {
 } from "../../hooks/usePlanFormReducer";
 import { PlanExercisesList } from "./PlanExercisesList";
 import type { PlanDTO, CreatePlanCmd, UpdatePlanCmd } from "../../types";
+import { Button } from "../ui/button";
 
 interface PlanEditorProps {
   planId?: string;
@@ -101,7 +102,14 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
           id: planId,
           name: form.name.trim(),
           notes: form.notes,
-          planExercises: form.planExercises,
+          planExercises: form.planExercises.map((pe) => ({
+            id: pe.id,
+            exerciseId: pe.exerciseId!,
+            defaultSets: pe.defaultSets,
+            defaultReps: pe.defaultReps,
+            defaultWeight: pe.defaultWeight,
+            optionalAlternativeExerciseId: pe.optionalAlternativeExerciseId,
+          })),
           updatedAt: Date.now(),
         };
 
@@ -113,7 +121,14 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
           id: uuidv4(),
           name: form.name.trim(),
           notes: form.notes,
-          planExercises: form.planExercises,
+          planExercises: form.planExercises.map((pe) => ({
+            id: pe.id,
+            exerciseId: pe.exerciseId!,
+            defaultSets: pe.defaultSets,
+            defaultReps: pe.defaultReps,
+            defaultWeight: pe.defaultWeight,
+            optionalAlternativeExerciseId: pe.optionalAlternativeExerciseId,
+          })),
           exerciseIds: form.planExercises
             .map((pe) => pe.exerciseId!)
             .filter(Boolean),
@@ -170,7 +185,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
   if (isLoadingPlan && planId) {
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-current/80"
         role="dialog"
         aria-modal="true"
       >
@@ -188,7 +203,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-current/80 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="plan-editor-title"
@@ -210,7 +225,9 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
           >
             {planId ? "Edit Plan" : "Create New Plan"}
           </h2>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
             aria-label="Close"
@@ -228,7 +245,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
                 d="M6 18L18 6M6 6l12 12"
               />
             </svg>
-          </button>
+          </Button>
         </div>
 
         {/* Body - scrollable */}
@@ -279,13 +296,12 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Exercises</h3>
-              <button
-                type="button"
+              <Button
                 onClick={addExercise}
-                className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors text-sm font-medium"
+                className="px-4 py-2 text-sm font-medium transition-colors"
               >
                 + Add Exercise
-              </button>
+              </Button>
             </div>
 
             <PlanExercisesList
@@ -307,31 +323,33 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
-          <button
+          <Button
             onClick={onClose}
             disabled={isSaving || isInstantiating}
-            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            variant="secondary"
+            className="!border-gray-300 text-gray-700 hover:bg-gray-50 disabled:current/80 disabled:cursor-not-allowed transition-colors"
           >
             Cancel
-          </button>
+          </Button>
 
           <div className="flex gap-3">
             {planId && (
-              <button
+              <Button
                 onClick={handleInstantiate}
                 disabled={isSaving || isInstantiating}
-                className="px-4 py-2 text-teal-700 bg-teal-50 border border-teal-600 rounded-md hover:bg-teal-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                variant="outline"
+                className="!bg-teal-50 !text-primary !border-primary hover:!bg-teal-100 disabled:current/80 disabled:cursor-not-allowed transition-colors"
               >
                 {isInstantiating ? "Starting..." : "Start Workout"}
-              </button>
+              </Button>
             )}
-            <button
+            <Button
               onClick={handleSave}
               disabled={isSaving || isInstantiating}
-              className="px-6 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              className="px-6 py-2 font-medium"
             >
               {isSaving ? "Saving..." : "Save Plan"}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

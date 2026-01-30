@@ -4,6 +4,8 @@ import { useDbInit } from "../hooks/useDbInit";
 import { PlanList } from "../components/plans/PlanList";
 import { CreatePlanFAB } from "../components/plans/CreatePlanFAB";
 import { PlanEditor } from "../components/plans/PlanEditor";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import type { PlansQueryParams } from "../types";
 
 export function PlansPage() {
@@ -36,7 +38,7 @@ export function PlansPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-teal-600 text-white shadow-lg">
+      <header className="bg-primary text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <h1 className="text-3xl font-bold">Workout Plans</h1>
           <p className="text-teal-100 mt-1">
@@ -51,13 +53,13 @@ export function PlansPage() {
           <label htmlFor="search-plans" className="sr-only">
             Search plans
           </label>
-          <input
+          <Input
             id="search-plans"
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search plans..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full"
           />
         </div>
 
@@ -65,7 +67,7 @@ export function PlansPage() {
         {isLoading && (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               <p className="mt-2 text-gray-600">Loading plans...</p>
             </div>
           </div>
@@ -102,13 +104,13 @@ export function PlansPage() {
                 : "Create your first workout plan to get started"}
             </p>
             {!searchQuery && (
-              <button
+              <Button
                 onClick={handleCreateClick}
                 disabled={!isInitialized}
-                className="px-6 py-3 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                size="lg"
               >
                 Create Your First Plan
-              </button>
+              </Button>
             )}
           </div>
         )}

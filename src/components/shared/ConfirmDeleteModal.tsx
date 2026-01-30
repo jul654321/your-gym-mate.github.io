@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Button } from "../ui/button";
 
 interface ConfirmDeleteModalProps {
   itemName: string;
@@ -32,7 +33,7 @@ export function ConfirmDeleteModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-current/80"
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-modal-title"
@@ -78,21 +79,17 @@ export function ConfirmDeleteModal({
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
-          <button
-            onClick={onCancel}
-            disabled={isDeleting}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
+          <Button onClick={onCancel} disabled={isDeleting} variant="secondary">
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             ref={confirmButtonRef}
             onClick={onConfirm}
             disabled={isDeleting}
-            className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            variant="destructive"
           >
             {isDeleting ? "Deleting..." : "Delete"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
