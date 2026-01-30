@@ -5,6 +5,7 @@ import { useDbInit } from "./hooks/useDbInit";
 import { UpdateAvailableBanner } from "./components/UpdateAvailableBanner";
 import { PlansPage } from "./pages/PlansPage";
 import { Button } from "./components/ui/button";
+import { PageShell } from "./components/layouts/PageShell";
 
 function App() {
   const { isInitialized, isLoading, error } = useDbInit();
@@ -67,14 +68,16 @@ function App() {
 
   return (
     <Router>
-      <Routes>
-        <Route path="/plans" element={<PlansPage />} />
-        <Route path="/" element={<HomePage />} />
-        <Route path="/sessions/:sessionId" element={<SessionPlaceholder />} />
-      </Routes>
-
       {/* Update notification banner */}
       {showUpdateBanner && <UpdateAvailableBanner />}
+
+      <PageShell>
+        <Routes>
+          <Route path="/plans" element={<PlansPage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/sessions/:sessionId" element={<SessionPlaceholder />} />
+        </Routes>
+      </PageShell>
     </Router>
   );
 }

@@ -71,6 +71,16 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
     nameInputRef.current?.focus();
   }, []);
 
+  // Disallow page scroll while modal is open
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   // Escape key handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -187,7 +197,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
   if (isLoadingPlan && planId) {
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-current/80"
+        className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-current/80"
         role="dialog"
         aria-modal="true"
       >
@@ -205,7 +215,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-current/80 p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-current/80 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="plan-editor-title"
@@ -217,10 +227,10 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
     >
       <div
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col"
+        className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200">
           <h2
             id="plan-editor-title"
             className="text-2xl font-bold text-gray-900"
@@ -324,7 +334,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
           <Button
             onClick={onClose}
             disabled={isSaving || isInstantiating}
