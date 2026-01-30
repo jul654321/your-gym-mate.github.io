@@ -8,10 +8,12 @@ import {
   Gauge,
   Settings,
   type LucideIcon,
+  Home,
 } from "lucide-react";
 import type { TabDTO } from "../../types/navigation";
 
 const ICON_MAP: Record<TabDTO["icon"], LucideIcon> = {
+  home: Home,
   sessions: Activity,
   plans: ListChecks,
   quickLog: Plus,

@@ -47,7 +47,7 @@ export function PlansPage() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6">
         {/* Search input */}
         <div className="mb-6">
           <label htmlFor="search-plans" className="sr-only">

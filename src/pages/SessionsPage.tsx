@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { CreateSessionFAB } from "../components/sessions/CreateSessionFAB";
 import { DBStatusBanner } from "../components/sessions/DBStatusBanner";
 import { FilterBar } from "../components/sessions/FilterBar";
 import { InstantiateFromPlanSheet } from "../components/sessions/InstantiateFromPlanSheet";
@@ -76,31 +75,21 @@ export function SessionsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-secondary text-slate-900 shadow-sm">
+      {/* <header className="bg-secondary text-slate-900 shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <h1 className="text-3xl font-bold">Sessions</h1>
           <p className="text-slate-700">{headerSubtitle}</p>
         </div>
-      </header>
+      </header> */}
 
       <DBStatusBanner ready={ready} upgrading={upgrading}>
         <p className="text-sm text-teal-100">Thanks for keeping data local.</p>
       </DBStatusBanner>
 
-      <main className="container mx-auto px-4 py-8 space-y-6">
+      <main className="container mx-auto px-4 py-6 space-y-6">
         <FilterBar onChange={handleFilterChange} initial={filters} />
         <SessionList params={filters} disableActions={disableActions} />
       </main>
-
-      <CreateSessionFAB
-        onCreate={() => {
-          setIsNewSessionOpen(true);
-        }}
-        onInstantiate={() => {
-          setIsPlanSheetOpen(true);
-        }}
-        disabled={disableActions}
-      />
 
       <NewSessionModal
         isOpen={isNewSessionOpen}

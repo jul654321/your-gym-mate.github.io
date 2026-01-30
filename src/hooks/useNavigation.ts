@@ -16,6 +16,12 @@ import type {
 
 const TAB_DEFINITIONS: TabDTO[] = [
   {
+    id: "home",
+    label: "Home",
+    path: "/",
+    icon: "home",
+  },
+  {
     id: "sessions",
     label: "Sessions",
     path: "/sessions",
@@ -40,22 +46,23 @@ const TAB_DEFINITIONS: TabDTO[] = [
     path: "/dashboard",
     icon: "dashboard",
   },
-  {
-    id: "settings",
-    label: "Settings",
-    path: "/settings",
-    icon: "settings",
-  },
+  // {
+  //   id: "settings",
+  //   label: "Settings",
+  //   path: "/settings",
+  //   icon: "settings",
+  // },
 ];
 
 const DESTRUCTIVE_TABS: Set<TabId> = new Set([
+  "home",
   "sessions",
   "plans",
   "dashboard",
   "settings",
 ]);
 
-const DEFAULT_TAB: TabId = "sessions";
+const DEFAULT_TAB: TabId = "home";
 
 function getTabForPath(pathname: string): TabId {
   const normalizedPath = pathname.split("?")[0].replace(/\/+$/, "") || "/";

@@ -2,6 +2,7 @@
 // These mirror the implementation plan for the responsive nav shell.
 export type TabId =
   | "sessions"
+  | "home"
   | "plans"
   | "quickLog"
   | "dashboard"
