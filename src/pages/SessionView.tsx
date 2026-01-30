@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useDbInit } from "../hooks/useDbInit";
 import { useSessionViewModel } from "../hooks/useSessionViewModel";
 import { SessionHeader } from "../components/sessionDetail/SessionHeader";
+import { LoggedSetsList } from "../components/sessionDetail/LoggedSetsList";
 
 export function SessionView() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -64,6 +65,17 @@ export function SessionView() {
   }
 
   const { totals, groupedExercises, session } = viewModel;
+  const loadingSets = viewModel.isLoadingSets;
+  const fetchingMoreSets = viewModel.isFetchingMoreSets;
+  const handleQuickAdd = (exerciseId: string) => {
+    console.log("Quick add for exercise", exerciseId);
+  };
+  const handleEditSet = (setId: string) => {
+    console.log("Edit set", setId);
+  };
+  const handleDeleteSet = (setId: string) => {
+    console.log("Delete set", setId);
+  };
   const totalVolume = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 0,
   }).format(totals.totalVolume);
@@ -112,55 +124,16 @@ export function SessionView() {
             </div>
           </div>
 
-          {groupedExercises.length === 0 ? (
-            <p className="text-sm text-slate-500">
-              No sets logged yet. Use Quick Add to capture your first set.
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {groupedExercises.map((group) => (
-                <div
-                  key={group.exerciseId}
-                  className="rounded-2xl border border-slate-100 p-4"
-                >
-                  <div className="mb-2 flex items-center justify-between">
-                    <p className="text-base font-semibold text-slate-900">
-                      {group.exerciseName}
-                    </p>
-                    <p className="text-xs uppercase tracking-wide text-slate-400">
-                      {group.sets.length} sets
-                    </p>
-                  </div>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    {group.sets.map((set) => (
-                      <div
-                        key={set.id}
-                        className="flex items-center justify-between"
-                      >
-                        <div className="space-y-0.5">
-                          <p className="font-medium text-slate-900">
-                            {set.setIndex != null
-                              ? `Set ${set.setIndex + 1}`
-                              : "Set"}
-                          </p>
-                          <p className="text-xs text-slate-400">
-                            {new Intl.DateTimeFormat("en-US", {
-                              hour: "numeric",
-                              minute: "numeric",
-                            }).format(set.timestamp)}
-                          </p>
-                        </div>
-                        <p className="font-semibold text-slate-900">
-                          {set.weight ?? 0}
-                          {set.weightUnit ?? "kg"} × {set.reps}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <LoggedSetsList
+            groupedSets={groupedExercises}
+            onOpenQuickAdd={handleQuickAdd}
+            onEditSet={handleEditSet}
+            onDeleteSet={handleDeleteSet}
+            onLoadMore={viewModel.actions.loadMoreSets}
+            hasMore={viewModel.hasMoreSets}
+            isLoading={loadingSets}
+            isFetchingMore={fetchingMoreSets}
+          />
         </section>
       </div>
     </div>

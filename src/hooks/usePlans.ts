@@ -3,6 +3,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDB, STORE_NAMES } from "../lib/db";
+import { v4 as uuidv4 } from "uuid";
 import type {
   PlanDTO,
   CreatePlanCmd,
@@ -11,6 +12,7 @@ import type {
   PlansQueryParams,
   InstantiateSessionFromPlanCmd,
   SessionDTO,
+  LoggedSetDTO,
 } from "../types";
 
 const QUERY_KEY = "plans";
@@ -39,9 +41,7 @@ export function usePlans(params: PlansQueryParams = {}) {
       // Text search on name
       if (params.q) {
         const query = params.q.toLowerCase();
-        plans = plans.filter((plan) =>
-          plan.name.toLowerCase().includes(query)
-        );
+        plans = plans.filter((plan) => plan.name.toLowerCase().includes(query));
       }
 
       // Sort
@@ -87,13 +87,13 @@ export function useCreatePlan() {
   return useMutation({
     mutationFn: async (plan: CreatePlanCmd) => {
       const db = await getDB();
-      
+
       // Ensure exerciseIds is populated
       const planToCreate: PlanDTO = {
         ...plan,
         exerciseIds: plan.planExercises.map((pe) => pe.exerciseId),
       };
-      
+
       await db.add(STORE_NAMES.plans, planToCreate);
       return planToCreate;
     },
@@ -148,10 +148,10 @@ export function useDeletePlan() {
   return useMutation({
     mutationFn: async (cmd: DeletePlanCmd) => {
       const db = await getDB();
-      
+
       // TODO: Consider adding to undo_trash before deletion
       await db.delete(STORE_NAMES.plans, cmd.id);
-      
+
       return cmd.id;
     },
     onSuccess: () => {
@@ -170,14 +170,45 @@ export function useInstantiateSessionFromPlan() {
   return useMutation({
     mutationFn: async (cmd: InstantiateSessionFromPlanCmd) => {
       const db = await getDB();
-      
-      // Get the plan
-      const plan = await db.get(STORE_NAMES.plans, cmd.planId);
+
+      const tx = db.transaction(
+        [
+          STORE_NAMES.plans,
+          STORE_NAMES.sessions,
+          STORE_NAMES.loggedSets,
+          STORE_NAMES.exercises,
+        ],
+        "readwrite"
+      );
+      const planStore = tx.objectStore(STORE_NAMES.plans);
+      const sessionStore = tx.objectStore(STORE_NAMES.sessions);
+      const loggedSetsStore = tx.objectStore(STORE_NAMES.loggedSets);
+      const exercisesStore = tx.objectStore(STORE_NAMES.exercises);
+
+      const plan = await planStore.get(cmd.planId);
       if (!plan) {
         throw new Error(`Plan ${cmd.planId} not found`);
       }
 
-      // Create the session
+      const sessionIndex = sessionStore.index("sourcePlanId");
+      const sessionsFromPlan = await sessionIndex.getAll(cmd.planId);
+      const lastSession = sessionsFromPlan
+        .sort((a, b) => b.date - a.date)
+        .at(0);
+
+      const lastSetByExercise = new Map<string, LoggedSetDTO>();
+      if (lastSession) {
+        const lastSessionSets = await loggedSetsStore
+          .index("sessionId")
+          .getAll(lastSession.id);
+        for (const set of lastSessionSets) {
+          const existing = lastSetByExercise.get(set.exerciseId);
+          if (!existing || (set.timestamp ?? 0) > (existing.timestamp ?? 0)) {
+            lastSetByExercise.set(set.exerciseId, set);
+          }
+        }
+      }
+
       const session: SessionDTO = {
         id: cmd.id,
         name: cmd.overrides?.name ?? plan.name,
@@ -188,11 +219,65 @@ export function useInstantiateSessionFromPlan() {
         createdAt: cmd.createdAt ?? Date.now(),
       };
 
-      await db.add(STORE_NAMES.sessions, session);
+      await sessionStore.add(session);
+
+      const baseTimestamp = Date.now();
+      for (const planExercise of plan.planExercises) {
+        const exerciseRecord = await exercisesStore.get(
+          planExercise.exerciseId
+        );
+        const exerciseName = exerciseRecord?.name ?? "Exercise";
+        const lastSet = lastSetByExercise.get(planExercise.exerciseId);
+        const totalSets = Math.max(1, planExercise.defaultSets ?? 1);
+        const weight = lastSet?.weight ?? planExercise.defaultWeight ?? 0;
+        const reps = lastSet?.reps ?? planExercise.defaultReps ?? 8;
+        const weightUnit = lastSet?.weightUnit ?? "kg";
+        const altId = planExercise.optionalAlternativeExerciseId ?? null;
+        const altExercise = altId ? await exercisesStore.get(altId) : null;
+        const altDefaults = planExercise.alternativeDefaults;
+        const lastAlternative = lastSet?.alternative;
+
+        const altBase = altId
+          ? {
+              exerciseId: altId,
+              nameSnapshot: altExercise?.name,
+              weight: lastAlternative?.weight ?? altDefaults?.weight ?? weight,
+              reps: lastAlternative?.reps ?? altDefaults?.reps ?? reps,
+            }
+          : null;
+
+        for (let setIndex = 0; setIndex < totalSets; setIndex += 1) {
+          const alternativeSnapshot = altBase ? { ...altBase } : null;
+
+          const loggedSet: LoggedSetDTO = {
+            id: uuidv4(),
+            sessionId: cmd.id,
+            exerciseId: planExercise.exerciseId,
+            exerciseNameSnapshot: exerciseName,
+            timestamp: baseTimestamp + setIndex,
+            weight,
+            weightUnit,
+            reps,
+            setIndex,
+            alternative: alternativeSnapshot,
+            notes: planExercise.notes,
+            createdAt: baseTimestamp,
+            exerciseIds: [
+              planExercise.exerciseId,
+              alternativeSnapshot?.exerciseId,
+            ].filter(Boolean) as string[],
+          };
+
+          await loggedSetsStore.add(loggedSet);
+        }
+      }
+
+      await tx.done;
       return session;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["loggedSets"] });
     },
   });
 }

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useExercises } from "./useExercises";
 import { useDeleteSession, useSession, useUpdateSession } from "./useSessions";
 import { useLoggedSets } from "./useLoggedSets";
@@ -22,11 +22,15 @@ export interface SessionViewModel {
   isLoading: boolean;
   isSessionMissing: boolean;
   isMutating: boolean;
+  isLoadingSets: boolean;
+  isFetchingMoreSets: boolean;
   actions: {
     renameSession: (name: string) => void;
     toggleStatus: (status: SessionStatus) => void;
     deleteSession: () => void;
+    loadMoreSets: () => void;
   };
+  hasMoreSets: boolean;
 }
 
 function getDisplayName(
@@ -37,13 +41,45 @@ function getDisplayName(
   return exercisesById.get(exerciseId) ?? fallback ?? "Exercise";
 }
 
+const PAGE_SIZE = 12;
+
 export function useSessionViewModel(sessionId?: string): SessionViewModel {
   const sessionQuery = useSession(sessionId ?? "");
+  const exercisesQuery = useExercises();
+  const [page, setPage] = useState(0);
+  const [accumulatedSets, setAccumulatedSets] = useState<LoggedSetDTO[]>([]);
+
+  useEffect(() => {
+    setPage(0);
+    setAccumulatedSets([]);
+  }, [sessionId]);
+
   const loggedSetsQuery = useLoggedSets({
     sessionId: sessionId ?? undefined,
     sort: "timestamp",
+    pagination: {
+      page,
+      pageSize: PAGE_SIZE,
+    },
   });
-  const exercisesQuery = useExercises();
+
+  const currentBatch = loggedSetsQuery.data ?? [];
+
+  useEffect(() => {
+    if (page === 0) {
+      setAccumulatedSets(currentBatch);
+      return;
+    }
+
+    setAccumulatedSets((prev) => {
+      const existingIds = new Set(prev.map((set) => set.id));
+      const newSets = currentBatch.filter((set) => !existingIds.has(set.id));
+      if (newSets.length === 0) {
+        return prev;
+      }
+      return [...prev, ...newSets];
+    });
+  }, [currentBatch, page]);
 
   const exercisesById = useMemo(() => {
     const map = new Map<string, string>();
@@ -54,7 +90,7 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
   }, [exercisesQuery.data]);
 
   const groupedExercises = useMemo(() => {
-    const sets = loggedSetsQuery.data ?? [];
+    const sets = accumulatedSets;
     const groups = new Map<string, GroupedExerciseVM>();
 
     for (const set of sets) {
@@ -88,10 +124,10 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     }));
 
     return sortedGroups;
-  }, [loggedSetsQuery.data, exercisesById]);
+  }, [accumulatedSets, exercisesById]);
 
   const totals = useMemo(() => {
-    const sets = loggedSetsQuery.data ?? [];
+    const sets = accumulatedSets;
     const totalVolume = sets.reduce((sum, set) => {
       const weight = set.weight ?? 0;
       const reps = set.reps ?? 0;
@@ -101,7 +137,7 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
       totalVolume,
       totalSets: sets.length,
     };
-  }, [loggedSetsQuery.data]);
+  }, [accumulatedSets]);
 
   const updateSession = useUpdateSession();
   const deleteSession = useDeleteSession();
@@ -135,6 +171,14 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
   const isSessionMissing =
     !!sessionId && !sessionQuery.isLoading && sessionQuery.data == null;
 
+  const hasMoreSets = currentBatch.length === PAGE_SIZE;
+  const loadMoreSets = useCallback(() => {
+    if (!hasMoreSets || loggedSetsQuery.isFetching) {
+      return;
+    }
+    setPage((prev) => prev + 1);
+  }, [hasMoreSets, loggedSetsQuery.isFetching]);
+
   return {
     session: sessionQuery.data,
     groupedExercises,
@@ -142,10 +186,15 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     isLoading,
     isSessionMissing,
     isMutating: updateSession.isLoading || deleteSession.isLoading,
+    isLoadingSets: loggedSetsQuery.isLoading,
+    isFetchingMoreSets:
+      loggedSetsQuery.isFetching && !loggedSetsQuery.isLoading && page > 0,
     actions: {
       renameSession,
       toggleStatus,
       deleteSession: removeSession,
+      loadMoreSets,
     },
+    hasMoreSets,
   };
 }

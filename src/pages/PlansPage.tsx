@@ -63,6 +63,15 @@ export function PlansPage() {
           />
         </div>
 
+        <Button
+          className="w-full mb-6"
+          onClick={handleCreateClick}
+          disabled={!isInitialized}
+          size="lg"
+        >
+          Create New Plan
+        </Button>
+
         {/* Loading state */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">

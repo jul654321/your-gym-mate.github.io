@@ -7,6 +7,7 @@ import { InstantiateFromPlanSheet } from "../components/sessions/InstantiateFrom
 import { NewSessionModal } from "../components/sessions/NewSessionModal";
 import { SessionList } from "../components/sessions/SessionList";
 import { useCreateSession } from "../hooks/useSessions";
+import { useInstantiateSessionFromPlan } from "../hooks/usePlans";
 import type { CreateSessionCmd, SessionListQueryParams } from "../types";
 import { useDbInit } from "../hooks/useDbInit";
 import { Button } from "../components/ui/button";
@@ -37,7 +38,9 @@ export function SessionsPage() {
     setFilters(params);
   };
 
-  const handleCreateSession = (name: string) => {
+  const instantiatePlan = useInstantiateSessionFromPlan();
+
+  const handleCreateSession = (name: string, planId?: string | null) => {
     setCreationError(null);
     const trimmed = name.trim();
     const now = Date.now();
@@ -46,6 +49,33 @@ export function SessionsPage() {
       `Session — ${new Intl.DateTimeFormat("en-US", {
         dateStyle: "medium",
       }).format(new Date(now))}`;
+
+    if (planId) {
+      const sessionId = uuidv4();
+      instantiatePlan.mutate(
+        {
+          id: sessionId,
+          planId,
+          overrides: { name: inferredName, date: now },
+          createdAt: now,
+        },
+        {
+          onSuccess: (session) => {
+            setIsNewSessionOpen(false);
+            setCreationError(null);
+            navigate(`/sessions/${session.id}`);
+          },
+          onError: (error) => {
+            setCreationError(
+              error instanceof Error
+                ? error.message
+                : "Failed to instantiate session from plan."
+            );
+          },
+        }
+      );
+      return;
+    }
 
     const payload: CreateSessionCmd = {
       id: uuidv4(),
@@ -103,7 +133,7 @@ export function SessionsPage() {
         isOpen={isNewSessionOpen}
         onClose={closeNewSessionModal}
         onCreate={handleCreateSession}
-        isLoading={createSession.isLoading}
+        isLoading={createSession.isLoading || instantiatePlan.isLoading}
         error={creationError}
       />
 
