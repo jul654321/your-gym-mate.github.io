@@ -65,17 +65,25 @@ export function SessionView() {
     );
   }
 
-  const { groupedExercises, session } = viewModel;
-  const loadingSets = viewModel.isLoadingSets;
-  const fetchingMoreSets = viewModel.isFetchingMoreSets;
+  const {
+    groupedExercises,
+    session,
+    actions,
+    isLoadingSets: loadingSets,
+    isFetchingMoreSets: fetchingMoreSets,
+    hasMoreSets,
+  } = viewModel;
+
   const handleAddSet = (exerciseId: string) => {
-    viewModel.actions.addSet(exerciseId);
+    actions.addSet(exerciseId);
   };
+
   const handleEditSet = (setId: string, set: LoggedSetDTO) => {
-    viewModel.actions.updateSet(setId, set);
+    actions.updateSet(setId, set);
   };
+
   const handleDeleteSet = (setId: string) => {
-    viewModel.actions.deleteSet(setId);
+    actions.deleteSet(setId);
   };
 
   return (
@@ -84,7 +92,7 @@ export function SessionView() {
         key={session?.id}
         session={session}
         isBusy={viewModel.isMutating}
-        onRename={viewModel.actions.renameSession}
+        onRename={actions.renameSession}
       />
       <div className="mx-auto mt-6 flex max-w-5xl flex-col gap-6 px-4">
         <LoggedSetsList
@@ -92,8 +100,8 @@ export function SessionView() {
           onAddSet={handleAddSet}
           onEditSet={handleEditSet}
           onDeleteSet={handleDeleteSet}
-          onLoadMore={viewModel.actions.loadMoreSets}
-          hasMore={viewModel.hasMoreSets}
+          onLoadMore={actions.loadMoreSets}
+          hasMore={hasMoreSets}
           isLoading={loadingSets}
           isFetchingMore={fetchingMoreSets}
         />

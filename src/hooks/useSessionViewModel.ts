@@ -7,7 +7,14 @@ import {
   useLoggedSets,
   useUpdateLoggedSet,
 } from "./useLoggedSets";
-import type { LoggedSetDTO, SessionDTO, SessionStatus, UUID } from "../types";
+import type {
+  LoggedSetDTO,
+  SessionDTO,
+  SessionStatus,
+  UUID,
+  CreateLoggedSetCmd,
+  WeightUnit,
+} from "../types";
 
 export interface GroupedExerciseVM {
   exerciseId: string;
@@ -50,6 +57,7 @@ function getDisplayName(
 }
 
 const PAGE_SIZE = 12;
+const DEFAULT_WEIGHT_UNIT: WeightUnit = "kg";
 
 export function useSessionViewModel(sessionId?: string): SessionViewModel {
   const sessionQuery = useSession(sessionId ?? "");
@@ -185,6 +193,13 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
   const isSessionMissing =
     !!sessionId && !sessionQuery.isLoading && sessionQuery.data == null;
 
+  const isMutating =
+    updateSession.isPending ||
+    deleteSession.isPending ||
+    createLoggedSet.isPending ||
+    updateLoggedSet.isPending ||
+    deleteLoggedSet.isPending;
+
   const hasMoreSets = currentBatch.length === PAGE_SIZE;
   const loadMoreSets = useCallback(() => {
     if (!hasMoreSets || loggedSetsQuery.isFetching) {
@@ -197,17 +212,20 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     (exerciseId: string) => {
       if (!sessionId) return;
 
-      createLoggedSet.mutate({
+      const now = Date.now();
+      const payload: CreateLoggedSetCmd = {
+        id: crypto.randomUUID() as UUID,
         sessionId,
         exerciseId,
         weight: 0,
-        reps: 0,
-        timestamp: Date.now(),
-        createdAt: Date.now(),
-        id: crypto.randomUUID() as UUID,
+        weightUnit: DEFAULT_WEIGHT_UNIT,
+        reps: 1,
+        timestamp: now,
+        createdAt: now,
         exerciseIds: [exerciseId],
-        setIndex: 0,
-      });
+      };
+
+      createLoggedSet.mutate(payload);
     },
     [sessionId, createLoggedSet]
   );
@@ -234,7 +252,7 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     totals,
     isLoading,
     isSessionMissing,
-    isMutating: updateSession.isPending || deleteSession.isPending,
+    isMutating,
     isLoadingSets: loggedSetsQuery.isLoading,
     isFetchingMoreSets:
       loggedSetsQuery.isFetching && !loggedSetsQuery.isLoading && page > 0,
