@@ -56,6 +56,88 @@ function getDisplayName(
   return exercisesById.get(exerciseId) ?? fallback ?? "Exercise";
 }
 
+export interface BuildGroupedExercisesOptions {
+  sets: LoggedSetDTO[];
+  exercisesById: Map<string, string>;
+  exerciseOrder?: string[];
+}
+
+export function buildGroupedExercises({
+  sets,
+  exercisesById,
+  exerciseOrder,
+}: BuildGroupedExercisesOptions): GroupedExerciseVM[] {
+  const groups = new Map<string, GroupedExerciseVM>();
+
+  for (const set of sets) {
+    const key = set.exerciseId;
+    const current = groups.get(key);
+    const exerciseName = getDisplayName(
+      key,
+      exercisesById,
+      set.exerciseNameSnapshot
+    );
+
+    if (current) {
+      current.sets.push(set);
+      continue;
+    }
+
+    groups.set(key, {
+      exerciseId: key,
+      exerciseName,
+      sets: [set],
+    });
+  }
+
+  const normalizeGroup = (group: GroupedExerciseVM): GroupedExerciseVM => ({
+    ...group,
+    sets: [...group.sets].sort((a, b) => {
+      const indexA = a.setIndex ?? a.timestamp ?? 0;
+      const indexB = b.setIndex ?? b.timestamp ?? 0;
+      return indexA - indexB;
+    }),
+  });
+
+  const ordered: GroupedExerciseVM[] = [];
+  const sessionOrder = exerciseOrder ?? [];
+  const seen = new Set<string>();
+
+  for (const exerciseId of sessionOrder) {
+    seen.add(exerciseId);
+    const group = groups.get(exerciseId);
+    if (group) {
+      ordered.push(normalizeGroup(group));
+    } else {
+      ordered.push({
+        exerciseId,
+        exerciseName: getDisplayName(exerciseId, exercisesById),
+        sets: [],
+      });
+    }
+  }
+
+  const remaining = Array.from(groups.keys()).filter((key) => !seen.has(key));
+  remaining.sort((a, b) => {
+    const aGroup = groups.get(a)!;
+    const bGroup = groups.get(b)!;
+    const aFirst = aGroup.sets[0];
+    const bFirst = bGroup.sets[0];
+    const aTime = aFirst?.timestamp ?? 0;
+    const bTime = bFirst?.timestamp ?? 0;
+    if (aTime !== bTime) {
+      return aTime - bTime;
+    }
+    return (aGroup.exerciseName ?? "").localeCompare(bGroup.exerciseName ?? "");
+  });
+
+  for (const key of remaining) {
+    ordered.push(normalizeGroup(groups.get(key)!));
+  }
+
+  return ordered;
+}
+
 const PAGE_SIZE = 12;
 const DEFAULT_WEIGHT_UNIT: WeightUnit = "kg";
 
@@ -108,42 +190,15 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     return map;
   }, [exercisesQuery.data]);
 
-  const groupedExercises = useMemo(() => {
-    const sets = accumulatedSets;
-    const groups = new Map<string, GroupedExerciseVM>();
-
-    for (const set of sets) {
-      const key = set.exerciseId;
-      const current = groups.get(key);
-      const exerciseName = getDisplayName(
-        key,
+  const groupedExercises = useMemo(
+    () =>
+      buildGroupedExercises({
+        sets: accumulatedSets,
         exercisesById,
-        set.exerciseNameSnapshot
-      );
-
-      if (current) {
-        current.sets.push(set);
-        continue;
-      }
-
-      groups.set(key, {
-        exerciseId: key,
-        exerciseName,
-        sets: [set],
-      });
-    }
-
-    const sortedGroups = Array.from(groups.values()).map((group) => ({
-      ...group,
-      sets: [...group.sets].sort((a, b) => {
-        const indexA = a.setIndex ?? a.timestamp ?? 0;
-        const indexB = b.setIndex ?? b.timestamp ?? 0;
-        return indexA - indexB;
+        exerciseOrder: sessionQuery.data?.exerciseOrder,
       }),
-    }));
-
-    return sortedGroups;
-  }, [accumulatedSets, exercisesById]);
+    [accumulatedSets, exercisesById, sessionQuery.data?.exerciseOrder]
+  );
 
   const totals = useMemo(() => {
     const sets = accumulatedSets;
