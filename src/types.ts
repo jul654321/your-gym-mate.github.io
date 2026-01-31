@@ -264,6 +264,15 @@ export type UpdateSettingCmd = {
   updatedAt?: EpochMs;
 };
 
+export interface ExerciseDefaultDTO {
+  weight: number;
+  reps: number;
+  weightUnit?: WeightUnit;
+  alternative?: AlternativeSnapshotDTO | null;
+}
+
+export type ExerciseDefaultsDTO = Record<UUID, ExerciseDefaultDTO>;
+
 // === Events ===
 // Mirrors `events` store schema
 export interface EventRecordDTO {

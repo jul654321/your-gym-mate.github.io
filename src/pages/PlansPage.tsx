@@ -43,12 +43,11 @@ export function PlansPage() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="flex flex-col gap-6 container mx-auto px-4 py-6">
         <Button
-          className="w-full mb-6"
+          className="w-full "
           onClick={handleCreateClick}
           disabled={!isInitialized}
-          size="lg"
         >
           Create New Plan
         </Button>

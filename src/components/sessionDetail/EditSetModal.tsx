@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useState,
   type MouseEvent,
@@ -12,9 +13,18 @@ import {
   useDbInit,
   useDeleteLoggedSet,
   useExercises,
+  useLoggedSets,
+  useGetSetting,
   useUpdateLoggedSet,
+  useUpdateSetting,
 } from "../../hooks";
-import type { LoggedSetDTO, UpdateLoggedSetCmd, WeightUnit } from "../../types";
+import type {
+  ExerciseDefaultDTO,
+  ExerciseDefaultsDTO,
+  LoggedSetDTO,
+  UpdateLoggedSetCmd,
+  WeightUnit,
+} from "../../types";
 
 const WEIGHT_UNITS: WeightUnit[] = ["kg", "lb"];
 
@@ -32,6 +42,8 @@ interface EditSetFormState {
   alternativeExerciseId: string;
   alternativeWeight: string;
   alternativeReps: string;
+  applyToSession: boolean;
+  persistAsDefault: boolean;
 }
 
 function buildFormState(set: LoggedSetDTO): EditSetFormState {
@@ -46,6 +58,8 @@ function buildFormState(set: LoggedSetDTO): EditSetFormState {
       set.alternative?.weight != null ? String(set.alternative.weight) : "",
     alternativeReps:
       set.alternative?.reps != null ? String(set.alternative.reps) : "",
+    applyToSession: false,
+    persistAsDefault: false,
   };
 }
 
@@ -56,6 +70,16 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
   });
   const updateMutation = useUpdateLoggedSet();
   const deleteMutation = useDeleteLoggedSet();
+  const updateSettingMutation = useUpdateSetting();
+  const { data: exerciseDefaults } = useGetSetting<ExerciseDefaultsDTO>(
+    "exerciseDefaults",
+    { enabled: ready }
+  );
+  const { data: sessionSets = [] } = useLoggedSets({
+    sessionId: set.sessionId,
+  });
+  const applyCheckboxId = useId();
+  const persistCheckboxId = useId();
 
   const initialFormState = useMemo(() => buildFormState(set), [set]);
   const [formState, setFormState] = useState(initialFormState);
@@ -64,6 +88,13 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
   useEffect(() => {
     setFormState(initialFormState);
   }, [initialFormState]);
+
+  const otherSetsForExercise = useMemo(() => {
+    return sessionSets.filter(
+      (loggedSet) =>
+        loggedSet.exerciseId === formState.exerciseId && loggedSet.id !== set.id
+    );
+  }, [sessionSets, formState.exerciseId, set.id]);
 
   const exerciseOptions = useMemo(() => {
     const map = new Map<string, string>();
@@ -102,6 +133,15 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
   const mainRepsValue = parseInt(formState.reps, 10);
   const altWeightValue = parseFloat(formState.alternativeWeight);
   const altRepsValue = parseInt(formState.alternativeReps, 10);
+  const alternativePayload =
+    formState.alternativeEnabled && formState.alternativeExerciseId
+      ? {
+          exerciseId: formState.alternativeExerciseId,
+          nameSnapshot: altExerciseLabel,
+          weight: altWeightValue,
+          reps: altRepsValue,
+        }
+      : null;
 
   const isMainValid =
     !!formState.exerciseId &&
@@ -119,7 +159,10 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
       altRepsValue >= 1);
 
   const canSave = ready && isMainValid && isAltValid;
-  const isBusy = updateMutation.isLoading || deleteMutation.isLoading;
+  const isBusy =
+    updateMutation.isLoading ||
+    deleteMutation.isLoading ||
+    updateSettingMutation.isLoading;
 
   const hasUnsavedChanges = useMemo(() => {
     return JSON.stringify(formState) !== JSON.stringify(initialFormState);
@@ -159,7 +202,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     };
   }, [handleAttemptClose]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!canSave) {
       return;
     }
@@ -171,21 +214,49 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
       weightUnit: formState.weightUnit,
       reps: mainRepsValue,
       exerciseNameSnapshot: mainExerciseLabel,
-      alternative: formState.alternativeEnabled
-        ? {
-            exerciseId: formState.alternativeExerciseId,
-            nameSnapshot: altExerciseLabel,
-            weight: altWeightValue,
-            reps: altRepsValue,
-          }
-        : null,
+      alternative: alternativePayload,
     };
 
-    updateMutation.mutate(payload, {
-      onSuccess: () => {
-        onClose();
-      },
-    });
+    try {
+      await updateMutation.mutateAsync(payload);
+
+      if (formState.applyToSession && otherSetsForExercise.length > 0) {
+        await Promise.all(
+          otherSetsForExercise.map((loggedSet) =>
+            updateMutation.mutateAsync({
+              id: loggedSet.id,
+              exerciseId: formState.exerciseId,
+              weight: mainWeightValue,
+              weightUnit: formState.weightUnit,
+              reps: mainRepsValue,
+              exerciseNameSnapshot: mainExerciseLabel,
+              alternative: alternativePayload,
+            })
+          )
+        );
+      }
+
+      if (formState.persistAsDefault) {
+        const defaultsForExercise: ExerciseDefaultDTO = {
+          weight: mainWeightValue,
+          reps: mainRepsValue,
+          weightUnit: formState.weightUnit,
+          alternative: alternativePayload,
+        };
+
+        await updateSettingMutation.mutateAsync({
+          key: "exerciseDefaults",
+          value: {
+            ...(exerciseDefaults ?? {}),
+            [formState.exerciseId]: defaultsForExercise,
+          },
+        });
+      }
+
+      onClose();
+    } catch (error) {
+      console.error("Failed to save set", error);
+    }
   };
 
   const handleDelete = () => {
@@ -435,6 +506,65 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+
+        <div className="border-t border-b border-slate-200 bg-white">
+          <div className="px-6 py-4 space-y-3">
+            <label
+              htmlFor={applyCheckboxId}
+              className="flex cursor-pointer items-start gap-3 text-sm font-medium text-slate-900"
+            >
+              <input
+                id={applyCheckboxId}
+                type="checkbox"
+                className="mt-1 h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary"
+                checked={formState.applyToSession}
+                onChange={(event) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    applyToSession: event.target.checked,
+                  }))
+                }
+                disabled={!ready || isBusy}
+              />
+              <div>
+                <span className="block font-semibold">
+                  Apply to all sets for this exercise in this session
+                </span>
+                <p className="text-xs font-normal text-slate-500">
+                  Updates every logged set with the new weight/reps when you
+                  save.
+                </p>
+              </div>
+            </label>
+
+            {/* <label
+              htmlFor={persistCheckboxId}
+              className="flex cursor-pointer items-start gap-3 text-sm font-medium text-slate-900"
+            >
+              <input
+                id={persistCheckboxId}
+                type="checkbox"
+                className="mt-1 h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary"
+                checked={formState.persistAsDefault}
+                onChange={(event) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    persistAsDefault: event.target.checked,
+                  }))
+                }
+                disabled={!ready || isBusy}
+              />
+              <div>
+                <span className="block font-semibold">
+                  Save as default for future sessions
+                </span>
+                <p className="text-xs font-normal text-slate-500">
+                  Stores this exercise&apos;s volume so new sessions can pre-fill it.
+                </p>
+              </div>
+            </label> */}
           </div>
         </div>
 

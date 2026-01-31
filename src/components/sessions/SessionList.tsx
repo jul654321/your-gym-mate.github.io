@@ -70,10 +70,7 @@ export function SessionList({
   const hasMore = visibleCount < filteredSessions.length;
 
   return (
-    <section
-      aria-live="polite"
-      className="rounded-3xl border border-slate-100 bg-white/80 p-4 shadow-lg"
-    >
+    <section aria-live="polite">
       <h2 className="text-lg font-semibold text-slate-900">
         Sessions ({filteredSessions.length})
       </h2>
