@@ -3,6 +3,7 @@ import {
   useEffect,
   useId,
   useMemo,
+  useRef,
   useState,
   type MouseEvent,
 } from "react";
@@ -10,6 +11,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ConfirmDeleteModal } from "../shared/ConfirmDeleteModal";
 import {
+  useBulkUpdateLoggedSets,
   useDbInit,
   useDeleteLoggedSet,
   useExercises,
@@ -42,6 +44,7 @@ interface EditSetFormState {
   alternativeExerciseId: string;
   alternativeWeight: string;
   alternativeReps: string;
+  switchToAlternative: boolean;
   applyToSession: boolean;
   persistAsDefault: boolean;
 }
@@ -58,6 +61,7 @@ function buildFormState(set: LoggedSetDTO): EditSetFormState {
       set.alternative?.weight != null ? String(set.alternative.weight) : "",
     alternativeReps:
       set.alternative?.reps != null ? String(set.alternative.reps) : "",
+    switchToAlternative: false,
     applyToSession: false,
     persistAsDefault: false,
   };
@@ -69,6 +73,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     sort: "name",
   });
   const updateMutation = useUpdateLoggedSet();
+  const bulkUpdateMutation = useBulkUpdateLoggedSets();
   const deleteMutation = useDeleteLoggedSet();
   const updateSettingMutation = useUpdateSetting();
   const { data: exerciseDefaults } = useGetSetting<ExerciseDefaultsDTO>(
@@ -84,17 +89,41 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
   const initialFormState = useMemo(() => buildFormState(set), [set]);
   const [formState, setFormState] = useState(initialFormState);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const primaryBackupRef = useRef({
+    exerciseId: initialFormState.exerciseId,
+    weight: initialFormState.weight,
+    reps: initialFormState.reps,
+  });
+  const alternativeBackupRef = useRef({
+    exerciseId: initialFormState.alternativeExerciseId,
+    weight: initialFormState.alternativeWeight,
+    reps: initialFormState.alternativeReps,
+    enabled: initialFormState.alternativeEnabled,
+  });
 
   useEffect(() => {
+    primaryBackupRef.current = {
+      exerciseId: initialFormState.exerciseId,
+      weight: initialFormState.weight,
+      reps: initialFormState.reps,
+    };
+    alternativeBackupRef.current = {
+      exerciseId: initialFormState.alternativeExerciseId,
+      weight: initialFormState.alternativeWeight,
+      reps: initialFormState.alternativeReps,
+      enabled: initialFormState.alternativeEnabled,
+    };
     setFormState(initialFormState);
   }, [initialFormState]);
+
+  const originalExerciseId = useMemo(() => set.exerciseId, [set.exerciseId]);
 
   const otherSetsForExercise = useMemo(() => {
     return sessionSets.filter(
       (loggedSet) =>
-        loggedSet.exerciseId === formState.exerciseId && loggedSet.id !== set.id
+        loggedSet.exerciseId === originalExerciseId && loggedSet.id !== set.id
     );
-  }, [sessionSets, formState.exerciseId, set.id]);
+  }, [sessionSets, originalExerciseId, set.id]);
 
   const exerciseOptions = useMemo(() => {
     const map = new Map<string, string>();
@@ -118,6 +147,11 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
       exerciseOptions.map((option) => [option.value, option.label])
     );
   }, [exerciseOptions]);
+
+  const originalExerciseLabel =
+    labelLookup.get(originalExerciseId) ??
+    set.exerciseNameSnapshot ??
+    "Exercise";
 
   const altExerciseLabel =
     labelLookup.get(formState.alternativeExerciseId) ??
@@ -161,8 +195,19 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
   const canSave = ready && isMainValid && isAltValid;
   const isBusy =
     updateMutation.isLoading ||
+    bulkUpdateMutation.isLoading ||
     deleteMutation.isLoading ||
     updateSettingMutation.isLoading;
+  const switchDisabled =
+    !ready ||
+    isBusy ||
+    !formState.alternativeEnabled ||
+    !formState.alternativeExerciseId;
+  const switchHelperText = formState.switchToAlternative
+    ? "You're now editing the alternative exercise."
+    : formState.alternativeExerciseId
+    ? "Toggle to edit the alternative exercise instead."
+    : "Add an alternative exercise to enable this switch.";
 
   const hasUnsavedChanges = useMemo(() => {
     return JSON.stringify(formState) !== JSON.stringify(initialFormState);
@@ -202,9 +247,69 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     };
   }, [handleAttemptClose]);
 
+  const handleSwitchToggle = useCallback(() => {
+    setFormState((prev) => {
+      if (prev.switchToAlternative) {
+        return {
+          ...prev,
+          switchToAlternative: false,
+          exerciseId: primaryBackupRef.current.exerciseId,
+          weight: primaryBackupRef.current.weight,
+          reps: primaryBackupRef.current.reps,
+          alternativeExerciseId: alternativeBackupRef.current.exerciseId,
+          alternativeWeight: alternativeBackupRef.current.weight,
+          alternativeReps: alternativeBackupRef.current.reps,
+          alternativeEnabled: alternativeBackupRef.current.enabled,
+        };
+      }
+
+      if (!prev.alternativeExerciseId) {
+        return prev;
+      }
+
+      primaryBackupRef.current = {
+        exerciseId: prev.exerciseId,
+        weight: prev.weight,
+        reps: prev.reps,
+      };
+      alternativeBackupRef.current = {
+        exerciseId: prev.alternativeExerciseId,
+        weight: prev.alternativeWeight,
+        reps: prev.alternativeReps,
+        enabled: prev.alternativeEnabled,
+      };
+
+      return {
+        ...prev,
+        switchToAlternative: true,
+        alternativeEnabled: true,
+        exerciseId: prev.alternativeExerciseId,
+        weight: prev.alternativeWeight,
+        reps: prev.alternativeReps,
+        alternativeExerciseId: prev.exerciseId,
+        alternativeWeight: prev.weight,
+        alternativeReps: prev.reps,
+      };
+    });
+  }, []);
+
   const handleSave = async () => {
     if (!canSave) {
       return;
+    }
+
+    const shouldConfirmBulkSwitch =
+      formState.applyToSession &&
+      formState.switchToAlternative &&
+      otherSetsForExercise.length > 0;
+
+    if (shouldConfirmBulkSwitch) {
+      const confirmed = window.confirm(
+        `Switching every ${originalExerciseLabel} set to ${mainExerciseLabel} will update this entire session. Continue?`
+      );
+      if (!confirmed) {
+        return;
+      }
     }
 
     const payload: UpdateLoggedSetCmd = {
@@ -221,19 +326,23 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
       await updateMutation.mutateAsync(payload);
 
       if (formState.applyToSession && otherSetsForExercise.length > 0) {
-        await Promise.all(
-          otherSetsForExercise.map((loggedSet) =>
-            updateMutation.mutateAsync({
-              id: loggedSet.id,
-              exerciseId: formState.exerciseId,
-              weight: mainWeightValue,
-              weightUnit: formState.weightUnit,
-              reps: mainRepsValue,
-              exerciseNameSnapshot: mainExerciseLabel,
-              alternative: alternativePayload,
-            })
-          )
-        );
+        const targetExerciseIdForOthers = formState.switchToAlternative
+          ? formState.exerciseId
+          : originalExerciseId;
+
+        const commands = otherSetsForExercise.map((loggedSet) => ({
+          id: loggedSet.id,
+          exerciseId: targetExerciseIdForOthers,
+          weight: mainWeightValue,
+          weightUnit: formState.weightUnit,
+          reps: mainRepsValue,
+          exerciseNameSnapshot: mainExerciseLabel,
+          alternative: alternativePayload,
+        }));
+
+        if (commands.length > 0) {
+          await bulkUpdateMutation.mutateAsync(commands);
+        }
       }
 
       if (formState.persistAsDefault) {
@@ -291,13 +400,32 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     >
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200">
-          <h2
-            id="plan-editor-title"
-            className="text-2xl font-bold text-gray-900"
-          >
-            Edit Set
-          </h2>
+        <div className="flex items-start justify-between px-6 py-3 border-b border-gray-200">
+          <div className="space-y-1">
+            <h2
+              id="plan-editor-title"
+              className="text-2xl font-bold text-gray-900"
+            >
+              Edit Set
+            </h2>
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+              <input
+                type="checkbox"
+                checked={formState.switchToAlternative}
+                onChange={handleSwitchToggle}
+                disabled={switchDisabled}
+                className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary disabled:cursor-not-allowed disabled:border-slate-200"
+                aria-label="Switch to the alternative exercise"
+                title={
+                  !formState.alternativeExerciseId
+                    ? "Add an alternative exercise to enable this switch."
+                    : undefined
+                }
+              />
+              <span>Switch to alternative</span>
+            </label>
+            <p className="text-xs text-slate-500">{switchHelperText}</p>
+          </div>
           <Button
             variant="ghost"
             size="icon"

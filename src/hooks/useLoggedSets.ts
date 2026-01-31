@@ -231,6 +231,58 @@ export function useUpdateLoggedSet() {
 }
 
 /**
+ * Updates multiple logged sets in a single transaction.
+ */
+export function useBulkUpdateLoggedSets() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (cmds: UpdateLoggedSetCmd[]) => {
+      if (cmds.length === 0) {
+        return [];
+      }
+
+      const db = await getDB();
+      const tx = db.transaction(STORE_NAMES.loggedSets, "readwrite");
+      const store = tx.objectStore(STORE_NAMES.loggedSets);
+      const updatedSets: LoggedSetDTO[] = [];
+
+      for (const cmd of cmds) {
+        const existing = await store.get(cmd.id);
+        if (!existing) {
+          throw new Error(`Logged set ${cmd.id} not found`);
+        }
+
+        const updated: LoggedSetDTO = {
+          ...existing,
+          ...cmd,
+          updatedAt: Date.now(),
+          exerciseIds:
+            cmd.alternative !== undefined
+              ? [
+                  cmd.exerciseId ?? existing.exerciseId,
+                  ...(cmd.alternative ? [cmd.alternative.exerciseId] : []),
+                ]
+              : existing.exerciseIds,
+        };
+
+        await store.put(updated);
+        updatedSets.push(updated);
+      }
+
+      await tx.done;
+      return updatedSets;
+    },
+    onSuccess: (_updated, commands: UpdateLoggedSetCmd[]) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      for (const cmd of commands) {
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEY, cmd.id] });
+      }
+    },
+  });
+}
+
+/**
  * Deletes a logged set
  */
 export function useDeleteLoggedSet() {
