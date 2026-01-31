@@ -15,6 +15,7 @@ import {
 import { PlanExercisesList } from "./PlanExercisesList";
 import type { PlanDTO, CreatePlanCmd, UpdatePlanCmd } from "../../types";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 interface PlanEditorProps {
   planId?: string;
@@ -26,7 +27,6 @@ interface PlanEditorProps {
 export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
   const navigate = useNavigate();
   const modalRef = useRef<HTMLDivElement>(null);
-  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const [errors, setErrors] = useState<PlanFormErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -65,11 +65,6 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
       });
     }
   }, [existingPlan, setForm]);
-
-  // Focus on name input when opened
-  useEffect(() => {
-    nameInputRef.current?.focus();
-  }, []);
 
   // Disallow page scroll while modal is open
   useEffect(() => {
@@ -270,8 +265,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
             >
               Plan Name <span className="text-red-600">*</span>
             </label>
-            <input
-              ref={nameInputRef}
+            <Input
               id="plan-name"
               type="text"
               value={form.name}
