@@ -88,23 +88,26 @@ export function PlanExerciseRow({
   };
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
+    <div className="flex flex-col bg-gray-50 border border-gray-200 rounded-lg p-4 gap-4">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <button
-            type="button"
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-4 h-4 max-w-4 max-h-4"
             id={toggleId}
             aria-expanded={isExpanded}
             aria-controls={detailsId}
             onClick={() => setIsExpanded((prev) => !prev)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
           >
             <span className="sr-only">
               {isExpanded ? "Collapse" : "Expand"} exercise details for{" "}
               {exerciseLabel}
             </span>
             <svg
-              className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-90" : ""}`}
+              className={`h-4 w-4 transition-transform ${
+                isExpanded ? "rotate-90" : ""
+              }`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -116,7 +119,7 @@ export function PlanExerciseRow({
                 d="M9 5l7 7-7 7"
               />
             </svg>
-          </button>
+          </Button>
           <div>
             <p className="text-sm font-medium text-gray-600">
               Exercise {index + 1}
@@ -295,7 +298,9 @@ export function PlanExerciseRow({
               hasError={Boolean(errors?.defaultWeight)}
             />
             {errors?.defaultWeight && (
-              <p className="mt-1 text-xs text-red-600">{errors.defaultWeight}</p>
+              <p className="mt-1 text-xs text-red-600">
+                {errors.defaultWeight}
+              </p>
             )}
           </div>
         </div>
@@ -334,7 +339,9 @@ export function PlanExerciseRow({
                   value={value.alternativeDefaults?.sets ?? ""}
                   onChange={(e) =>
                     updateAlternativeDefaults({
-                      sets: e.target.value ? parseInt(e.target.value) : undefined,
+                      sets: e.target.value
+                        ? parseInt(e.target.value)
+                        : undefined,
                     })
                   }
                   placeholder="e.g. 3"
@@ -361,7 +368,9 @@ export function PlanExerciseRow({
                   value={value.alternativeDefaults?.reps ?? ""}
                   onChange={(e) =>
                     updateAlternativeDefaults({
-                      reps: e.target.value ? parseInt(e.target.value) : undefined,
+                      reps: e.target.value
+                        ? parseInt(e.target.value)
+                        : undefined,
                     })
                   }
                   placeholder="e.g. 10"
