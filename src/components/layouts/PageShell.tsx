@@ -9,7 +9,6 @@ export interface PageShellProps {
 
 export function PageShell({ children }: PageShellProps) {
   const { tabs, navigateTo, openQuickLogModal, navState } = useNavigation();
-  console.log("test");
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 text-gray-900">
