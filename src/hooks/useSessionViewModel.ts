@@ -157,14 +157,7 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
   const currentBatch = loggedSetsQuery.data ?? [];
 
   useEffect(() => {
-    setAccumulatedSets((prev) => {
-      const existingIds = new Set(prev.map((set) => set.id));
-      const newSets = currentBatch.filter((set) => !existingIds.has(set.id));
-      if (newSets.length === 0) {
-        return prev;
-      }
-      return [...prev, ...newSets];
-    });
+    setAccumulatedSets(currentBatch);
   }, [currentBatch]);
 
   const exercisesById = useMemo(() => {
