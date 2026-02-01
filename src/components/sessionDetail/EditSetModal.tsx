@@ -196,10 +196,10 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
 
   const canSave = ready && isMainValid && isAltValid;
   const isBusy =
-    updateMutation.isLoading ||
-    bulkUpdateMutation.isLoading ||
-    deleteMutation.isLoading ||
-    updateSettingMutation.isLoading;
+    updateMutation.isPending ||
+    bulkUpdateMutation.isPending ||
+    deleteMutation.isPending ||
+    updateSettingMutation.isPending;
   const switchDisabled =
     !ready ||
     isBusy ||
