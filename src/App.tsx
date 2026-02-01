@@ -69,7 +69,7 @@ function App() {
   }
 
   return (
-    <Router>
+    <Router basename="/your-gym-mate.github.io">
       {/* Update notification banner */}
       {showUpdateBanner && <UpdateAvailableBanner />}
 
