@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { InstantiateFromPlanSheet } from "../components/sessions/InstantiateFromPlanSheet";
 import { NewSessionModal } from "../components/sessions/NewSessionModal";
@@ -11,7 +11,12 @@ import { useCreateSession } from "../hooks/useSessions";
 import { inferSessionName } from "../lib/utils/sessionName";
 import type { CreateSessionCmd } from "../types";
 
+export type SessionsPageLocationState = {
+  openNewSession?: boolean;
+} & Record<string, unknown>;
+
 export function SessionsPage() {
+  const location = useLocation();
   const { ready, upgrading } = useDbInit();
   const [isNewSessionOpen, setIsNewSessionOpen] = useState(false);
   const [isPlanSheetOpen, setIsPlanSheetOpen] = useState(false);
@@ -19,6 +24,24 @@ export function SessionsPage() {
   const navigate = useNavigate();
   const createSession = useCreateSession();
   const disableActions = !ready || upgrading;
+
+  useEffect(() => {
+    const state = location.state as SessionsPageLocationState | null;
+    if (!state?.openNewSession) {
+      return;
+    }
+
+    setIsNewSessionOpen(true);
+    const nextState = { ...state };
+    delete nextState.openNewSession;
+    const cleanedState: SessionsPageLocationState | null =
+      Object.keys(nextState).length === 0 ? null : nextState;
+
+    navigate(location.pathname, {
+      replace: true,
+      state: cleanedState,
+    });
+  }, [location.pathname, location.state, navigate]);
 
   const instantiatePlan = useInstantiateSessionFromPlan();
 

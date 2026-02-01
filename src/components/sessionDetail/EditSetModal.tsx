@@ -10,6 +10,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ConfirmDeleteModal } from "../shared/ConfirmDeleteModal";
+import { ConfirmModal } from "../shared/ConfirmModal";
 import {
   useBulkUpdateLoggedSets,
   useDbInit,
@@ -89,6 +90,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
   const initialFormState = useMemo(() => buildFormState(set), [set]);
   const [formState, setFormState] = useState(initialFormState);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showUnsavedConfirm, setShowUnsavedConfirm] = useState(false);
   const primaryBackupRef = useRef({
     exerciseId: initialFormState.exerciseId,
     weight: initialFormState.weight,
@@ -213,21 +215,21 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     return JSON.stringify(formState) !== JSON.stringify(initialFormState);
   }, [formState, initialFormState]);
 
+  const closeModal = useCallback(() => {
+    setShowDeleteConfirm(false);
+    onClose();
+  }, [onClose]);
+
   const handleAttemptClose = useCallback(() => {
     if (isBusy) {
       return;
     }
     if (hasUnsavedChanges) {
-      const confirmed = window.confirm(
-        "Discard your changes? Unsaved progress will be lost."
-      );
-      if (!confirmed) {
-        return;
-      }
+      setShowUnsavedConfirm(true);
+      return;
     }
-    setShowDeleteConfirm(false);
-    onClose();
-  }, [hasUnsavedChanges, isBusy, onClose]);
+    closeModal();
+  }, [hasUnsavedChanges, isBusy, closeModal]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -390,6 +392,15 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     }
   };
 
+  const handleUnsavedConfirm = useCallback(() => {
+    setShowUnsavedConfirm(false);
+    closeModal();
+  }, [closeModal]);
+
+  const handleUnsavedCancel = useCallback(() => {
+    setShowUnsavedConfirm(false);
+  }, []);
+
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-current/80 p-4"
@@ -429,7 +440,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={onClose}
+            onClick={handleAttemptClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
             aria-label="Close"
           >
@@ -666,40 +677,13 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
                 </p>
               </div>
             </label>
-
-            {/* <label
-              htmlFor={persistCheckboxId}
-              className="flex cursor-pointer items-start gap-3 text-sm font-medium text-slate-900"
-            >
-              <input
-                id={persistCheckboxId}
-                type="checkbox"
-                className="mt-1 h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary"
-                checked={formState.persistAsDefault}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    persistAsDefault: event.target.checked,
-                  }))
-                }
-                disabled={!ready || isBusy}
-              />
-              <div>
-                <span className="block font-semibold">
-                  Save as default for future sessions
-                </span>
-                <p className="text-xs font-normal text-slate-500">
-                  Stores this exercise&apos;s volume so new sessions can pre-fill it.
-                </p>
-              </div>
-            </label> */}
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
           <Button
-            onClick={onClose}
+            onClick={handleAttemptClose}
             disabled={isBusy}
             variant="secondary"
             className="!border-gray-300 text-gray-700 hover:bg-gray-50 disabled:current/80 disabled:cursor-not-allowed transition-colors"
@@ -723,6 +707,16 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
           onConfirm={handleDeleteConfirm}
           onCancel={() => setShowDeleteConfirm(false)}
           isDeleting={deleteMutation.isPending}
+        />
+      )}
+      {showUnsavedConfirm && (
+        <ConfirmModal
+          title="Discard changes?"
+          description="Discard your changes? Unsaved progress will be lost."
+          confirmLabel="Discard"
+          cancelLabel="Keep editing"
+          onConfirm={handleUnsavedConfirm}
+          onCancel={handleUnsavedCancel}
         />
       )}
     </div>

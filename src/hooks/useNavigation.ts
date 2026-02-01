@@ -68,8 +68,6 @@ export interface UseNavigationResult {
   activeTab: TabId;
   navState: NavState;
   navigateTo: (tabId: TabId) => void;
-  openQuickLog: boolean;
-  setOpenQuickLog: Dispatch<SetStateAction<boolean>>;
   openQuickLogModal: () => void;
   updateAvailable: boolean;
   setUpdateAvailable: Dispatch<SetStateAction<boolean>>;
@@ -80,7 +78,6 @@ export function useNavigation(): UseNavigationResult {
   const location = useLocation();
   const { isInitialized, isLoading } = useDbInit();
   const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [openQuickLog, setOpenQuickLog] = useState(false);
 
   const dbReady = isInitialized && !isLoading;
   const upgrading = false; // placeholder until migration tracking exists
@@ -107,8 +104,17 @@ export function useNavigation(): UseNavigationResult {
       console.info("[useNavigation] Quick Log disabled until DB ready");
       return;
     }
-    setOpenQuickLog(true);
-  }, [dbReady, upgrading]);
+
+    const sessionsTab = TAB_DEFINITIONS.find((tab) => tab.id === "sessions");
+    if (!sessionsTab) {
+      console.warn("[useNavigation] Sessions tab definition missing");
+      return;
+    }
+
+    navigate(sessionsTab.path, {
+      state: { openNewSession: true },
+    });
+  }, [dbReady, navigate, upgrading]);
 
   const navigateTo = useCallback(
     (tabId: TabId) => {
@@ -146,10 +152,9 @@ export function useNavigation(): UseNavigationResult {
     activeTab,
     navState,
     navigateTo,
-    openQuickLog,
-    setOpenQuickLog,
     openQuickLogModal,
     updateAvailable,
     setUpdateAvailable,
   };
 }
+
