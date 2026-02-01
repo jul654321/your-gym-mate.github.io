@@ -489,8 +489,8 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
               </label>
               <Input
                 type="number"
-                min="0"
-                step="0.5"
+                min={0}
+                step={0.5}
                 value={formState.weight}
                 onChange={(event) =>
                   setFormState((prev) => ({
@@ -499,7 +499,6 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
                   }))
                 }
                 disabled={!ready}
-                inputMode="decimal"
               />
             </div>
             <div>
