@@ -16,7 +16,6 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
   const updateSession = useUpdateSession();
   const deleteSession = useDeleteSession();
 
-  const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const formattedDate = useMemo(() => {
@@ -73,7 +72,10 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => setIsEditing(true)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleNavigate();
+                }}
                 disabled={disabled || updateSession.isPending}
               >
                 <Pencil className="h-4 w-4" aria-hidden />

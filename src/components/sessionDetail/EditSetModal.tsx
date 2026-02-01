@@ -85,7 +85,6 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     sessionId: set.sessionId,
   });
   const applyCheckboxId = useId();
-  const persistCheckboxId = useId();
 
   const initialFormState = useMemo(() => buildFormState(set), [set]);
   const [formState, setFormState] = useState(initialFormState);
@@ -368,10 +367,6 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     } catch (error) {
       console.error("Failed to save set", error);
     }
-  };
-
-  const handleDelete = () => {
-    setShowDeleteConfirm(true);
   };
 
   const handleDeleteConfirm = () => {

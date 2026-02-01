@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import {
   usePlan,
@@ -9,7 +8,6 @@ import {
 } from "../../hooks/usePlans";
 import {
   usePlanFormReducer,
-  validatePlanForm,
   type PlanFormErrors,
 } from "../../hooks/usePlanFormReducer";
 import { PlanExercisesList } from "./PlanExercisesList";
@@ -25,7 +23,6 @@ interface PlanEditorProps {
 }
 
 export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
-  const navigate = useNavigate();
   const modalRef = useRef<HTMLDivElement>(null);
 
   const [errors, setErrors] = useState<PlanFormErrors>({});
@@ -149,39 +146,6 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
       console.error("Failed to save plan:", error);
       setSaveError(
         error instanceof Error ? error.message : "Failed to save plan"
-      );
-    }
-  };
-
-  const handleInstantiate = async () => {
-    // Validate form first
-    const validationErrors = validate();
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length > 0) {
-      setSaveError("Please fix the errors above before starting a workout");
-      return;
-    }
-
-    // Save first if not already saved
-    if (!planId) {
-      setSaveError("Please save the plan before starting a workout");
-      return;
-    }
-
-    try {
-      const sessionId = uuidv4();
-      const result = await instantiateMutation.mutateAsync({
-        id: sessionId,
-        planId: planId,
-        createdAt: Date.now(),
-      });
-
-      navigate(`/sessions/${result.id}`);
-    } catch (error) {
-      console.error("Failed to instantiate session:", error);
-      setSaveError(
-        error instanceof Error ? error.message : "Failed to start workout"
       );
     }
   };

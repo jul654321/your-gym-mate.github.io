@@ -9,12 +9,10 @@ import type { PlansQueryParams } from "../types";
 
 export function PlansPage() {
   const { isInitialized } = useDbInit();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingPlanId, setEditingPlanId] = useState<string | undefined>();
 
   const queryParams: PlansQueryParams = {
-    q: searchQuery || undefined,
     sort: "createdAt",
   };
 
@@ -88,19 +86,15 @@ export function PlansPage() {
               No plans yet
             </h2>
             <p className="text-gray-600 mb-6">
-              {searchQuery
-                ? "No plans match your search"
-                : "Create your first workout plan to get started"}
+              Create your first workout plan to get started
             </p>
-            {!searchQuery && (
-              <Button
-                onClick={handleCreateClick}
-                disabled={!isInitialized}
-                size="lg"
-              >
-                Create Your First Plan
-              </Button>
-            )}
+            <Button
+              onClick={handleCreateClick}
+              disabled={!isInitialized}
+              size="lg"
+            >
+              Create Your First Plan
+            </Button>
           </div>
         )}
       </main>

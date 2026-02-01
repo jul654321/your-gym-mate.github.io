@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { useDbInit } from "./hooks/useDbInit";
 import { UpdateAvailableBanner } from "./components/UpdateAvailableBanner";
@@ -77,35 +77,10 @@ function App() {
         <Routes>
           <Route path="/sessions" element={<SessionsPage />} />
           <Route path="/" element={<PlansPage />} />
-          {/* <Route path="/" element={<HomePage />} /> */}
           <Route path="/sessions/:sessionId" element={<SessionView />} />
         </Routes>
       </PageShell>
     </Router>
-  );
-}
-
-// Home page component
-function HomePage() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-primary text-white shadow-lg">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold">Your Gym Mate</h1>
-          <p className="text-teal-100 mt-1">Your personal workout companion</p>
-        </div>{" "}
-        <Link
-          to="/plans"
-          className="inline-block px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary transition-colors"
-        >
-          View Workout Plans →
-        </Link>
-      </header>
-
-      <footer className="container mx-auto px-4 py-6 text-center text-gray-600 text-sm">
-        <p>Built with React + TypeScript + IndexedDB</p>
-      </footer>
-    </div>
   );
 }
 

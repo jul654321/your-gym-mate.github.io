@@ -20,7 +20,6 @@ interface PlanRowProps {
 export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
 
   const instantiateMutation = useInstantiateSessionFromPlan();
   const deleteMutation = useDeletePlan();
@@ -86,7 +85,6 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
                 </Button>
                 <Button
                   onClick={() => {
-                    setShowMenu(false);
                     onEdit(plan.id);
                   }}
                   variant="ghost"
@@ -96,7 +94,6 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
                 </Button>
                 <Button
                   onClick={() => {
-                    setShowMenu(false);
                     setShowDeleteModal(true);
                   }}
                   variant="ghost"

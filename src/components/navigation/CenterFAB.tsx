@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Play, Plus } from "lucide-react";
+import { Play } from "lucide-react";
 
 export interface CenterFABProps {
   onOpen: () => void;
