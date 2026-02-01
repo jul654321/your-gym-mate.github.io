@@ -4,7 +4,7 @@
 
 const CACHE_NAME = "gymmate-static-v1";
 const RUNTIME_CACHE = "gymmate-runtime-v1";
-const BASE_PATH = "/your-gym-mate/";
+const BASE_PATH = "/your-gym-mate.github.io/";
 
 // Static assets to precache - will be updated by build process
 const ASSETS = [
@@ -104,7 +104,11 @@ self.addEventListener("fetch", (event) => {
       return fetch(request)
         .then((response) => {
           // Don't cache non-successful responses
-          if (!response || response.status !== 200 || response.type === "error") {
+          if (
+            !response ||
+            response.status !== 200 ||
+            response.type === "error"
+          ) {
             return response;
           }
 

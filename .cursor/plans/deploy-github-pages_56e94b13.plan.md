@@ -3,7 +3,7 @@ name: deploy-github-pages
 overview: Deploy this Vite + React + TypeScript app to GitHub Pages (project site) using a GitHub Actions workflow. The plan covers required code/config changes, CI workflow file, SPA routing considerations, PWA/static assets, testing, and post-deploy checks.
 todos:
   - id: set-vite-base
-    content: Add or update `vite.config.ts` to set `base` to `'/your-gym-mate/'` (replace with actual repo name).
+    content: Add or update `vite.config.ts` to set `base` to `'/your-gym-mate.github.io/'` (replace with actual repo name).
     status: pending
   - id: ensure-pwa-assets
     content: Verify `public/manifest.json`, `public/sw.js`, and `public/icons/*` exist and update `start_url`/icon paths if necessary.
@@ -60,7 +60,7 @@ This plan deploys the app (Vite + React + TypeScript) as a GitHub Pages _project
 ### 1) Set the Vite `base` (required for project GitHub Pages path)
 
 1. Open or create `vite.config.ts` at the project root.
-2. Set `base` to `'/<repo-name>/'`. Replace `<repo-name>` with your GitHub repo name (e.g. `/your-gym-mate/`).
+2. Set `base` to `'/<repo-name>/'`. Replace `<repo-name>` with your GitHub repo name (e.g. `/your-gym-mate.github.io/`).
 
 Example `vite.config.ts`:
 
@@ -69,7 +69,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  base: "/your-gym-mate/", // <-- replace with your repo name and leading/trailing slashes
+  base: "/your-gym-mate.github.io/", // <-- replace with your repo name and leading/trailing slashes
   plugins: [react()],
 });
 ```
@@ -83,7 +83,7 @@ Notes:
 ### 2) Ensure PWA and static assets are in `public/`
 
 1. Confirm `public/manifest.json`, `public/sw.js`, and `public/icons/*` exist as required by the PWA rules.
-2. Ensure the manifest `start_url` and icons use the repo base if necessary. Example manifest `start_url` can be `"/your-gym-mate/"` for a project site.
+2. Ensure the manifest `start_url` and icons use the repo base if necessary. Example manifest `start_url` can be `"/your-gym-mate.github.io/"` for a project site.
 
 Example manifest change to check:
 
@@ -91,7 +91,7 @@ Example manifest change to check:
 {
   "name": "Your Gym Mate",
   "short_name": "GymMate",
-  "start_url": "/your-gym-mate/",
+  "start_url": "/your-gym-mate.github.io/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0ea5a4",
@@ -108,7 +108,7 @@ If you want the app to be portable between local dev (/) and GitHub Pages (/repo
 
 ### 3) SPA routing: add a `404.html` fallback (recommended) or switch to HashRouter
 
-GitHub Pages returns 404 for deep routes (e.g. `/your-gym-mate/session/123`) unless you provide a fallback. Two options:
+GitHub Pages returns 404 for deep routes (e.g. `/your-gym-mate.github.io/session/123`) unless you provide a fallback. Two options:
 
 Option A — Add `404.html` that redirects to `index.html` (recommended quick fix):
 Create `public/404.html` with this content (it will be copied to `dist/404.html` by Vite):
@@ -118,12 +118,12 @@ Create `public/404.html` with this content (it will be copied to `dist/404.html`
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0; URL=/your-gym-mate/" />
+    <meta http-equiv="refresh" content="0; URL=/your-gym-mate.github.io/" />
     <script>
       // SPA fallback: load index.html and let router handle route
       (function () {
         var path = window.location.pathname;
-        var base = "/your-gym-mate/";
+        var base = "/your-gym-mate.github.io/";
         // If path is under base, re-write URL to base and use History API
         if (path.indexOf(base) === 0) {
           var newUrl = base + "index.html";
@@ -235,7 +235,7 @@ git push origin main
 npm ci
 npm run build
 npx serve -s dist -l 5000  # or `npm i -g serve` then serve -s dist
-# then visit http://localhost:5000/your-gym-mate/
+# then visit http://localhost:5000/your-gym-mate.github.io/
 ```
 
 1. Verify assets load from `/<repo-name>/` (check the network tab for 404s).
@@ -263,7 +263,7 @@ npx serve -s dist -l 5000  # or `npm i -g serve` then serve -s dist
 
 ## Relevant files to change (summary)
 
-- `vite.config.ts` — set `base` to `'/your-gym-mate/'`
-- `public/manifest.json` — set `start_url` to `'/your-gym-mate/'` (if needed)
+- `vite.config.ts` — set `base` to `'/your-gym-mate.github.io/'`
+- `public/manifest.json` — set `start_url` to `'/your-gym-mate.github.io/'` (if needed)
 - `public/404.html` — SPA fallback (or switch to `HashRouter`)
 - `.github/workflows/deploy-pages.yml` — CI workflow

@@ -4,6 +4,6 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/your-gym-mate/",
+  base: "/your-gym-mate.github.io/",
   plugins: [tailwindcss(), react()],
 });
