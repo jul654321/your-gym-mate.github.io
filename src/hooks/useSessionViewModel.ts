@@ -135,18 +135,15 @@ export function buildGroupedExercises({
   return ordered;
 }
 
-const PAGE_SIZE = 12;
 const DEFAULT_WEIGHT_UNIT: WeightUnit = "kg";
 
 export function useSessionViewModel(sessionId?: string): SessionViewModel {
   const sessionQuery = useSession(sessionId ?? "");
   const exercisesQuery = useExercises();
-  const [page, setPage] = useState(0);
   const [accumulatedSets, setAccumulatedSets] = useState<LoggedSetDTO[]>([]);
 
   useEffect(() => {
     const reset = () => {
-      setPage(0);
       setAccumulatedSets([]);
     };
     reset();
@@ -155,20 +152,11 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
   const loggedSetsQuery = useLoggedSets({
     sessionId: sessionId ?? undefined,
     sort: "timestamp",
-    pagination: {
-      page,
-      pageSize: PAGE_SIZE,
-    },
   });
 
   const currentBatch = loggedSetsQuery.data ?? [];
 
   useEffect(() => {
-    if (page === 0) {
-      setAccumulatedSets(currentBatch);
-      return;
-    }
-
     setAccumulatedSets((prev) => {
       const existingIds = new Set(prev.map((set) => set.id));
       const newSets = currentBatch.filter((set) => !existingIds.has(set.id));
@@ -177,7 +165,7 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
       }
       return [...prev, ...newSets];
     });
-  }, [currentBatch, page]);
+  }, [currentBatch]);
 
   const exercisesById = useMemo(() => {
     const map = new Map<string, string>();
