@@ -73,8 +73,6 @@ export function SessionView() {
     session,
     actions,
     isLoadingSets: loadingSets,
-    isFetchingMoreSets: fetchingMoreSets,
-    hasMoreSets,
     isMutating,
   } = viewModel;
 
@@ -98,16 +96,13 @@ export function SessionView() {
         isBusy={viewModel.isMutating}
         onRename={actions.renameSession}
       />
-      <div className="mx-auto mt-6 flex max-w-5xl flex-col gap-6 px-4">
+      <div className="container mx-auto px-4 py-6">
         <LoggedSetsList
           groupedSets={groupedExercises}
           onAddSet={handleAddSet}
           onEditSet={handleEditSet}
           onDeleteSet={handleDeleteSet}
-          onLoadMore={actions.loadMoreSets}
-          hasMore={hasMoreSets}
           isLoading={loadingSets}
-          isFetchingMore={fetchingMoreSets}
           isMutating={isMutating}
         />
         {editingSet && (

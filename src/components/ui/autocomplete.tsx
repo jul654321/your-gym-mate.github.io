@@ -149,24 +149,6 @@ export function Autocomplete<T>({
           autoComplete="off"
         />
 
-        <span className="pointer-events-none absolute inset-y-0 right-10 flex items-center pr-2 text-slate-400">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            className="h-4 w-4"
-            aria-hidden="true"
-          >
-            <path
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-              d="M6 9l6 6 6-6M6 15l6-6 6 6"
-            />
-          </svg>
-        </span>
-
         {onClear && inputValue.length > 0 && (
           <Button
             variant="ghost"

@@ -174,3 +174,18 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
 }
+
+:root,
+html,
+body,
+#root {
+  height: 100%;
+  overscroll-behavior: none; /* prevents rubber-band on modern Safari */
+}
+
+/* helper to ensure smooth momentum scrolling on iOS scrollable areas */
+.ios-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}

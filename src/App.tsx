@@ -69,18 +69,20 @@ function App() {
   }
 
   return (
-    <Router basename="/your-gym-mate.github.io">
-      {/* Update notification banner */}
-      {showUpdateBanner && <UpdateAvailableBanner />}
+    <div className="h-screen ios-scroll overscroll-contain">
+      <Router basename="/your-gym-mate.github.io">
+        {/* Update notification banner */}
+        {showUpdateBanner && <UpdateAvailableBanner />}
 
-      <PageShell>
-        <Routes>
-          <Route path="/sessions" element={<SessionsPage />} />
-          <Route path="/" element={<PlansPage />} />
-          <Route path="/sessions/:sessionId" element={<SessionView />} />
-        </Routes>
-      </PageShell>
-    </Router>
+        <PageShell>
+          <Routes>
+            <Route path="/sessions" element={<SessionsPage />} />
+            <Route path="/" element={<PlansPage />} />
+            <Route path="/sessions/:sessionId" element={<SessionView />} />
+          </Routes>
+        </PageShell>
+      </Router>
+    </div>
   );
 }
 

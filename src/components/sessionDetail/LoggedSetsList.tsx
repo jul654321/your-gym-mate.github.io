@@ -10,10 +10,7 @@ interface LoggedSetsListProps {
   onAddSet: (exerciseId: string) => void;
   onEditSet: (setId: string, set: LoggedSetDTO) => void;
   onDeleteSet: (setId: string) => void;
-  onLoadMore: () => void;
-  hasMore: boolean;
   isLoading?: boolean;
-  isFetchingMore?: boolean;
   isMutating?: boolean;
 }
 
@@ -95,10 +92,7 @@ export function LoggedSetsList({
   onAddSet,
   onEditSet,
   onDeleteSet,
-  onLoadMore,
-  hasMore,
   isLoading = false,
-  isFetchingMore = false,
   isMutating = false,
 }: LoggedSetsListProps) {
   if (isLoading && !groupedSets.length) {
@@ -126,19 +120,6 @@ export function LoggedSetsList({
           />
         </Fragment>
       ))}
-
-      {hasMore && (
-        <div className="flex justify-center">
-          <Button
-            variant="outline"
-            onClick={onLoadMore}
-            disabled={isLoading || isFetchingMore || isMutating}
-            className="px-6"
-          >
-            {isFetchingMore ? "Loading…" : "Load more sets"}
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

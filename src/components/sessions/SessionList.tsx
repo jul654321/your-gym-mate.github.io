@@ -1,9 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSessions } from "../../hooks/useSessions";
 import type { SessionListQueryParams, SessionsQueryParams } from "../../types";
 import { SessionRow } from "./SessionRow";
-
-const DEFAULT_PAGE_SIZE = 20;
 
 interface SessionListProps {
   params?: SessionListQueryParams;
@@ -11,13 +9,9 @@ interface SessionListProps {
 }
 
 export function SessionList({
-  params = { pageSize: DEFAULT_PAGE_SIZE },
+  params = {},
   disableActions = false,
 }: SessionListProps) {
-  const [visibleCount, setVisibleCount] = useState(
-    params.pageSize ?? DEFAULT_PAGE_SIZE
-  );
-
   const queryParams = useMemo(() => {
     const status =
       params.status && params.status !== "all" ? params.status : undefined;
@@ -66,8 +60,7 @@ export function SessionList({
     );
   }, [sessions, normalizedQuery]);
 
-  const visibleSessions = filteredSessions.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredSessions.length;
+  const visibleSessions = filteredSessions;
 
   return (
     <section aria-live="polite">
@@ -102,24 +95,6 @@ export function SessionList({
               disabled={disableActions}
             />
           ))}
-          {hasMore && (
-            <div className="flex justify-center">
-              <button
-                type="button"
-                className="rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
-                onClick={() =>
-                  setVisibleCount((prev) =>
-                    Math.min(
-                      prev + (params.pageSize ?? DEFAULT_PAGE_SIZE),
-                      filteredSessions.length
-                    )
-                  )
-                }
-              >
-                Load more
-              </button>
-            </div>
-          )}
         </div>
       )}
     </section>

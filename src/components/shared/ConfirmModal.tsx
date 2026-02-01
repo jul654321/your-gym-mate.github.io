@@ -85,7 +85,7 @@ export function ConfirmModal({
 
         <div className="mt-6 flex justify-end gap-3">
           <Button
-            variant="secondary"
+            variant="ghost"
             onClick={onCancel}
             disabled={isConfirming}
             className="transition-colors"

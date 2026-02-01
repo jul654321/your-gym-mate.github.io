@@ -35,17 +35,14 @@ export interface SessionViewModel {
   isSessionMissing: boolean;
   isMutating: boolean;
   isLoadingSets: boolean;
-  isFetchingMoreSets: boolean;
   actions: {
     renameSession: (name: string) => void;
     toggleStatus: (status: SessionStatus) => void;
     deleteSession: () => void;
-    loadMoreSets: () => void;
     addSet: (exerciseId: string) => void;
     deleteSet: (setId: string) => void;
     updateSet: (setId: string, set: LoggedSetDTO) => void;
   };
-  hasMoreSets: boolean;
 }
 
 function getDisplayName(
@@ -255,14 +252,6 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     updateLoggedSet.isPending ||
     deleteLoggedSet.isPending;
 
-  const hasMoreSets = currentBatch.length === PAGE_SIZE;
-  const loadMoreSets = useCallback(() => {
-    if (!hasMoreSets || loggedSetsQuery.isFetching) {
-      return;
-    }
-    setPage((prev) => prev + 1);
-  }, [hasMoreSets, loggedSetsQuery.isFetching]);
-
   const addSet = useCallback(
     (exerciseId: string) => {
       if (!sessionId) return;
@@ -309,17 +298,13 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     isSessionMissing,
     isMutating,
     isLoadingSets: loggedSetsQuery.isLoading,
-    isFetchingMoreSets:
-      loggedSetsQuery.isFetching && !loggedSetsQuery.isLoading && page > 0,
     actions: {
       renameSession,
       toggleStatus,
       deleteSession: removeSession,
-      loadMoreSets,
       addSet,
       deleteSet,
       updateSet,
     },
-    hasMoreSets,
   };
 }

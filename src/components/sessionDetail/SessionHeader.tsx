@@ -59,28 +59,23 @@ export function SessionHeader({
 
   return (
     <>
-      <header className="bg-primary text-white shadow-lg flex items-center justify-between px-4 py-6">
-        <div className="container mx-auto">
-          <h1 className="text-xl font-bold">
-            {" "}
+      <header className="bg-primary text-white shadow-lg">
+        <div className="container mx-auto px-4 py-6 flex items-center justify-between gap-2">
+          <h1 className="text-2xl font-bold">
             {session?.name ?? "Untitled session"}
           </h1>
-        </div>
-        <div className="space-y-2 md:flex-1">
-          <div>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => {
-                setDraftName(session?.name ?? "");
-                setIsEditing(true);
-              }}
-              disabled={isBusy}
-              aria-label="Rename session"
-            >
-              <Pencil className="h-4 w-4 text-white" aria-hidden />
-            </Button>
-          </div>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => {
+              setDraftName(session?.name ?? "");
+              setIsEditing(true);
+            }}
+            disabled={isBusy}
+            aria-label="Rename session"
+          >
+            <Pencil className="h-4 w-4 text-white" aria-hidden />
+          </Button>
         </div>
       </header>
 

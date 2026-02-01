@@ -680,7 +680,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
           <Button
             onClick={handleAttemptClose}
             disabled={isBusy}
-            variant="secondary"
+            variant="ghost"
             className="!border-gray-300 text-gray-700 hover:bg-gray-50 disabled:current/80 disabled:cursor-not-allowed transition-colors"
           >
             Cancel

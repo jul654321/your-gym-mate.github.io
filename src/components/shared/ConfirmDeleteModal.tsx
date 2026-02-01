@@ -79,7 +79,7 @@ export function ConfirmDeleteModal({
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
-          <Button onClick={onCancel} disabled={isDeleting} variant="secondary">
+          <Button onClick={onCancel} disabled={isDeleting} variant="ghost">
             Cancel
           </Button>
           <Button

@@ -296,7 +296,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
           <Button
             onClick={onClose}
             disabled={isSaving || isInstantiating}
-            variant="secondary"
+            variant="ghost"
             className="!border-gray-300 text-gray-700 hover:bg-gray-50 disabled:current/80 disabled:cursor-not-allowed transition-colors"
           >
             Cancel

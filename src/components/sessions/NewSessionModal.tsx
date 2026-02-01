@@ -64,7 +64,7 @@ export function NewSessionModal({
     >
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <form
-          className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl"
+          className="relative w-full rounded-2xl bg-white shadow-2xl"
           onSubmit={handleSubmit}
         >
           <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200">
