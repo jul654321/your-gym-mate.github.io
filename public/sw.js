@@ -17,20 +17,16 @@ const ASSETS = [
 ];
 
 // Install event: precache static assets
+// Do NOT call skipWaiting() unconditionally — let the page trigger it via message
 self.addEventListener("install", (event) => {
   console.log("[SW] Installing service worker...");
   event.waitUntil(
-    caches
-      .open(CACHE_NAME)
-      .then((cache) => {
-        console.log("[SW] Precaching static assets");
-        return cache.addAll(ASSETS);
-      })
-      .then(() => {
-        console.log("[SW] Skip waiting");
-        return self.skipWaiting();
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log("[SW] Precaching static assets");
+      return cache.addAll(ASSETS);
+    })
   );
+  // No self.skipWaiting() here — wait for user to accept update
 });
 
 // Activate event: clean up old caches and take control
@@ -68,6 +64,26 @@ self.addEventListener("fetch", (event) => {
 
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith("http")) {
+    return;
+  }
+
+  // Network-first for navigation requests to ensure fresh HTML after deploy
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((networkResp) => {
+          // Update cached index.html for offline fallback
+          const copy = networkResp.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(`${BASE_PATH}index.html`, copy);
+          });
+          return networkResp;
+        })
+        .catch(() => {
+          // Fallback to cached index.html when offline
+          return caches.match(`${BASE_PATH}index.html`);
+        })
+    );
     return;
   }
 
