@@ -18,8 +18,10 @@ export function useGetSetting<T = unknown>(
     queryKey: [QUERY_KEY, key],
     queryFn: async () => {
       const db = await getDB();
-      const entry = await db.get<SettingEntryDTO>(STORE_NAMES.settings, key);
-      return entry?.value ?? null;
+      const entry = (await db.get(STORE_NAMES.settings, key)) as
+        | SettingEntryDTO
+        | undefined;
+      return entry?.value as T | null;
     },
     enabled: enabled ?? Boolean(key),
     ...restOptions,

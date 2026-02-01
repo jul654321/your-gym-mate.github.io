@@ -1,5 +1,6 @@
 import { ChevronRight, Pencil, Trash2 } from "lucide-react";
-import { MouseEvent, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDeleteSession, useUpdateSession } from "../../hooks";
 import type { SessionDTO } from "../../types";
