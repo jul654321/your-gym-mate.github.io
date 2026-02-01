@@ -71,7 +71,34 @@ export function usePlan(id: string) {
     queryKey: [QUERY_KEY, id],
     queryFn: async () => {
       const db = await getDB();
-      return db.get(STORE_NAMES.plans, id);
+
+      // Get the plan first
+      const plan = await db.get(STORE_NAMES.plans, id);
+      if (!plan) return undefined;
+
+      // Enrich planExercises with exercise name snapshots (join with exercises store)
+      const tx = db.transaction(STORE_NAMES.exercises, "readonly");
+      const exercisesStore = tx.objectStore(STORE_NAMES.exercises);
+
+      const enrichedPlanExercises = await Promise.all(
+        plan.planExercises.map(async (pe) => {
+          const exerciseRecord = await exercisesStore.get(pe.exerciseId);
+          // Preserve existing nameSnapshot if present, otherwise take from exercise record
+          const nameSnapshot = pe.nameSnapshot ?? exerciseRecord?.name;
+
+          return {
+            ...pe,
+            nameSnapshot,
+          } as typeof pe;
+        })
+      );
+
+      await tx.done;
+
+      return {
+        ...plan,
+        planExercises: enrichedPlanExercises,
+      };
     },
     enabled: !!id,
   });

@@ -13,6 +13,7 @@ interface PlanExerciseRowProps {
   onChange: (updated: Partial<PlanExerciseFormModel>) => void;
   onRemove: () => void;
   index: number;
+  isCreating: boolean;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
   canMoveUp: boolean;
@@ -36,13 +37,14 @@ export function PlanExerciseRow({
   onChange,
   onRemove,
   index,
+  isCreating,
   onMoveUp,
   onMoveDown,
   canMoveUp,
   canMoveDown,
   errors,
 }: PlanExerciseRowProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(isCreating);
   const idPrefix = useId().replace(/:/g, "-");
   const toggleId = `plan-exercise-toggle-${idPrefix}`;
   const detailsId = `plan-exercise-details-${idPrefix}`;

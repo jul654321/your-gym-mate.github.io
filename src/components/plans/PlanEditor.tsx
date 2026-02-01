@@ -279,6 +279,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
               onUpdateExercise={updateExercise}
               onRemoveExercise={removeExercise}
               onMoveExercise={moveExercise}
+              isCreating={!planId}
               errors={errors.planExercises}
             />
           </div>
