@@ -14,6 +14,9 @@ interface ServiceWorkerConfig {
  * Provides callbacks for update, success, and error events
  */
 export function registerServiceWorker(config: ServiceWorkerConfig = {}): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const SW_VERSION = 1;
+
   // Only register in production and when service workers are supported
   if (import.meta.env.PROD && "serviceWorker" in navigator) {
     // Wait for page load to avoid competing with initial page load
