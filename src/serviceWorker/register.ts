@@ -15,13 +15,10 @@ interface ServiceWorkerConfig {
  */
 export function registerServiceWorker(config: ServiceWorkerConfig = {}): void {
   // Only register in production and when service workers are supported
-  if (
-    import.meta.env.PROD &&
-    "serviceWorker" in navigator
-  ) {
+  if (import.meta.env.PROD && "serviceWorker" in navigator) {
     // Wait for page load to avoid competing with initial page load
     window.addEventListener("load", () => {
-      const swUrl = "/sw.js";
+      const swUrl = "/your-gym-mate.github.io/sw.js";
 
       navigator.serviceWorker
         .register(swUrl)
@@ -90,7 +87,7 @@ export function unregisterServiceWorker(): void {
 export function skipWaitingAndReload(): void {
   if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({ type: "SKIP_WAITING" });
-    
+
     // Listen for the new service worker to take control
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       // Reload the page when the new service worker takes control
