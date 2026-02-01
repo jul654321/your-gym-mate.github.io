@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0; URL=/your-gym-mate/" />
+    <title>Redirecting…</title>
+    <script>
+      (function () {
+        var path = window.location.pathname+window.location.search+window.location.hash;
+        var base = "/your-gym-mate/";
+        if (path.indexOf(base) === 0) {
+          var newUrl = base + "index.html";
+          window.location.replace(newUrl + window.location.search + window.location.hash);
+        } else {
+          window.location.replace(base);
+        }
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

@@ -4,15 +4,16 @@
 
 const CACHE_NAME = "gymmate-static-v1";
 const RUNTIME_CACHE = "gymmate-runtime-v1";
+const BASE_PATH = "/your-gym-mate/";
 
 // Static assets to precache - will be updated by build process
 const ASSETS = [
-  "/",
-  "/index.html",
-  "/manifest.json",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png",
-  "/icons/apple-touch-icon.png",
+  BASE_PATH,
+  `${BASE_PATH}index.html`,
+  `${BASE_PATH}manifest.json`,
+  `${BASE_PATH}icons/icon-192.png`,
+  `${BASE_PATH}icons/icon-512.png`,
+  `${BASE_PATH}icons/apple-touch-icon.png`,
 ];
 
 // Install event: precache static assets
