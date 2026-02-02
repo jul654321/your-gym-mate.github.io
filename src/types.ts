@@ -155,6 +155,7 @@ export interface LoggedSetDTO {
   weightUnit?: WeightUnit;
   reps: number;
   setIndex?: number; // order within session/exercise
+  orderIndex?: number;
   alternative?: AlternativeSnapshotDTO | null;
   notes?: string;
   createdAt: EpochMs;

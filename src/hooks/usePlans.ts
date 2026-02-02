@@ -249,7 +249,7 @@ export function useInstantiateSessionFromPlan() {
       await sessionStore.add(session);
 
       const baseTimestamp = Date.now();
-      for (const planExercise of plan.planExercises) {
+      for (const [exerciseOrderIndex, planExercise] of plan.planExercises.entries()) {
         const exerciseRecord = await exercisesStore.get(
           planExercise.exerciseId
         );
@@ -286,6 +286,7 @@ export function useInstantiateSessionFromPlan() {
             weightUnit,
             reps,
             setIndex,
+            orderIndex: exerciseOrderIndex,
             alternative: alternativeSnapshot,
             notes: planExercise.notes,
             createdAt: baseTimestamp,

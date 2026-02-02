@@ -132,4 +132,39 @@ describe("buildGroupedExercises", () => {
       "ex-adhoc",
     ]);
   });
+
+  it("aligns alternative exercises with their main plan order", () => {
+    const sets = [
+      createSet({
+        id: "set-alt",
+        exerciseId: "ex-alt",
+        timestamp: 80,
+      }),
+      createSet({
+        id: "set-main",
+        exerciseId: "ex-main",
+        timestamp: 100,
+      }),
+    ];
+
+    const exercisesById = new Map([
+      ["ex-main", "Main Exercise"],
+      ["ex-alt", "Alternative Exercise"],
+    ]);
+
+    const altToMainMap = new Map([["ex-alt", "ex-main"]]);
+
+    const grouped = buildGroupedExercises({
+      sets,
+      exercisesById,
+      exerciseOrder: ["ex-main"],
+      altToMainMap,
+    });
+
+    expect(grouped.map((group) => group.exerciseId)).toEqual([
+      "ex-main",
+      "ex-alt",
+    ]);
+    expect(grouped[1].sets[0].id).toBe("set-alt");
+  });
 });

@@ -7,6 +7,7 @@ import {
   useLoggedSets,
   useUpdateLoggedSet,
 } from "./useLoggedSets";
+import { usePlan } from "./usePlans";
 import type {
   LoggedSetDTO,
   SessionDTO,
@@ -57,12 +58,14 @@ export interface BuildGroupedExercisesOptions {
   sets: LoggedSetDTO[];
   exercisesById: Map<string, string>;
   exerciseOrder?: string[];
+  altToMainMap?: Map<string, string>;
 }
 
 export function buildGroupedExercises({
   sets,
   exercisesById,
   exerciseOrder,
+  altToMainMap,
 }: BuildGroupedExercisesOptions): GroupedExerciseVM[] {
   const groups = new Map<string, GroupedExerciseVM>();
 
@@ -96,17 +99,60 @@ export function buildGroupedExercises({
     }),
   });
 
-  const ordered: GroupedExerciseVM[] = [];
-  const sessionOrder = exerciseOrder ?? [];
-  const seen = new Set<string>();
+  const normalizedGroups: GroupedExerciseVM[] = [];
+  for (const [key, group] of groups) {
+    const normalized = normalizeGroup(group);
+    groups.set(key, normalized);
+    normalizedGroups.push(normalized);
+  }
 
-  for (const exerciseId of sessionOrder) {
-    seen.add(exerciseId);
+  const sessionOrder = exerciseOrder ?? [];
+  const orderIndexMap = new Map<string, number>();
+  sessionOrder.forEach((exerciseId, index) => {
+    orderIndexMap.set(exerciseId, index);
+  });
+
+  const deriveGroupOrderIndex = (exerciseId: string): number => {
+    const directIndex = orderIndexMap.get(exerciseId);
+    if (directIndex !== undefined) {
+      return directIndex;
+    }
+
+    const mainFromAlt = altToMainMap?.get(exerciseId);
+    if (mainFromAlt) {
+      const mappedIndex = orderIndexMap.get(mainFromAlt);
+      if (mappedIndex !== undefined) {
+        return mappedIndex;
+      }
+    }
+
     const group = groups.get(exerciseId);
     if (group) {
-      ordered.push(normalizeGroup(group));
-    } else {
-      ordered.push({
+      const orderFromSet = group.sets.find(
+        (set) => set.orderIndex !== undefined
+      )?.orderIndex;
+      if (orderFromSet !== undefined) {
+        return orderFromSet;
+      }
+
+      for (const set of group.sets) {
+        const candidateIds = set.exerciseIds ?? [set.exerciseId];
+        for (const candidateId of candidateIds) {
+          const candidateIndex = orderIndexMap.get(candidateId);
+          if (candidateIndex !== undefined) {
+            return candidateIndex;
+          }
+        }
+      }
+    }
+
+    return Number.POSITIVE_INFINITY;
+  };
+
+  const placeholders: GroupedExerciseVM[] = [];
+  for (const exerciseId of sessionOrder) {
+    if (!groups.has(exerciseId)) {
+      placeholders.push({
         exerciseId,
         exerciseName: getDisplayName(exerciseId, exercisesById),
         sets: [],
@@ -114,25 +160,34 @@ export function buildGroupedExercises({
     }
   }
 
-  const remaining = Array.from(groups.keys()).filter((key) => !seen.has(key));
-  remaining.sort((a, b) => {
-    const aGroup = groups.get(a)!;
-    const bGroup = groups.get(b)!;
-    const aFirst = aGroup.sets[0];
-    const bFirst = bGroup.sets[0];
-    const aTime = aFirst?.timestamp ?? 0;
-    const bTime = bFirst?.timestamp ?? 0;
-    if (aTime !== bTime) {
-      return aTime - bTime;
+  const orderedGroups = [...normalizedGroups, ...placeholders];
+  orderedGroups.sort((a, b) => {
+    const indexA = deriveGroupOrderIndex(a.exerciseId);
+    const indexB = deriveGroupOrderIndex(b.exerciseId);
+    if (indexA !== indexB) {
+      return indexA - indexB;
     }
-    return (aGroup.exerciseName ?? "").localeCompare(bGroup.exerciseName ?? "");
+
+    const priorityA = orderIndexMap.has(a.exerciseId) ? 0 : 1;
+    const priorityB = orderIndexMap.has(b.exerciseId) ? 0 : 1;
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    if (indexA === Number.POSITIVE_INFINITY) {
+      const firstA = a.sets[0];
+      const firstB = b.sets[0];
+      const timeA = firstA?.timestamp ?? 0;
+      const timeB = firstB?.timestamp ?? 0;
+      if (timeA !== timeB) {
+        return timeA - timeB;
+      }
+    }
+
+    return (a.exerciseName ?? "").localeCompare(b.exerciseName ?? "");
   });
 
-  for (const key of remaining) {
-    ordered.push(normalizeGroup(groups.get(key)!));
-  }
-
-  return ordered;
+  return orderedGroups;
 }
 
 const DEFAULT_WEIGHT_UNIT: WeightUnit = "kg";
@@ -168,14 +223,28 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     return map;
   }, [exercisesQuery.data]);
 
+  const planQuery = usePlan(sessionQuery.data?.sourcePlanId ?? "");
+  const altToMainMap = useMemo(() => {
+    const map = new Map<string, string>();
+    const planExercises = planQuery.data?.planExercises ?? [];
+    for (const planExercise of planExercises) {
+      const alternativeId = planExercise.optionalAlternativeExerciseId;
+      if (alternativeId) {
+        map.set(alternativeId, planExercise.exerciseId);
+      }
+    }
+    return map;
+  }, [planQuery.data?.planExercises]);
+
   const groupedExercises = useMemo(
     () =>
       buildGroupedExercises({
         sets: accumulatedSets,
         exercisesById,
         exerciseOrder: sessionQuery.data?.exerciseOrder,
+        altToMainMap,
       }),
-    [accumulatedSets, exercisesById, sessionQuery.data?.exerciseOrder]
+    [accumulatedSets, exercisesById, sessionQuery.data?.exerciseOrder, altToMainMap]
   );
 
   const totals = useMemo(() => {
