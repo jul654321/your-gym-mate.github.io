@@ -34,6 +34,12 @@ const TAB_DEFINITIONS: TabDTO[] = [
     path: "/sessions",
     icon: "sessions",
   },
+  {
+    id: "settings",
+    label: "Settings",
+    path: "/settings",
+    icon: "settings",
+  },
 ];
 
 const DESTRUCTIVE_TABS: Set<TabId> = new Set([
@@ -157,4 +163,3 @@ export function useNavigation(): UseNavigationResult {
     setUpdateAvailable,
   };
 }
-

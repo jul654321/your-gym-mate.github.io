@@ -8,6 +8,7 @@ import { Button } from "./components/ui/button";
 import { PageShell } from "./components/layouts/PageShell";
 import { SessionsPage } from "./pages/SessionsPage";
 import { SessionView } from "./pages/SessionView";
+import { SettingsPage } from "./pages/SettingsPage";
 
 function App() {
   const { isInitialized, isLoading, error } = useDbInit();
@@ -77,8 +78,9 @@ function App() {
         <PageShell>
           <Routes>
             <Route path="/sessions" element={<SessionsPage />} />
-            <Route path="/" element={<PlansPage />} />
             <Route path="/sessions/:sessionId" element={<SessionView />} />
+            <Route path="/" element={<PlansPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </PageShell>
       </Router>
