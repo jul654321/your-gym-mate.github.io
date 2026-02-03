@@ -1,10 +1,8 @@
 import { useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import { Button } from "../ui/button";
-import { CSVStreamer, type CsvColumn } from "../../lib/csv/CSVStreamer";
-import { getDB, STORE_NAMES } from "../../lib/db";
 import { useUpdateSetting } from "../../hooks/useSettings";
-import type { LoggedSetDTO, SessionDTO, SessionStatus } from "../../types";
+import { exportToCsv } from "../../hooks/useExportBackup";
 
 interface ExportSheetProps {
   isOpen: boolean;
@@ -13,36 +11,6 @@ interface ExportSheetProps {
 
 type DatePresetValue = "all" | "30" | "90";
 
-interface ExportFilters {
-  dateRange?: { from?: number; to?: number };
-  includeAlternatives: boolean;
-}
-
-export interface SessionExportRow {
-  sessionId: string;
-  sessionName: string;
-  sessionDate: number;
-  sessionCreatedAt: number;
-  sessionUpdatedAt: number | "";
-  sessionStatus: SessionStatus;
-  sourcePlanId: string;
-  setId: string;
-  exerciseId: string;
-  exerciseName: string;
-  weight: number;
-  weightUnit: string;
-  reps: number;
-  timestamp: number;
-  orderIndex: number | "";
-  notes: string;
-  alternativeExerciseId: string;
-  alternativeExerciseName: string;
-  alternativeWeight: number | "";
-  alternativeReps: number | "";
-  setCreatedAt: number;
-  setUpdatedAt: number | "";
-}
-
 const DATE_PRESETS: { value: DatePresetValue; label: string }[] = [
   { value: "all", label: "All time" },
   { value: "30", label: "Last 30 days" },
@@ -50,138 +18,6 @@ const DATE_PRESETS: { value: DatePresetValue; label: string }[] = [
 ];
 
 const DAY_MS = 1000 * 60 * 60 * 24;
-
-export const SESSION_EXPORT_COLUMNS: CsvColumn<SessionExportRow>[] = [
-  { header: "Session ID", key: "sessionId" },
-  { header: "Session name", key: "sessionName" },
-  {
-    header: "Session date",
-    key: "sessionDate",
-    formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
-  },
-  {
-    header: "Session created",
-    key: "sessionCreatedAt",
-    formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
-  },
-  {
-    header: "Session updated",
-    key: "sessionUpdatedAt",
-    formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
-  },
-  { header: "Session status", key: "sessionStatus" },
-  { header: "Source plan ID", key: "sourcePlanId" },
-  { header: "Set ID", key: "setId" },
-  { header: "Exercise ID", key: "exerciseId" },
-  { header: "Exercise name", key: "exerciseName" },
-  { header: "Weight", key: "weight" },
-  { header: "Unit", key: "weightUnit" },
-  { header: "Reps", key: "reps" },
-  {
-    header: "Set timestamp",
-    key: "timestamp",
-    formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
-  },
-  { header: "Order index", key: "orderIndex" },
-  { header: "Notes", key: "notes" },
-  { header: "Alternative exercise ID", key: "alternativeExerciseId" },
-  { header: "Alternative name", key: "alternativeExerciseName" },
-  { header: "Alternative weight", key: "alternativeWeight" },
-  { header: "Alternative reps", key: "alternativeReps" },
-  {
-    header: "Set created",
-    key: "setCreatedAt",
-    formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
-  },
-  {
-    header: "Set updated",
-    key: "setUpdatedAt",
-    formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
-  },
-];
-
-async function* buildSessionExportRows({
-  dateRange,
-  includeAlternatives,
-}: ExportFilters): AsyncGenerator<SessionExportRow> {
-  const db = await getDB();
-  const tx = db.transaction(
-    [STORE_NAMES.sessions, STORE_NAMES.loggedSets],
-    "readonly"
-  );
-  const sessionStore = tx.objectStore(STORE_NAMES.sessions);
-  const loggedSetsStore = tx.objectStore(STORE_NAMES.loggedSets);
-  const logIndex = loggedSetsStore.index("sessionId");
-  let cursor = await sessionStore.openCursor();
-
-  while (cursor) {
-    const session = cursor.value;
-    if (!isWithinDateRange(session.date, dateRange)) {
-      cursor = await cursor.continue();
-      continue;
-    }
-
-    const sets = await logIndex.getAll(session.id);
-
-    for (const set of sets) {
-      yield createRow(session, set, includeAlternatives);
-    }
-
-    cursor = await cursor.continue();
-  }
-
-  await tx.done;
-}
-
-function isWithinDateRange(
-  sessionDate: number,
-  range?: { from?: number; to?: number }
-) {
-  if (!range) {
-    return true;
-  }
-  const meetsStart = range.from == null ? true : sessionDate >= range.from;
-  const meetsEnd = range.to == null ? true : sessionDate <= range.to;
-  return meetsStart && meetsEnd;
-}
-
-function createRow(
-  session: SessionDTO,
-  set: LoggedSetDTO,
-  includeAlternatives: boolean
-): SessionExportRow {
-  const alternative = includeAlternatives ? set.alternative : null;
-  return {
-    sessionId: session.id,
-    sessionName: session.name ?? "",
-    sessionDate: session.date,
-    sessionCreatedAt: session.createdAt,
-    sessionUpdatedAt: session.updatedAt ?? "",
-    sessionStatus: session.status,
-    sourcePlanId: session.sourcePlanId ?? "",
-    setId: set.id,
-    exerciseId: set.exerciseId,
-    exerciseName: set.exerciseNameSnapshot ?? "",
-    weight: set.weight,
-    weightUnit: set.weightUnit ?? "",
-    reps: set.reps,
-    timestamp: set.timestamp,
-    orderIndex: set.orderIndex ?? "",
-    notes: set.notes ?? "",
-    alternativeExerciseId: alternative?.exerciseId ?? "",
-    alternativeExerciseName: alternative?.nameSnapshot ?? "",
-    alternativeWeight: alternative?.weight ?? "",
-    alternativeReps: alternative?.reps ?? "",
-    setCreatedAt: set.createdAt,
-    setUpdatedAt: set.updatedAt ?? "",
-  };
-}
 
 function getDateRangeFromPreset(preset: DatePresetValue) {
   if (preset === "all") {
@@ -230,17 +66,15 @@ export function ExportSheet({ isOpen, onClose }: ExportSheetProps) {
     const dateRange = getDateRangeFromPreset(preset);
 
     try {
-      await CSVStreamer.streamToFile(
-        buildSessionRowsGenerator(dateRange, includeAlternatives),
+      await exportToCsv({
         filename,
-        {
-          columns: SESSION_EXPORT_COLUMNS,
-          onRow: (count) => {
-            rowCountRef.current = count;
-            setRowCount(count);
-          },
-        }
-      );
+        dateRange,
+        includeAlternatives,
+        onRow: (count) => {
+          rowCountRef.current = count;
+          setRowCount(count);
+        },
+      });
 
       updateSetting.mutate({
         key: "lastExportAt",
@@ -395,14 +229,4 @@ export function ExportSheet({ isOpen, onClose }: ExportSheetProps) {
       </div>
     </div>
   );
-}
-
-function buildSessionRowsGenerator(
-  dateRange: ExportFilters["dateRange"],
-  includeAlternatives: boolean
-) {
-  return buildSessionExportRows({
-    dateRange,
-    includeAlternatives,
-  });
 }

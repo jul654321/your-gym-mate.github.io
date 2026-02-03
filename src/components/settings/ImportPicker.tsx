@@ -4,7 +4,10 @@ import { Button } from "../ui/button";
 import { getDB, STORE_NAMES, withTransaction } from "../../lib/db";
 import { useGetSetting, useUpdateSetting } from "../../hooks/useSettings";
 import type { LoggedSetDTO, SessionDTO, SessionStatus } from "../../types";
-import { SESSION_EXPORT_COLUMNS, type SessionExportRow } from "./ExportSheet";
+import {
+  SESSION_EXPORT_COLUMNS,
+  type SessionExportRow,
+} from "../../hooks/useExportBackup";
 
 interface ImportPickerProps {
   isOpen: boolean;
