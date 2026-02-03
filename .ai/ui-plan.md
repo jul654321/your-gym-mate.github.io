@@ -605,3 +605,145 @@ Performance considerations
 ---
 
 This document maps the PRD and IndexedDB hooks plan into a cohesive UI architecture focused on local-first reliability, fast optimistic interactions, accessibility, and extensible data hooks. Implement UI components to call the listed hooks and follow the caching/invalidation patterns to keep UI and DB consistent.
+
+## 11. Backup & Restore (Export / Import) — Optional Flow
+
+Note: PRD stories US-018 and US-019 are flagged optional/deferred, but this section defines a full UI architecture for export/import so implementers can include it in MVP or enable later with minimal changes.
+
+11.1 Key requirements (from PRD)
+
+- US-018 Export data:
+  1. Generate a CSV of sessions and sets including exercise, date, weight, reps, alternative.
+  2. Export accessible via device share/save.
+- US-019 Import data:
+
+  1. Validate file schema and prompt about duplicates/overwrite.
+  2. Imported data appears in local storage.
+
+  11.2 Necessary views & screens
+
+- Settings → Backup (new subsection)
+  - Path: `/settings/backup` (or modal from `/settings`)
+  - Purpose: entry point for export/import; shows last backup timestamp, DB size estimate, and quick actions.
+- Export Modal / Sheet
+  - Purpose: configure export (date range, include alternatives, include events/undo_trash), preview approximate record counts, and run export.
+  - Output: CSV file generated client-side and offered via Web Share API / download.
+- Export Success / Share sheet
+  - Purpose: instruct the user and open native share/save dialog. Show suggested filename and checksum/hash for integrity.
+- Import Modal / File Picker
+  - Purpose: pick CSV file, parse client-side, show validation report (schema errors, ambiguous rows).
+- Import Preview & Conflict Resolver
+  - Purpose: show sample mapping, detect duplicate sessions/sets by UUID or by fuzzy match (date+name), allow user to choose Merge / Skip / Overwrite / Create as new.
+- Import Progress & Result screen
+
+  - Purpose: show transactional import progress, errors per-row, and final summary (records imported, skipped, failed). Offer undo for recent imports (move imported items to `undo_trash` until user confirms).
+
+  11.3 Main purpose & key information per view
+
+- Settings → Backup:
+  - Key info: last export timestamp, estimated DB size, quick Export button, Import button, note about privacy/local-only storage.
+- Export Modal:
+  - Controls: date range presets (All / 7d / 30d / 90d / Custom), includeAlternatives toggle, includeEvents/undoTrash toggles, Export CTA.
+  - Hook usage: read `sessions` and `loggedSets` with filters; stream-write CSV rows to avoid memory pressure.
+- Import Flow:
+
+  - Controls: File picker, Parse/Validate CTA, Validation report table, Conflict resolution actions, Confirm Import CTA.
+  - Hook usage: `withTransaction` to write imported `sessions` and `loggedSets`; use `settings.meta` to flag import-in-progress and record import metadata.
+
+  11.4 User journey (step-by-step) — Export (main use case)
+
+1. User opens Settings → Backup → taps "Export".
+2. Export Modal opens; user picks date range and toggles (include alternatives).
+3. UI previews estimated row count (from quick IndexedDB count query).
+4. User taps "Export" → UI streams records from `sessions` and `loggedSets` (cursor-based) to a CSV writer in chunks to avoid OOM.
+5. When CSV complete, show share/save options via Web Share API (or fallback to download).
+6. Show success toast with suggested filename (e.g., gymmate-export-YYYYMMDD.csv) and save `settings.lastExportAt`.
+
+   11.5 User journey (step-by-step) — Import (main use case)
+
+7. User opens Settings → Backup → taps "Import" → picks CSV file.
+8. Client parses CSV and runs schema validation (headers, mandatory columns).
+9. UI shows Validation Report: row-level counts (valid/invalid/ambiguous) and sample rows.
+10. For duplicates: detect by UUID (preferred) and by fuzzy match (session date+name). Offer Merge/Skip/Overwrite/Create-as-new globally or per-item.
+11. User confirms import options → start transactional import with `withTransaction(['sessions','loggedSets','settings'], 'readwrite', cb)`.
+12. Import writes records with generated UUIDs where missing; imported sets get mapped to sessions (existing or new). Track import progress and surface per-row errors.
+13. On success: show summary and add import metadata to `settings.importHistory`. Keep imported items in `undo_trash` for short window so user can Undo if import was wrong.
+
+    11.6 Navigation structure changes
+
+- Add `/settings/backup` route (or modal route) linked from Settings top-level.
+- Export and Import flows use modal/sheet navigation to avoid full-route changes; deep-linkable with query params like `?import=true`.
+
+  11.7 Key UI elements and components
+
+- `BackupPanel` (in Settings) — shows summary and actions.
+- `ExportSheet` — date range presets, include toggles, estimate counter, Export CTA.
+- `CSVStreamer` utility — incremental CSV writer from cursor results.
+- `ImportPicker` + `CSVParser` — robust CSV parsing (e.g., PapaParse with config) with strict header mapping and validation.
+- `ValidationReport` component — shows counts, sample rows, and per-row errors with expandable details.
+- `ConflictResolver` — UI to choose merge/skip/overwrite/create-as-new, with presets and per-row overrides.
+- `ImportProgress` — transactional progress bar, per-step logs, accessible live region for screen readers.
+- `ImportSummary` — results + Undo CTA.
+
+  11.8 Edge cases & error states
+
+- Large DB / OOM risk:
+  - Mitigation: stream CSV rows from cursor in batches; do not materialize full dataset in memory.
+- Corrupt or malformed CSV:
+  - Show clear validation errors with line numbers and sample row; provide template CSV download.
+- Duplicate or missing UUIDs:
+  - If UUIDs present, prefer using them; when missing, generate stable UUIDs and alert user. For collisions, offer Overwrite vs Create-as-new.
+- Partial import failures:
+  - Use transaction semantics where possible; for long imports that cannot be single transaction due to size, batch-import with per-batch transactions and show partial success and error rows.
+- Quota / storage full during import:
+  - Detect quota errors from IndexedDB writes, abort import, show friendly guidance to free space, and provide ability to export/backup partial import to let user recover.
+- Security & privacy:
+  - Emphasize local-only processing; do not upload files. Warn users if using web share that the exported file leaves device.
+- Undo import:
+
+  - Keep imported records in `undo_trash` for undoWindow; the import flow should optionally mark imported items with `importId` metadata for easy removal.
+
+  11.9 IndexedDB compatibility & schema mapping
+
+- Export reads:
+  - Read `sessions` and corresponding `loggedSets` by `sessionId` index. Include denormalized snapshots (`exerciseNameSnapshot`, `alternative`) and timestamp/units as required by CSV.
+- Import writes:
+  - Use `withTransaction` to create `sessions` and `loggedSets` records. Ensure `loggedSets.exerciseIds` is populated from primary and alternative IDs. If exercise referenced in import doesn't exist, create a minimal `exercises` entry (with nameSnapshot) to preserve referential integrity.
+- UUID handling:
+  - Preserve UUIDs if present; otherwise generate new UUIDs and update referential fields (`sessionId`, `loggedSet.id`).
+- Migrations:
+
+  - If DB schema version mismatch detected, require migration before import; surface message and provide export-before-migrate recommendation.
+
+  11.10 Map PRD stories → UI elements (explicit)
+
+- US-018 Export data:
+  - UI: `Settings → Backup → ExportSheet` + `CSVStreamer` + Web Share fallback.
+  - Hooks: use `useSessions()` + `useLoggedSets()` with cursor ranges; no new persistent hooks required.
+  - Acceptance: CSV contains session + set rows, accessible via share/save.
+- US-019 Import data:
+
+  - UI: `Settings → Backup → ImportPicker` + `ValidationReport` + `ConflictResolver` + `ImportProgress`.
+  - Hooks: use `withTransaction` and existing write hooks (`useCreateSession`, `useCreateLoggedSet`) or low-level `db` wrapper for bulk writes.
+  - Acceptance: validated import, duplicates handled, data appears in IndexedDB and UI.
+
+  11.11 Requirements → UI elements mapping (explicit)
+
+- "Export generates CSV" → `ExportSheet` (controls) + `CSVStreamer` (implementation) + `ExportSummary` (save/share).
+- "Export accessible via share/save" → use Web Share API with fallback to anchor download.
+- "Import validates file schema" → `CSVParser` + `ValidationReport` + inline error counts.
+- "Import prompts about duplicates/overwrite" → `ConflictResolver` with global & per-row controls.
+- "Imported data appears in local storage" → transactional write into `sessions` + `loggedSets` and final `useSessions()`/`useLoggedSets()` invalidation.
+
+  11.12 User pain points & mitigations (backup/import specific)
+
+- Fear of data loss when importing:
+  - Mitigation: preview & validation, import into `undo_trash` until user confirms, provide template CSV and clear guidance.
+- Long-running import/export:
+  - Mitigation: stream processing, batch transactions, progress UI, allow backgrounding and resume where possible.
+- Confusing duplicate detection:
+  - Mitigation: provide clear heuristics (UUID match → exact, date+name fuzzy → likely duplicate), show examples, provide safe defaults (Skip or Create-as-new).
+- Privacy concerns about file leaving device:
+  - Mitigation: call out local-only processing and show reminder when user shares file via system share.
+
+---
