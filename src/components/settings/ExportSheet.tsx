@@ -18,7 +18,7 @@ interface ExportFilters {
   includeAlternatives: boolean;
 }
 
-interface SessionExportRow {
+export interface SessionExportRow {
   sessionId: string;
   sessionName: string;
   sessionDate: number;
@@ -51,7 +51,7 @@ const DATE_PRESETS: { value: DatePresetValue; label: string }[] = [
 
 const DAY_MS = 1000 * 60 * 60 * 24;
 
-const SESSION_EXPORT_COLUMNS: CsvColumn<SessionExportRow>[] = [
+export const SESSION_EXPORT_COLUMNS: CsvColumn<SessionExportRow>[] = [
   { header: "Session ID", key: "sessionId" },
   { header: "Session name", key: "sessionName" },
   {

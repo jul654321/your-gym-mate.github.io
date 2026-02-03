@@ -20,6 +20,10 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const formattedDate = useMemo(() => {
+    if (isNaN(session.date)) {
+      return "Invalid date";
+    }
+
     return new Intl.DateTimeFormat("en-US", {
       dateStyle: "medium",
       timeStyle: "short",
