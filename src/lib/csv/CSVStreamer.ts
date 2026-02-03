@@ -56,7 +56,7 @@ export class CSVStreamer {
         options.onRow?.(rowCount);
       },
       cancel() {
-        iterator.return?.();
+        iterator.return?.(undefined);
       },
     });
 

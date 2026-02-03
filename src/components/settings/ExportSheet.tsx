@@ -4,11 +4,7 @@ import { Button } from "../ui/button";
 import { CSVStreamer, type CsvColumn } from "../../lib/csv/CSVStreamer";
 import { getDB, STORE_NAMES } from "../../lib/db";
 import { useUpdateSetting } from "../../hooks/useSettings";
-import type {
-  LoggedSetDTO,
-  SessionDTO,
-  SessionStatus,
-} from "../../types";
+import type { LoggedSetDTO, SessionDTO, SessionStatus } from "../../types";
 
 interface ExportSheetProps {
   isOpen: boolean;
@@ -115,8 +111,13 @@ async function* buildSessionExportRows({
   includeAlternatives,
 }: ExportFilters): AsyncGenerator<SessionExportRow> {
   const db = await getDB();
-  const sessionTx = db.transaction(STORE_NAMES.sessions, "readonly");
-  const sessionStore = sessionTx.objectStore(STORE_NAMES.sessions);
+  const tx = db.transaction(
+    [STORE_NAMES.sessions, STORE_NAMES.loggedSets],
+    "readonly"
+  );
+  const sessionStore = tx.objectStore(STORE_NAMES.sessions);
+  const loggedSetsStore = tx.objectStore(STORE_NAMES.loggedSets);
+  const logIndex = loggedSetsStore.index("sessionId");
   let cursor = await sessionStore.openCursor();
 
   while (cursor) {
@@ -126,11 +127,7 @@ async function* buildSessionExportRows({
       continue;
     }
 
-    const logTx = db.transaction(STORE_NAMES.loggedSets, "readonly");
-    const logStore = logTx.objectStore(STORE_NAMES.loggedSets);
-    const index = logStore.index("sessionId");
-    const sets = await index.getAll(session.id);
-    await logTx.done;
+    const sets = await logIndex.getAll(session.id);
 
     for (const set of sets) {
       yield createRow(session, set, includeAlternatives);
@@ -139,7 +136,7 @@ async function* buildSessionExportRows({
     cursor = await cursor.continue();
   }
 
-  await sessionTx.done;
+  await tx.done;
 }
 
 function isWithinDateRange(
@@ -149,8 +146,7 @@ function isWithinDateRange(
   if (!range) {
     return true;
   }
-  const meetsStart =
-    range.from == null ? true : sessionDate >= range.from;
+  const meetsStart = range.from == null ? true : sessionDate >= range.from;
   const meetsEnd = range.to == null ? true : sessionDate <= range.to;
   return meetsStart && meetsEnd;
 }
@@ -259,10 +255,18 @@ export function ExportSheet({ isOpen, onClose }: ExportSheetProps) {
           : "No logged sets were found for that range."
       );
     } catch (exportError) {
-      setError(
+      const message =
         exportError instanceof Error
           ? exportError.message
-          : "Failed to export sessions."
+          : "Failed to export sessions.";
+      console.error("[ExportSheet] Export failed", {
+        preset,
+        includeAlternatives,
+        rowCount: rowCountRef.current,
+        error: exportError,
+      });
+      setError(
+        `${message} If the failure persists, open DevTools > Console, copy the error, and share it so we can trace the exact cause.`
       );
     } finally {
       setIsExporting(false);
@@ -296,7 +300,8 @@ export function ExportSheet({ isOpen, onClose }: ExportSheetProps) {
               Export data
             </h2>
             <p className="text-sm text-gray-500">
-              Stream your sessions and logged sets into CSV while keeping memory usage low.
+              Stream your sessions and logged sets into CSV while keeping memory
+              usage low.
             </p>
           </div>
           <Button
