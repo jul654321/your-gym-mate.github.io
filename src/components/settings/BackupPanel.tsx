@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { ExportSheet } from "./ExportSheet";
-import { ImportPicker } from "./ImportPicker";
 import { getDB, STORE_NAMES } from "../../lib/db";
 import { useGetSetting } from "../../hooks/useSettings";
+import { ImportPicker } from "./ImportPicker";
 
 interface DbEstimate {
   sessionCount: number;
