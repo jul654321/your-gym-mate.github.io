@@ -11,7 +11,9 @@ const QUERY_KEY = "settings";
 
 export function useGetSetting<T = unknown>(
   key: string,
-  options?: Omit<UseQueryOptions<T | null>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<T | null>, "queryKey" | "queryFn"> & {
+    cacheTime?: number;
+  }
 ) {
   const { enabled, ...restOptions } = options ?? {};
   return useQuery<T | null>({

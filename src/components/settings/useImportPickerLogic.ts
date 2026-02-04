@@ -263,7 +263,7 @@ export function useImportPickerLogic({
         importedAt: Date.now(),
         duplicateStrategy,
       };
-      const nextHistory = [...importHistory, historyEntry];
+      const nextHistory = [...(importHistory ?? []), historyEntry];
       updateSetting.mutate({
         key: "importHistory",
         value: nextHistory,

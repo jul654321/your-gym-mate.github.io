@@ -1,8 +1,13 @@
 import { CSVStreamer, type CsvColumn } from "../lib/csv/CSVStreamer";
 import { getDB, STORE_NAMES } from "../lib/db";
-import type { LoggedSetDTO, SessionDTO, SessionStatus } from "../types";
+import type {
+  LoggedSetDTO,
+  SessionDTO,
+  SessionStatus,
+  WeightUnit,
+} from "../types";
 
-export interface SessionExportRow {
+export interface SessionExportRow extends Record<string, unknown> {
   sessionId: string;
   sessionName: string;
   sessionDate: number;
@@ -14,7 +19,7 @@ export interface SessionExportRow {
   exerciseId: string;
   exerciseName: string;
   weight: number;
-  weightUnit: string;
+  weightUnit?: WeightUnit;
   reps: number;
   timestamp: number;
   orderIndex: number | "";
@@ -39,19 +44,25 @@ export const SESSION_EXPORT_COLUMNS: CsvColumn<SessionExportRow>[] = [
     header: "Session date",
     key: "sessionDate",
     formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
+      typeof value === "number" && !isNaN(value)
+        ? new Date(value).toISOString()
+        : "",
   },
   {
     header: "Session created",
     key: "sessionCreatedAt",
     formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
+      typeof value === "number" && !isNaN(value)
+        ? new Date(value).toISOString()
+        : "",
   },
   {
     header: "Session updated",
     key: "sessionUpdatedAt",
     formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
+      typeof value === "number" && !isNaN(value)
+        ? new Date(value).toISOString()
+        : "",
   },
   { header: "Session status", key: "sessionStatus" },
   { header: "Source plan ID", key: "sourcePlanId" },
@@ -65,7 +76,9 @@ export const SESSION_EXPORT_COLUMNS: CsvColumn<SessionExportRow>[] = [
     header: "Set timestamp",
     key: "timestamp",
     formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
+      typeof value === "number" && !isNaN(value)
+        ? new Date(value).toISOString()
+        : "",
   },
   { header: "Order index", key: "orderIndex" },
   { header: "Notes", key: "notes" },
@@ -77,13 +90,17 @@ export const SESSION_EXPORT_COLUMNS: CsvColumn<SessionExportRow>[] = [
     header: "Set created",
     key: "setCreatedAt",
     formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
+      typeof value === "number" && !isNaN(value)
+        ? new Date(value).toISOString()
+        : "",
   },
   {
     header: "Set updated",
     key: "setUpdatedAt",
     formatter: (value) =>
-      typeof value === "number" ? new Date(value).toISOString() : "",
+      typeof value === "number" && !isNaN(value)
+        ? new Date(value).toISOString()
+        : "",
   },
 ];
 
@@ -171,7 +188,7 @@ function createRow(
     exerciseId: set.exerciseId,
     exerciseName: set.exerciseNameSnapshot ?? "",
     weight: set.weight,
-    weightUnit: set.weightUnit ?? "",
+    weightUnit: set.weightUnit,
     reps: set.reps,
     timestamp: set.timestamp,
     orderIndex: set.orderIndex ?? "",

@@ -1,5 +1,10 @@
 import { getDB, STORE_NAMES, withTransaction } from "../db";
-import type { LoggedSetDTO, SessionDTO, SessionStatus } from "../../types";
+import type {
+  LoggedSetDTO,
+  SessionDTO,
+  SessionStatus,
+  WeightUnit,
+} from "../../types";
 import type { SessionExportRow } from "../../hooks/useExportBackup";
 
 export type DuplicateStrategy = "skip" | "createNew";
@@ -154,7 +159,7 @@ export function buildSessionRow(
     exerciseId: cells["Exercise ID"]?.trim() ?? "",
     exerciseName: cells["Exercise name"]?.trim() ?? "",
     weight: toNumber(cells["Weight"]),
-    weightUnit: cells["Unit"]?.trim() ?? "",
+    weightUnit: (cells["Unit"]?.trim() as WeightUnit) ?? "",
     reps: toNumber(cells["Reps"]),
     timestamp: parseEpochMs(cells["Set timestamp"]),
     orderIndex: toOptionalNumber(cells["Order index"]),
@@ -309,7 +314,7 @@ function createSessionPayload(
       ? row.sessionCreatedAt
       : Date.now(),
     updatedAt: Number.isFinite(row.sessionUpdatedAt)
-      ? row.sessionUpdatedAt
+      ? (row.sessionUpdatedAt as number)
       : undefined,
   };
 }
