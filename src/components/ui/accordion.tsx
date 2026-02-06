@@ -22,7 +22,7 @@ export function Accordion({
       role="region"
       aria-labelledby={accordionTitle}
       {...props}
-      className="flex flex-col bg-background rounded-lg p-4 gap-4"
+      className="flex flex-col bg-secondary rounded-lg p-4 gap-4"
     >
       <div className="w-full flex flex-col items-start justify-between gap-3">
         <header

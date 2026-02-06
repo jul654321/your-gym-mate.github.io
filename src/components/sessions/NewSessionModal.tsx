@@ -108,7 +108,6 @@ export function NewSessionModal({
             onChange={(event) => setSelectedPlanId(event.target.value)}
             disabled={isPlansLoading}
           >
-            <option value="">No plan — start from scratch</option>
             {plans.map((plan) => (
               <option key={plan.id} value={plan.id}>
                 {plan.name}

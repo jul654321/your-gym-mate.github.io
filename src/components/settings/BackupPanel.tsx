@@ -64,10 +64,12 @@ export function BackupPanel() {
     : "Estimate unavailable";
 
   return (
-    <Card cardHeader={<>Backup & Restore</>}>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+    <section aria-live="polite">
+      <h2 className="text-lg font-semibold text-muted-foreground">
+        Backup & Restore
+      </h2>
+      <div className="mt-4 space-y-3">
         <Card
-          theme="secondary"
           cardHeader={<p className="text-xs text-gray-500">Last export</p>}
           cardFooter={
             <p className="text-sm text-muted-foreground font-semibold">
@@ -76,7 +78,6 @@ export function BackupPanel() {
           }
         />
         <Card
-          theme="secondary"
           cardHeader={
             <p className="text-xs text-gray-500">Database estimate</p>
           }
@@ -120,6 +121,6 @@ export function BackupPanel() {
         isOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
       />
-    </Card>
+    </section>
   );
 }

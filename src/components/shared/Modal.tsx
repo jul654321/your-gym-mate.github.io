@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
-import { Button, type ButtonProps } from "../ui/button";
+import { Button } from "../ui/button";
 
 interface ModalProps {
   title?: string;

@@ -15,7 +15,6 @@ export function ConfirmDeleteModal({
   onCancel,
   isDeleting = false,
 }: ConfirmDeleteModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
   // Focus trap and initial focus

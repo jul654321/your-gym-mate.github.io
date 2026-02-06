@@ -1,7 +1,10 @@
-import type { MouseEvent } from "react";
 import { Button } from "../ui/button";
 import { type DuplicateStrategy } from "../../lib/utils/importBackup";
 import type { ImportPickerLogicResult } from "./useImportPickerLogic";
+import { Modal } from "../shared/Modal";
+import { Label } from "../ui/label";
+import { Select } from "../ui/select";
+import { Card } from "../ui/card";
 
 const MAX_PREVIEW_ISSUES = 3;
 const DUPLICATE_STRATEGY_LABELS: Record<DuplicateStrategy, string> = {
@@ -17,98 +20,86 @@ export function ImportPickerView({
   duplicateReport,
   duplicateStrategy,
   onDuplicateStrategyChange,
-  readyRowsCount,
-  validationLiveMessage,
   validationError,
   isImporting,
   importError,
-  lastImport,
   handleFileChange,
   handleImport,
   handleUndo,
   handleClose,
-  liveRegionId,
   progressMessage,
 }: ImportPickerLogicResult) {
-  const handleBackdropClick = (event: MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      handleClose();
-    }
-  };
-
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="import-picker-title"
-      onClick={handleBackdropClick}
+    <Modal
+      title="Import data"
+      onClose={handleClose}
+      actionButtons={[
+        <Button
+          key="undo"
+          onClick={handleUndo}
+          disabled={isImporting}
+          variant="secondary"
+        >
+          {isImporting ? "Undoing..." : "Undo"}
+        </Button>,
+        <Button
+          key="import"
+          onClick={handleImport}
+          disabled={isImporting}
+          variant="primary"
+        >
+          {isImporting ? "Importing..." : "Import"}
+        </Button>,
+      ]}
     >
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
-          <div>
-            <h2
-              id="import-picker-title"
-              className="text-2xl font-semibold text-gray-900"
-            >
-              Import data
-            </h2>
-            <p className="text-sm text-gray-500">
-              Upload a Gym Mate CSV, validate it, and import your sessions
-              transactionally.
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleClose}
-            aria-label="Close import modal"
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Upload a Gym Mate CSV, validate it, and import your sessions
+          transactionally.
+        </p>
+
+        <Label className="flex flex-col gap-2">
+          Select Gym Mate CSV
+          <input
+            key={inputKey}
+            type="file"
+            accept=".csv"
+            onChange={handleFileChange}
+            disabled={isImporting}
+            className="rounded-lg border border-gray-200 p-3 text-sm text-gray-700 focus:border-primary focus:outline-none placeholder:text-muted-foreground"
+          />
+        </Label>
+        <p className="text-xs text-muted-foreground" aria-live="polite">
+          {selectedFileLabel}
+        </p>
+
+        <div className="mt-2">
+          <Label>Duplicate handling</Label>
+          <Select
+            value={duplicateStrategy}
+            onChange={(event) =>
+              onDuplicateStrategyChange(event.target.value as DuplicateStrategy)
+            }
           >
-            <svg
-              className="h-4 w-4"
-              viewBox="0 0 20 20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path d="M4 4l12 12M16 4L4 16" />
-            </svg>
-          </Button>
+            {Object.entries(DUPLICATE_STRATEGY_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </Select>
         </div>
 
-        <div className="space-y-6 p-6 text-sm text-gray-600">
-          <label className="flex flex-col gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              Select Gym Mate CSV
-            </span>
-            <input
-              key={inputKey}
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange}
-              disabled={isImporting}
-              className="rounded-lg border border-gray-200 p-3 text-sm text-gray-700 focus:border-primary focus:outline-none"
-            />
-          </label>
-          <p className="text-xs text-gray-500" aria-live="polite">
-            {selectedFileLabel}
-          </p>
-
-          <div className="rounded-2xl border border-dashed border-gray-200 bg-background p-4 text-xs text-gray-500">
-            <p>{validationLiveMessage}</p>
+        <Card theme="secondary">
+          <div className="flex flex-col gap-2">
             {validationError && (
-              <p className="mt-2 text-xs font-semibold text-red-600">
-                {validationError}
-              </p>
+              <p className="mt-2 text-sm text-red-600">{validationError}</p>
             )}
-          </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <p className="text-sm font-medium text-card-foreground">
                 Validation
               </p>
-              <p className="text-sm text-gray-900">
+              <p className="text-xs text-muted-foreground">
                 {validRows.length} valid row
                 {validRows.length === 1 ? "" : "s"} · {invalidRows.length} issue
                 {invalidRows.length === 1 ? "" : "s"}
@@ -129,94 +120,28 @@ export function ImportPickerView({
                 </ul>
               )}
             </div>
+
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <p className="text-sm font-medium text-card-foreground">
                 Duplicates
               </p>
-              <p className="text-sm text-gray-900">
+              <p className="text-xs text-muted-foreground">
                 ID matches: {duplicateReport.idMatches.length}
               </p>
-              <p className="text-sm text-gray-900">
+              <p className="text-xs text-muted-foreground">
                 Name + date matches: {duplicateReport.nameDateMatches.length}
               </p>
-              <div className="mt-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Duplicate handling
-                </label>
-                <select
-                  value={duplicateStrategy}
-                  onChange={(event) =>
-                    onDuplicateStrategyChange(
-                      event.target.value as DuplicateStrategy
-                    )
-                  }
-                  className="mt-1 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/60"
-                >
-                  {Object.entries(DUPLICATE_STRATEGY_LABELS).map(
-                    ([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    )
-                  )}
-                </select>
-              </div>
             </div>
           </div>
+        </Card>
 
-          <div
-            className="rounded-2xl border border-gray-200 bg-background p-4 text-xs text-gray-500"
-            aria-live="polite"
-            id={liveRegionId}
-          >
-            <p>{progressMessage}</p>
-            {importError && (
-              <p className="mt-2 text-xs font-semibold text-red-600">
-                {importError}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-3 border-t border-gray-200 px-6 py-4">
-          <Button
-            onClick={handleImport}
-            disabled={
-              isImporting ||
-              !validRows.length ||
-              Boolean(validationError) ||
-              readyRowsCount === 0
-            }
-            isLoading={isImporting}
-            className="flex-1 md:flex-none"
-          >
-            {isImporting
-              ? "Importing…"
-              : `Import ${readyRowsCount} row${
-                  readyRowsCount === 1 ? "" : "s"
-                }`}
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={handleClose}
-            size="sm"
-            className="text-gray-600"
-            disabled={isImporting}
-          >
-            Dismiss
-          </Button>
-          {lastImport && (
-            <Button
-              variant="outline"
-              onClick={handleUndo}
-              disabled={isImporting}
-              className="text-red-600"
-            >
-              Undo last import
-            </Button>
+        <Card theme="secondary">
+          <p>{progressMessage}</p>
+          {importError && (
+            <p className="text-sm font-semibold text-red-400">{importError}</p>
           )}
-        </div>
+        </Card>
       </div>
-    </div>
+    </Modal>
   );
 }

@@ -23,6 +23,9 @@ import type {
 import { Modal } from "../shared/Modal";
 import { Select } from "../ui/select";
 import { Label } from "../ui/label";
+import { Card } from "../ui/card";
+import { InputError } from "../ui/input-error";
+import { Checkbox } from "../ui/checkbox";
 
 const WEIGHT_UNITS: WeightUnit[] = ["kg", "lb"];
 
@@ -394,19 +397,18 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     >
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="switch-to-alternative">
-            <input
-              type="checkbox"
+          <Label>
+            <Checkbox
               checked={formState.switchToAlternative}
               onChange={handleSwitchToggle}
               disabled={switchDisabled}
-            />
-            <span className="ml-2">Switch to alternative</span>
+            >
+              Switch to alternative
+            </Checkbox>
           </Label>
 
-          <Label htmlFor="apply-to-session">
-            <input
-              type="checkbox"
+          <Label>
+            <Checkbox
               checked={formState.applyToSession}
               onChange={(event) =>
                 setFormState((prev) => ({
@@ -415,8 +417,9 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
                 }))
               }
               disabled={!ready || isBusy}
-            />
-            <span className="ml-2">Apply to all sets of this session</span>
+            >
+              Apply to all sets of this session
+            </Checkbox>
           </Label>
 
           {formState.applyToSession && (
@@ -503,105 +506,108 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
           </div>
         </div>
 
-        <div className="bg-background rounded-lg p-4">
-          <div className="flex justify-between">
-            <div>
-              <p className="text-sm font-semibold text-card-foreground">
-                Alternative set
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Optional alternative exercise/volume.
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() =>
-                setFormState((prev) => ({
-                  ...prev,
-                  alternativeEnabled: !prev.alternativeEnabled,
-                }))
-              }
-              disabled={!ready}
-            >
-              {formState.alternativeEnabled ? "Hide" : "Add"}
-            </Button>
-          </div>
-
-          {formState.alternativeEnabled && (
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <Card
+          theme="secondary"
+          cardHeader={
+            <div className="flex justify-between w-full gap-2">
               <div>
-                <Label htmlFor="alternative-exercise">
-                  Alternative exercise
-                </Label>
-                <Select
-                  value={formState.alternativeExerciseId}
-                  onChange={(event) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      alternativeExerciseId: event.target.value,
-                    }))
-                  }
-                  disabled={!ready || exercisesLoading}
-                >
-                  <option value="">
-                    {exercisesLoading
-                      ? "Loading exercises…"
-                      : "Select alternative"}
-                  </option>
-                  {exerciseOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
+                <p>Alternative set</p>
+                <p className="text-xs text-muted-foreground">
+                  Optional alternative exercise/volume.
+                </p>
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    alternativeEnabled: !prev.alternativeEnabled,
+                  }))
+                }
+                disabled={!ready}
+              >
+                {formState.alternativeEnabled ? "Hide" : "Add"}
+              </Button>
+            </div>
+          }
+        >
+          <>
+            {formState.alternativeEnabled && (
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div>
+                  <Label htmlFor="alternative-exercise">
+                    Alternative exercise
+                  </Label>
+                  <Select
+                    value={formState.alternativeExerciseId}
+                    onChange={(event) =>
+                      setFormState((prev) => ({
+                        ...prev,
+                        alternativeExerciseId: event.target.value,
+                      }))
+                    }
+                    disabled={!ready || exercisesLoading}
+                  >
+                    <option value="">
+                      {exercisesLoading
+                        ? "Loading exercises…"
+                        : "Select alternative"}
                     </option>
-                  ))}
-                </Select>
-                {!formState.alternativeExerciseId && (
-                  <p className="mt-1 text-xs text-red-600">
-                    Alternative exercise is required while toggled on.
-                  </p>
-                )}
+                    {exerciseOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Select>
+                  {!formState.alternativeExerciseId && (
+                    <InputError message="Alternative exercise is required while toggled on.">
+                      Alternative exercise is required while toggled on.
+                    </InputError>
+                  )}
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Weight
+                  </label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={formState.alternativeWeight}
+                    onChange={(event) =>
+                      setFormState((prev) => ({
+                        ...prev,
+                        alternativeWeight: event.target.value,
+                      }))
+                    }
+                    disabled={!ready}
+                    inputMode="decimal"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Reps
+                  </label>
+                  <Input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={formState.alternativeReps}
+                    onChange={(event) =>
+                      setFormState((prev) => ({
+                        ...prev,
+                        alternativeReps: event.target.value,
+                      }))
+                    }
+                    disabled={!ready}
+                    inputMode="numeric"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">
-                  Weight
-                </label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={formState.alternativeWeight}
-                  onChange={(event) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      alternativeWeight: event.target.value,
-                    }))
-                  }
-                  disabled={!ready}
-                  inputMode="decimal"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">
-                  Reps
-                </label>
-                <Input
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={formState.alternativeReps}
-                  onChange={(event) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      alternativeReps: event.target.value,
-                    }))
-                  }
-                  disabled={!ready}
-                  inputMode="numeric"
-                />
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </>
+        </Card>
       </div>
 
       {showDeleteConfirm && (

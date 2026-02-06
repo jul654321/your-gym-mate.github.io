@@ -4,7 +4,6 @@ import type { GroupedExerciseVM } from "../../hooks/useSessionViewModel";
 import { Plus } from "lucide-react";
 import type { LoggedSetDTO } from "../../types";
 import { Fragment } from "react";
-import { Card } from "../ui/card";
 
 interface LoggedSetsListProps {
   groupedSets: GroupedExerciseVM[];

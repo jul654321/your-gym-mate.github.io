@@ -1,10 +1,10 @@
-import { Pencil, X as XIcon } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { SessionDTO } from "../../types";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 import { SectionHeader } from "../layouts/SectionHeader";
 import { Modal } from "../shared/Modal";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
 interface SessionHeaderProps {
@@ -31,7 +31,7 @@ export function SessionHeader({
       onRename(trimmed);
     }
     setIsEditing(false);
-  }, [draftName, onRename, session?.name]);
+  }, [draftName, onRename, session]);
 
   const handleCancel = useCallback(() => {
     setDraftName(session?.name ?? "");

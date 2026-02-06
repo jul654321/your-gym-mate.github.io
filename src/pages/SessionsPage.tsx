@@ -10,7 +10,6 @@ import { useInstantiateSessionFromPlan } from "../hooks/usePlans";
 import { useCreateSession } from "../hooks/useSessions";
 import { inferSessionName } from "../lib/utils/sessionName";
 import type { CreateSessionCmd } from "../types";
-import { Plus } from "lucide-react";
 import { SectionHeader } from "../components/layouts/SectionHeader";
 
 export type SessionsPageLocationState = {

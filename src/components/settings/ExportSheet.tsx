@@ -1,8 +1,12 @@
 import { useMemo, useRef, useState } from "react";
-import type { MouseEvent } from "react";
 import { Button } from "../ui/button";
 import { useUpdateSetting } from "../../hooks/useSettings";
 import { exportToCsv } from "../../hooks/useExportBackup";
+import { Modal } from "../shared/Modal";
+import { Label } from "../ui/label";
+import { Select } from "../ui/select";
+import { Checkbox } from "../ui/checkbox";
+import { Card } from "../ui/card";
 
 interface ExportSheetProps {
   isOpen: boolean;
@@ -42,12 +46,6 @@ export function ExportSheet({ isOpen, onClose }: ExportSheetProps) {
     () => DATE_PRESETS.find((option) => option.value === preset)?.label ?? "",
     [preset]
   );
-
-  const handleBackdropClick = (event: MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      onClose();
-    }
-  };
 
   const handleExport = async () => {
     if (isExporting) {
@@ -117,116 +115,61 @@ export function ExportSheet({ isOpen, onClose }: ExportSheetProps) {
       "Choose a date range and export your workout sessions as a CSV file.";
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="export-sheet-title"
-      onClick={handleBackdropClick}
+    <Modal
+      title="Export data"
+      onClose={onClose}
+      actionButtons={[
+        <Button key="export" onClick={handleExport} disabled={isExporting}>
+          {isExporting ? "Exporting..." : "Start export"}
+        </Button>,
+      ]}
     >
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
-          <div>
-            <h2
-              id="export-sheet-title"
-              className="text-2xl font-semibold text-gray-900"
-            >
-              Export data
-            </h2>
-            <p className="text-sm text-gray-500">
-              Stream your sessions and logged sets into CSV while keeping memory
-              usage low.
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            aria-label="Close export modal"
-          >
-            <svg
-              className="h-4 w-4"
-              viewBox="0 0 20 20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path d="M4 4l12 12M16 4L4 16" />
-            </svg>
-          </Button>
-        </div>
-
-        <div className="space-y-6 p-6 text-sm text-gray-600">
+      <>
+        <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Date range
-              </label>
-              <select
+              <Label htmlFor="date-range">Date range</Label>
+              <Select
                 value={preset}
                 onChange={(event) =>
                   setPreset(event.target.value as DatePresetValue)
                 }
-                className="mt-1 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/60"
               >
                 {DATE_PRESETS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
-              </select>
+              </Select>
               <p className="text-xs text-gray-500">
                 Current selection: {presetLabel}.
               </p>
             </div>
             <div>
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
-                <input
-                  type="checkbox"
+              <Label className="flex items-center gap-2">
+                <Checkbox
                   checked={includeAlternatives}
                   onChange={(event) =>
                     setIncludeAlternatives(event.target.checked)
                   }
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                Include alternative sets
-              </label>
+                >
+                  Include alternative sets
+                </Checkbox>
+              </Label>
               <p className="text-xs text-gray-500">
                 Alternative snapshots are only included when you opt-in.
               </p>
             </div>
           </div>
 
-          <div
-            className="rounded-2xl border border-dashed border-gray-200 bg-background p-4 text-xs text-gray-500"
-            aria-live="polite"
-          >
+          <Card theme="secondary">
             <p>{progressMessage}</p>
             {error && (
               <p className="mt-2 text-xs font-semibold text-red-600">{error}</p>
             )}
-          </div>
+          </Card>
         </div>
-
-        <div className="flex flex-wrap gap-3 border-t border-gray-200 px-6 py-4">
-          <Button
-            onClick={handleExport}
-            disabled={isExporting}
-            isLoading={isExporting}
-            className="flex-1 md:flex-none"
-          >
-            {isExporting ? "Exporting..." : "Start export"}
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={onClose}
-            size="sm"
-            className="text-gray-600"
-          >
-            Dismiss
-          </Button>
-        </div>
-      </div>
-    </div>
+      </>
+    </Modal>
   );
 }
