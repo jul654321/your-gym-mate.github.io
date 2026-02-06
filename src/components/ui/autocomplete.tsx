@@ -19,7 +19,6 @@ export interface AutocompleteItem<T = unknown> {
 }
 
 export interface AutocompleteProps<T = unknown> {
-  label: string;
   inputValue: string;
   options?: AutocompleteItem<T>[];
   onInputChange: (value: string) => void;
@@ -34,7 +33,6 @@ export interface AutocompleteProps<T = unknown> {
 }
 
 export function Autocomplete<T>({
-  label,
   inputValue,
   options = [],
   onInputChange,
@@ -124,13 +122,6 @@ export function Autocomplete<T>({
 
   return (
     <div className={cn("space-y-1", className)} ref={containerRef}>
-      <label
-        htmlFor={resolvedId}
-        className="block text-sm font-medium text-slate-600"
-      >
-        {label}
-      </label>
-
       <div className="relative">
         <Input
           id={resolvedId}
@@ -140,7 +131,13 @@ export function Autocomplete<T>({
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="pr-10"
+          className={cn(
+            "flex h-11 w-full rounded-md border bg-card px-3 py-2 text-sm text-card-foreground transition duration-150 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60",
+            error
+              ? "border-red-500 focus-visible:ring-red-500"
+              : "border-gray-600 focus-visible:ring-primary/60",
+            className
+          )}
           hasError={Boolean(error)}
           aria-autocomplete="list"
           aria-controls={listboxId}
@@ -172,20 +169,22 @@ export function Autocomplete<T>({
         )}
       </div>
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
 
       {showList && (
         <div className="relative">
           <ul
             id={listboxId}
             role="listbox"
-            className="absolute left-0 right-0 z-10 mt-1 max-h-56 w-full overflow-auto rounded-md border border-slate-200 bg-white shadow-lg"
+            className="absolute left-0 right-0 z-10 mt-1 max-h-56 w-full overflow-auto rounded-md border border-border bg-card shadow-lg"
           >
             {loading && (
-              <li className="px-4 py-3 text-sm text-slate-500">Loading…</li>
+              <li className="px-4 py-3 text-sm text-muted-foreground">
+                Loading…
+              </li>
             )}
             {!loading && options.length === 0 && (
-              <li className="px-4 py-3 text-sm text-slate-500">
+              <li className="px-4 py-3 text-sm text-muted-foreground">
                 {noResultsMessage}
               </li>
             )}
@@ -203,21 +202,21 @@ export function Autocomplete<T>({
                       className={cn(
                         "w-full justify-between text-left px-4 py-3 transition-colors duration-150",
                         isActive
-                          ? "bg-slate-100 text-muted-foreground"
-                          : "text-slate-700 hover:bg-slate-50"
+                          ? "bg-muted text-muted-foreground"
+                          : "text-foreground hover:bg-muted"
                       )}
                     >
                       <div className="flex gap-1 items-center w-full text-left">
                         <div className="flex items-center justify-between text-sm font-medium">
                           <span>{option.label}</span>
                           {option.meta && (
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-muted-foreground">
                               {option.meta}
                             </span>
                           )}
                         </div>
                         {option.description && (
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-muted-foreground">
                             {option.description}
                           </p>
                         )}

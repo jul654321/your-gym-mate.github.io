@@ -7,6 +7,7 @@ import type {
   PlanExerciseAlternativeDefaultsFormModel,
 } from "../../hooks/usePlanFormReducer";
 import type { ExerciseDTO } from "../../types";
+import { Textarea } from "../ui/textarea";
 
 interface PlanExerciseRowProps {
   value: PlanExerciseFormModel;
@@ -225,7 +226,7 @@ export function PlanExerciseRow({
           <div>
             <label
               htmlFor={`sets-${value.id}`}
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-muted-foreground mb-1"
             >
               Sets
             </label>
@@ -252,7 +253,7 @@ export function PlanExerciseRow({
           <div>
             <label
               htmlFor={`reps-${value.id}`}
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-muted-foreground mb-1"
             >
               Reps
             </label>
@@ -279,7 +280,7 @@ export function PlanExerciseRow({
           <div>
             <label
               htmlFor={`weight-${value.id}`}
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-muted-foreground mb-1"
             >
               Weight (kg)
             </label>
@@ -323,14 +324,14 @@ export function PlanExerciseRow({
         {/* Alternative default values */}
         {value.optionalAlternativeExerciseId && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700">
+            <p className="text-sm font-medium text-muted-foreground">
               Alternative defaults
             </p>
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <label
                   htmlFor={`alt-sets-${value.id}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-muted-foreground mb-1"
                 >
                   Sets
                 </label>
@@ -359,7 +360,7 @@ export function PlanExerciseRow({
               <div>
                 <label
                   htmlFor={`alt-reps-${value.id}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-muted-foreground mb-1"
                 >
                   Reps
                 </label>
@@ -388,7 +389,7 @@ export function PlanExerciseRow({
               <div>
                 <label
                   htmlFor={`alt-weight-${value.id}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-muted-foreground mb-1"
                 >
                   Weight (kg)
                 </label>
@@ -419,7 +420,7 @@ export function PlanExerciseRow({
             <div>
               <label
                 htmlFor={`alt-notes-${value.id}`}
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-muted-foreground mb-1"
               >
                 Notes (Alternative)
               </label>
@@ -440,13 +441,12 @@ export function PlanExerciseRow({
         <div>
           <label
             htmlFor={`notes-${value.id}`}
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-muted-foreground mb-1"
           >
             Notes (Optional)
           </label>
-          <Input
+          <Textarea
             id={`notes-${value.id}`}
-            type="text"
             value={value.notes ?? ""}
             onChange={(e) => onChange({ notes: e.target.value })}
             placeholder="e.g. Focus on form"

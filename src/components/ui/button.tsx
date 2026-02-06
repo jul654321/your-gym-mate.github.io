@@ -28,12 +28,13 @@ const variantStyles: Record<ButtonVariant, string> = {
   icon: "rounded-full bg-white shadow-sm hover:bg-slate-100 focus-visible:ring-primary/70 focus-visible:ring-offset-2 cursor-pointer  ",
 };
 
-const sizeStyles: Record<ButtonSize, string> = {
+const sizeStyles: Record<ButtonSize | "ghost", string> = {
   sm: "h-9 px-3 text-xs",
   md: "h-11 px-4 text-sm",
   lg: "h-12 px-6 text-base",
   icon: "h-10 w-10 px-0",
   "icon-small": "h-8 w-8",
+  ghost: "h-auto w-auto px-0",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -63,7 +64,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           "inline-flex items-center justify-center rounded-md font-semibold transition duration-150 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-60",
           variantStyles[variant],
-          sizeStyles[size],
+          variant === "ghost" ? sizeStyles.ghost : sizeStyles[size],
           className
         )}
         disabled={disabled || isLoading}

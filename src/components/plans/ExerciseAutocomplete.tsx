@@ -115,17 +115,24 @@ export function ExerciseAutocomplete({
   };
 
   return (
-    <Autocomplete
-      label={label}
-      inputValue={inputValue}
-      onInputChange={handleInputChange}
-      options={options}
-      onSelectOption={handleSelect}
-      placeholder={placeholder}
-      error={error}
-      loading={isFetching || isCreating}
-      onClear={inputValue ? handleClear : undefined}
-      noResultsMessage={trimmedQuery ? "No exercises found" : "No exercises"}
-    />
+    <div>
+      <label
+        htmlFor={`${label}-${value}`}
+        className="block text-sm font-medium text-muted-foreground mb-1"
+      >
+        {label}
+      </label>
+      <Autocomplete
+        inputValue={inputValue}
+        onInputChange={handleInputChange}
+        options={options}
+        onSelectOption={handleSelect}
+        placeholder={placeholder}
+        error={error}
+        loading={isFetching || isCreating}
+        onClear={inputValue ? handleClear : undefined}
+        noResultsMessage={trimmedQuery ? "No exercises found" : "No exercises"}
+      />
+    </div>
   );
 }
