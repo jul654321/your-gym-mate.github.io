@@ -8,6 +8,7 @@ import type {
 import type { ExerciseDTO } from "../../types";
 import { Textarea } from "../ui/textarea";
 import { Accordion } from "../ui/accordion";
+import { Label } from "../ui/label";
 
 interface PlanExerciseRowProps {
   value: PlanExerciseFormModel;
@@ -196,12 +197,7 @@ export function PlanExerciseRow({
         {/* Default values grid */}
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label
-              htmlFor={`sets-${value.id}`}
-              className="block text-sm font-medium text-muted-foreground mb-1"
-            >
-              Sets
-            </label>
+            <Label htmlFor={`sets-${value.id}`}>Sets</Label>
             <Input
               id={`sets-${value.id}`}
               type="number"
@@ -223,12 +219,7 @@ export function PlanExerciseRow({
           </div>
 
           <div>
-            <label
-              htmlFor={`reps-${value.id}`}
-              className="block text-sm font-medium text-muted-foreground mb-1"
-            >
-              Reps
-            </label>
+            <Label htmlFor={`reps-${value.id}`}>Reps</Label>
             <Input
               id={`reps-${value.id}`}
               type="number"
@@ -250,12 +241,7 @@ export function PlanExerciseRow({
           </div>
 
           <div>
-            <label
-              htmlFor={`weight-${value.id}`}
-              className="block text-sm font-medium text-muted-foreground mb-1"
-            >
-              Weight (kg)
-            </label>
+            <Label htmlFor={`weight-${value.id}`}>Weight (kg)</Label>
             <Input
               id={`weight-${value.id}`}
               type="number"
@@ -301,12 +287,7 @@ export function PlanExerciseRow({
             </p>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label
-                  htmlFor={`alt-sets-${value.id}`}
-                  className="block text-sm font-medium text-muted-foreground mb-1"
-                >
-                  Sets
-                </label>
+                <Label htmlFor={`alt-sets-${value.id}`}>Sets</Label>
                 <Input
                   id={`alt-sets-${value.id}`}
                   type="number"
@@ -330,12 +311,7 @@ export function PlanExerciseRow({
               </div>
 
               <div>
-                <label
-                  htmlFor={`alt-reps-${value.id}`}
-                  className="block text-sm font-medium text-muted-foreground mb-1"
-                >
-                  Reps
-                </label>
+                <Label htmlFor={`alt-reps-${value.id}`}>Reps</Label>
                 <Input
                   id={`alt-reps-${value.id}`}
                   type="number"
@@ -359,12 +335,7 @@ export function PlanExerciseRow({
               </div>
 
               <div>
-                <label
-                  htmlFor={`alt-weight-${value.id}`}
-                  className="block text-sm font-medium text-muted-foreground mb-1"
-                >
-                  Weight (kg)
-                </label>
+                <Label htmlFor={`alt-weight-${value.id}`}>Weight (kg)</Label>
                 <Input
                   id={`alt-weight-${value.id}`}
                   type="number"
@@ -390,12 +361,9 @@ export function PlanExerciseRow({
             </div>
 
             <div>
-              <label
-                htmlFor={`alt-notes-${value.id}`}
-                className="block text-sm font-medium text-muted-foreground mb-1"
-              >
+              <Label htmlFor={`alt-notes-${value.id}`}>
                 Notes (Alternative)
-              </label>
+              </Label>
               <Input
                 id={`alt-notes-${value.id}`}
                 type="text"
@@ -411,12 +379,7 @@ export function PlanExerciseRow({
 
         {/* Notes */}
         <div>
-          <label
-            htmlFor={`notes-${value.id}`}
-            className="block text-sm font-medium text-muted-foreground mb-1"
-          >
-            Notes (Optional)
-          </label>
+          <Label htmlFor={`notes-${value.id}`}>Notes (Optional)</Label>
           <Textarea
             id={`notes-${value.id}`}
             value={value.notes ?? ""}

@@ -17,6 +17,7 @@ import { Input } from "../ui/input";
 import { Modal } from "../shared/Modal";
 import { Textarea } from "../ui/textarea";
 import { Plus } from "lucide-react";
+import { Label } from "../ui/label";
 
 interface PlanEditorProps {
   planId?: string;
@@ -159,12 +160,9 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
           <div className="space-y-4">
             {/* Plan name */}
             <div>
-              <label
-                htmlFor="plan-name"
-                className="block text-sm font-medium text-muted-foreground mb-1"
-              >
+              <Label htmlFor="plan-name">
                 Plan Name <span className="text-red-600">*</span>
-              </label>
+              </Label>
               <Input
                 id="plan-name"
                 type="text"
@@ -182,12 +180,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
 
             {/* Plan notes */}
             <div>
-              <label
-                htmlFor="plan-notes"
-                className="block text-sm font-medium text-muted-foreground mb-1"
-              >
-                Notes (Optional)
-              </label>
+              <Label htmlFor="plan-notes">Notes (Optional)</Label>
               <Textarea
                 id="plan-notes"
                 name="notes"

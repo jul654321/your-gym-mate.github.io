@@ -1,12 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type MouseEvent,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ConfirmDeleteModal } from "../shared/ConfirmDeleteModal";
@@ -30,6 +22,7 @@ import type {
 } from "../../types";
 import { Modal } from "../shared/Modal";
 import { Select } from "../ui/select";
+import { Label } from "../ui/label";
 
 const WEIGHT_UNITS: WeightUnit[] = ["kg", "lb"];
 
@@ -86,7 +79,6 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
   const { data: sessionSets = [] } = useLoggedSets({
     sessionId: set.sessionId,
   });
-  const applyCheckboxId = useId();
 
   const initialFormState = useMemo(() => buildFormState(set), [set]);
   const [formState, setFormState] = useState(initialFormState);
@@ -116,7 +108,10 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
       reps: initialFormState.alternativeReps,
       enabled: initialFormState.alternativeEnabled,
     };
-    setFormState(initialFormState);
+
+    setTimeout(() => {
+      setFormState(initialFormState);
+    }, 0);
   }, [initialFormState]);
 
   const originalExerciseId = useMemo(() => set.exerciseId, [set.exerciseId]);
@@ -206,11 +201,6 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     isBusy ||
     !formState.alternativeEnabled ||
     !formState.alternativeExerciseId;
-  const switchHelperText = formState.switchToAlternative
-    ? "You're now editing the alternative exercise."
-    : formState.alternativeExerciseId
-    ? "Toggle to edit the alternative exercise instead."
-    : "Add an alternative exercise to enable this switch.";
 
   const hasUnsavedChanges = useMemo(() => {
     return JSON.stringify(formState) !== JSON.stringify(initialFormState);
@@ -404,17 +394,17 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     >
       <div className="space-y-4">
         <div className="space-y-2">
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <Label htmlFor="switch-to-alternative">
             <input
               type="checkbox"
               checked={formState.switchToAlternative}
               onChange={handleSwitchToggle}
               disabled={switchDisabled}
             />
-            Switch to alternative
-          </label>
+            <span className="ml-2">Switch to alternative</span>
+          </Label>
 
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <Label htmlFor="apply-to-session">
             <input
               type="checkbox"
               checked={formState.applyToSession}
@@ -426,8 +416,8 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
               }
               disabled={!ready || isBusy}
             />
-            Apply to all sets of this session
-          </label>
+            <span className="ml-2">Apply to all sets of this session</span>
+          </Label>
 
           {formState.applyToSession && (
             <p className="text-xs text-muted-foreground">
@@ -437,9 +427,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-muted-foreground">
-            Exercise
-          </label>
+          <Label htmlFor="exercise">Exercise</Label>
           <Select
             value={formState.exerciseId}
             onChange={(event) =>
@@ -462,9 +450,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="text-sm font-medium text-muted-foreground">
-              Weight
-            </label>
+            <Label htmlFor="weight">Weight</Label>
             <Input
               type="number"
               min={0}
@@ -480,9 +466,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-muted-foreground">
-              Unit
-            </label>
+            <Label htmlFor="unit">Unit</Label>
             <Select
               value={formState.weightUnit}
               onChange={(event) =>
@@ -501,9 +485,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
             </Select>
           </div>
           <div>
-            <label className="text-sm font-medium text-muted-foreground">
-              Reps
-            </label>
+            <Label htmlFor="reps">Reps</Label>
             <Input
               type="number"
               min="1"
@@ -521,7 +503,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 p-4">
+        <div className="bg-background rounded-lg p-4">
           <div className="flex justify-between">
             <div>
               <p className="text-sm font-semibold text-card-foreground">
@@ -549,9 +531,9 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
           {formState.alternativeEnabled && (
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <div>
-                <label className="text-sm font-medium text-muted-foreground">
+                <Label htmlFor="alternative-exercise">
                   Alternative exercise
-                </label>
+                </Label>
                 <Select
                   value={formState.alternativeExerciseId}
                   onChange={(event) =>

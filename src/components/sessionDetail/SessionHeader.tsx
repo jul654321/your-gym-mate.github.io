@@ -4,6 +4,8 @@ import type { SessionDTO } from "../../types";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { SectionHeader } from "../layouts/SectionHeader";
+import { Modal } from "../shared/Modal";
+import { Label } from "../ui/label";
 
 interface SessionHeaderProps {
   session?: SessionDTO | null;
@@ -76,66 +78,28 @@ export function SessionHeader({
       </SectionHeader>
 
       {isEditing && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-current/70 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="session-rename-title"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) {
-              handleCancel();
-            }
-          }}
+        <Modal
+          title="Rename session"
+          onClose={handleCancel}
+          actionButtons={[
+            <Button size="sm" onClick={handleSave} disabled={isBusy}>
+              Save
+            </Button>,
+          ]}
         >
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-              <h2
-                id="session-rename-title"
-                className="text-lg font-semibold text-muted-foreground"
-              >
-                Rename session
-              </h2>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleCancel}
-                aria-label="Close"
-              >
-                <XIcon className="h-5 w-5 text-slate-500" aria-hidden />
-              </Button>
-            </div>
-            <div className="space-y-3 px-6 py-6">
-              <label
-                htmlFor="session-rename-input"
-                className="text-sm font-medium text-slate-700"
-              >
-                Session name
-              </label>
-              <Input
-                id="session-rename-input"
-                className="text-lg font-semibold"
-                value={draftName}
-                onChange={(event) => setDraftName(event.target.value)}
-                disabled={isBusy}
-                aria-label="Session name"
-                autoFocus
-              />
-            </div>
-            <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-6 py-4">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={handleCancel}
-                disabled={isBusy}
-              >
-                Cancel
-              </Button>
-              <Button size="sm" onClick={handleSave} disabled={isBusy}>
-                Save
-              </Button>
-            </div>
-          </div>
-        </div>
+          <>
+            <Label htmlFor="session-rename-input">Session name</Label>
+            <Input
+              id="session-rename-input"
+              className="text-lg font-semibold"
+              value={draftName}
+              onChange={(event) => setDraftName(event.target.value)}
+              disabled={isBusy}
+              aria-label="Session name"
+              autoFocus
+            />
+          </>
+        </Modal>
       )}
     </>
   );

@@ -64,7 +64,7 @@
 
 .dark {
   /* deep green near-black background */
-  --background: oklab(0.1 -0.02 0);
+  --background: oklab(0.13 0 0 / 1);
   /* primary foreground: near-white with a cool green tint for legibility */
   --foreground: oklch(0.96 0.02 150);
 

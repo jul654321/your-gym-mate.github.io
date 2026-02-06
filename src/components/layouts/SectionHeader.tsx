@@ -8,20 +8,26 @@ interface SectionHeaderProps extends HTMLAttributes<HTMLDivElement> {
 export function SectionHeader({
   headerTitle,
   children = null,
+  className = "",
   ...props
 }: SectionHeaderProps) {
   return (
-    <header className={cn("text-foreground", props.className)} {...props}>
-      <div className="container mx-auto px-4 py-2 flex items-center justify-center gap-2">
-        {headerTitle ? (
-          <h1 className="text-lg text-muted-foreground text-center">
-            {headerTitle}
-          </h1>
-        ) : null}
-        {children ? (
-          <div className="flex items-center gap-2">{children}</div>
-        ) : null}
-      </div>
+    <header
+      className={cn(
+        "text-foreground container mx-auto px-4 py-2 flex items-center gap-2",
+        children ? "justify-between" : "justify-center",
+        className
+      )}
+      {...props}
+    >
+      {headerTitle ? (
+        <h1 className="text-lg text-muted-foreground text-center">
+          {headerTitle}
+        </h1>
+      ) : null}
+      {children ? (
+        <div className="flex items-center gap-2">{children}</div>
+      ) : null}
     </header>
   );
 }

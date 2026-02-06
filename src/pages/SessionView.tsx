@@ -6,6 +6,7 @@ import { SessionHeader } from "../components/sessionDetail/SessionHeader";
 import { LoggedSetsList } from "../components/sessionDetail/LoggedSetsList";
 import { EditSetModal } from "../components/sessionDetail/EditSetModal.tsx";
 import type { LoggedSetDTO } from "../types";
+import { SectionMain } from "../components/layouts/SectionMain.tsx";
 
 export function SessionView() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -89,14 +90,14 @@ export function SessionView() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <>
       <SessionHeader
         key={session?.id}
         session={session}
         isBusy={viewModel.isMutating}
         onRename={actions.renameSession}
       />
-      <div className="container mx-auto px-4 py-6">
+      <SectionMain>
         <LoggedSetsList
           groupedSets={groupedExercises}
           onAddSet={handleAddSet}
@@ -112,7 +113,7 @@ export function SessionView() {
             onClose={() => setEditingSet(null)}
           />
         )}
-      </div>
-    </div>
+      </SectionMain>
+    </>
   );
 }

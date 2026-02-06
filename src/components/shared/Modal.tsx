@@ -30,7 +30,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 pb-18"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
@@ -42,9 +42,9 @@ export function Modal({
     >
       <div
         ref={modalRef}
-        className="w-full max-w-md max-h-full max-h-[calc(100vh-2rem)] rounded-2xl bg-card shadow-xl"
+        className="flex flex-col w-full max-w-md max-h-full max-h-[calc(100vh-4rem)] rounded-2xl bg-card shadow-xl"
       >
-        <header className="flex items-center justify-between p-4">
+        <header className="flex items-center justify-between p-4 border-b border-border">
           <h2
             id={titleId}
             className="text-lg font-semibold text-card-foreground"
@@ -70,11 +70,11 @@ export function Modal({
           </Button>
         </header>
 
-        <main className="p-4 text-card-foreground text-sm overflow-y-auto max-h-[calc(100vh-10rem)]">
+        <main className="p-4 text-card-foreground text-sm overflow-y-auto">
           {children}
         </main>
 
-        <div className="p-4 flex justify-end gap-3">
+        <div className="p-4 flex justify-end gap-3 border-t border-border">
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>

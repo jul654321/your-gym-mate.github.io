@@ -4,6 +4,7 @@ import type { GroupedExerciseVM } from "../../hooks/useSessionViewModel";
 import { Plus } from "lucide-react";
 import type { LoggedSetDTO } from "../../types";
 import { Fragment } from "react";
+import { Card } from "../ui/card";
 
 interface LoggedSetsListProps {
   groupedSets: GroupedExerciseVM[];
@@ -26,25 +27,27 @@ function ExerciseHeader({
   isBusy?: boolean;
 }) {
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <p className="text-sm font-semibold text-muted-foreground">
-          {exerciseName}
-        </p>
-        <p className="text-xs uppercase tracking-wide text-slate-400">
-          {setCount} set{setCount === 1 ? "" : "s"}
-        </p>
+    <header>
+      <div className="flex-grow flex justify-between gap-4 items-start">
+        <div>
+          <p className="text-md font-semibold text-muted-foreground whitespace-nowrap text-ellipsis overflow-hidden">
+            {exerciseName}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {setCount} Set{setCount === 1 ? "" : "s"}
+          </p>
+        </div>
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={onAdd}
+          disabled={isBusy}
+          aria-label={`Quick add set for ${exerciseName}`}
+        >
+          <Plus className="mr-1 h-4 w-4" aria-hidden />
+          Add Set
+        </Button>
       </div>
-      <Button
-        size="sm"
-        variant="ghost"
-        onClick={onAdd}
-        disabled={isBusy}
-        aria-label={`Quick add set for ${exerciseName}`}
-      >
-        <Plus className="mr-2 h-4 w-4" aria-hidden />
-        Quick Add
-      </Button>
     </header>
   );
 }
@@ -67,7 +70,7 @@ function ExerciseGroup({
   }
 
   return (
-    <article className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+    <>
       <ExerciseHeader
         exerciseName={group.exerciseName}
         setCount={group.sets.length}
@@ -85,7 +88,7 @@ function ExerciseGroup({
           />
         ))}
       </div>
-    </article>
+    </>
   );
 }
 

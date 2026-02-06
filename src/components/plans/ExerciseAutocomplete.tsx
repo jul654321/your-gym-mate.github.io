@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Autocomplete, type AutocompleteItem } from "../ui/autocomplete";
 import type { ExerciseDTO } from "../../types";
 import { useExercises, useCreateExercise } from "../../hooks/useExercises";
+import { Label } from "../ui/label";
 
 interface ExerciseAutocompleteProps {
   value?: string;
@@ -116,12 +117,7 @@ export function ExerciseAutocomplete({
 
   return (
     <div>
-      <label
-        htmlFor={`${label}-${value}`}
-        className="block text-sm font-medium text-muted-foreground mb-1"
-      >
-        {label}
-      </label>
+      <Label htmlFor={`${label}-${value}`}>{label}</Label>
       <Autocomplete
         inputValue={inputValue}
         onInputChange={handleInputChange}

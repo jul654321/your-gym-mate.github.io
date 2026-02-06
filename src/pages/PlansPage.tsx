@@ -8,6 +8,7 @@ import { useDbInit } from "../hooks/useDbInit";
 import { usePlans } from "../hooks/usePlans";
 import type { PlansQueryParams } from "../types";
 import { Plus } from "lucide-react";
+import { SectionMain } from "../components/layouts/SectionMain";
 
 export function PlansPage() {
   const { isInitialized } = useDbInit();
@@ -39,7 +40,7 @@ export function PlansPage() {
     <div className="min-h-screen bg-background">
       <SectionHeader headerTitle="Workout Plans"></SectionHeader>
 
-      <main className="container mx-auto px-4 pt-2 pb-4 space-y-6">
+      <SectionMain>
         <PlanList
           plans={plans}
           onEdit={handleEditPlan}
@@ -57,7 +58,7 @@ export function PlansPage() {
         >
           <Plus className="h-4 w-4" aria-hidden /> Create New Plan
         </Button>
-      </main>
+      </SectionMain>
 
       {/* Floating Action Button */}
       <CreatePlanFAB onClick={handleCreateClick} disabled={!isInitialized} />
