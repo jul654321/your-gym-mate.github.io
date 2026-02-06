@@ -11,7 +11,7 @@ type ButtonVariant =
   | "destructive"
   | "icon";
 
-type ButtonSize = "sm" | "md" | "lg" | "icon";
+type ButtonSize = "sm" | "md" | "lg" | "icon" | "icon-small";
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
@@ -33,6 +33,7 @@ const sizeStyles: Record<ButtonSize, string> = {
   md: "h-11 px-4 text-sm",
   lg: "h-12 px-6 text-base",
   icon: "h-10 w-10 px-0",
+  "icon-small": "h-8 w-8",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

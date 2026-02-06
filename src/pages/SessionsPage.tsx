@@ -10,6 +10,8 @@ import { useInstantiateSessionFromPlan } from "../hooks/usePlans";
 import { useCreateSession } from "../hooks/useSessions";
 import { inferSessionName } from "../lib/utils/sessionName";
 import type { CreateSessionCmd } from "../types";
+import { Plus } from "lucide-react";
+import { SectionHeader } from "../components/layouts/SectionHeader";
 
 export type SessionsPageLocationState = {
   openNewSession?: boolean;
@@ -111,21 +113,19 @@ export function SessionsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-primary text-white shadow-lg">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold">Workout Sessions</h1>
-        </div>
-      </header>
+      <SectionHeader headerTitle="Sessions Log"></SectionHeader>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
-        <Button
-          className="w-full"
-          variant="primary"
-          onClick={() => setIsNewSessionOpen(true)}
-        >
-          Log Session
-        </Button>
         <SessionList disableActions={disableActions} />
+        <Button
+          variant="primary"
+          size="md"
+          onClick={() => setIsNewSessionOpen(true)}
+          aria-label="Start new session"
+          className="w-full"
+        >
+          Start New Session
+        </Button>
       </main>
 
       <NewSessionModal

@@ -4,6 +4,7 @@ import { ExportSheet } from "./ExportSheet";
 import { getDB, STORE_NAMES } from "../../lib/db";
 import { useGetSetting } from "../../hooks/useSettings";
 import { ImportPicker } from "./ImportPicker";
+import { Card } from "../ui/card";
 
 interface DbEstimate {
   sessionCount: number;
@@ -63,42 +64,44 @@ export function BackupPanel() {
     : "Estimate unavailable";
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-gray-500">
-            Backup & Restore
-          </p>
-          <h2 className="text-xl font-semibold text-gray-900">
-            Keep your data under your control
-          </h2>
-        </div>
-        <p className="text-xs font-semibold text-primary">
-          {lastExportAt ? "Last export recorded" : "No exports yet"}
-        </p>
-      </div>
-
+    <Card cardHeader={<>Backup & Restore</>}>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-dashed border-gray-100 bg-gray-50 p-4">
-          <p className="text-xs text-gray-500">Last export</p>
-          <p className="text-sm font-semibold text-gray-900">
-            {lastExportLabel}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-dashed border-gray-100 bg-gray-50 p-4">
-          <p className="text-xs text-gray-500">Database estimate</p>
-          <p className="text-sm font-semibold text-gray-900">
-            {dbEstimateLabel}
-          </p>
-        </div>
+        <Card
+          theme="secondary"
+          cardHeader={<p className="text-xs text-gray-500">Last export</p>}
+          cardFooter={
+            <p className="text-sm text-slate-900 font-semibold">
+              {lastExportLabel}
+            </p>
+          }
+        />
+        <Card
+          theme="secondary"
+          cardHeader={
+            <p className="text-xs text-gray-500">Database estimate</p>
+          }
+          cardFooter={
+            <p className="text-sm text-slate-900 font-semibold">
+              {dbEstimateLabel}
+            </p>
+          }
+        />
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Button onClick={() => setIsExportOpen(true)}>Export data</Button>
+      <div className="w-full mt-6 flex flex-wrap gap-3">
         <Button
-          variant="outline"
+          variant="primary"
+          size="md"
+          onClick={() => setIsExportOpen(true)}
+          className="flex-1"
+        >
+          Export data
+        </Button>
+        <Button
+          variant="secondary"
+          size="md"
           onClick={() => setIsImportOpen(true)}
-          className="text-primary"
+          className="flex-1"
         >
           Import data
         </Button>
@@ -117,6 +120,6 @@ export function BackupPanel() {
         isOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
       />
-    </section>
+    </Card>
   );
 }

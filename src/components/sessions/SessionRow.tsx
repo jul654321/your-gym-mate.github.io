@@ -1,4 +1,4 @@
-import { ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { ChevronRight, Eye, Pencil, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import type { MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { useDeleteSession, useUpdateSession } from "../../hooks";
 import type { SessionDTO } from "../../types";
 import { Button } from "../ui/button";
 import { ConfirmDeleteModal } from "../shared/ConfirmDeleteModal";
+import { Card } from "../ui/card";
 
 interface SessionRowProps {
   session: SessionDTO;
@@ -57,26 +58,31 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
 
   return (
     <>
-      <article
-        className="flex cursor-pointer flex-col rounded-2xl border border-slate-100 bg-white/90 p-4 shadow-sm transition hover:border-primary/60 hover:shadow-lg"
+      <Card
         onClick={handleNavigate}
         role="listitem"
-      >
-        <div className="flex flex-1 flex-col">
-          <div className="flex items-center gap-2 justify-between">
-            <span className="text-lg font-semibold text-slate-900">
+        clickable
+        cardHeader={
+          <>
+            <span className="text-md font-semibold text-slate-900 whitespace-nowrap text-ellipsis overflow-hidden">
               {session.name || "Untitled Session"}
             </span>
-            <div className="flex flex-col items-end gap-2">
-              <ChevronRight className="h-6 w-6 text-slate-400" aria-hidden />
-            </div>
-          </div>
-          <div className="flex items-center gap-2 justify-between">
+            <Button
+              variant="primary"
+              size="icon-small"
+              aria-label={`View session ${session.name}`}
+            >
+              <Eye className="h-4 w-4" aria-hidden />
+            </Button>
+          </>
+        }
+        cardFooter={
+          <>
             <p className="text-sm text-slate-500">{formattedDate}</p>
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
               <Button
-                size="icon"
-                variant="ghost"
+                size="icon-small"
+                variant="secondary"
                 onClick={(event) => {
                   event.stopPropagation();
                   handleNavigate();
@@ -86,17 +92,17 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
                 <Pencil className="h-4 w-4" aria-hidden />
               </Button>
               <Button
-                size="icon"
-                variant="ghost"
+                size="icon-small"
+                variant="destructive"
                 onClick={handleDelete}
                 disabled={disabled || deleteSession.isPending}
               >
                 <Trash2 className="h-4 w-4" aria-hidden />
               </Button>
             </div>
-          </div>
-        </div>
-      </article>
+          </>
+        }
+      ></Card>
 
       {showDeleteModal && (
         <ConfirmDeleteModal

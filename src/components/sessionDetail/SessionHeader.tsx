@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { SessionDTO } from "../../types";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { SectionHeader } from "../layouts/SectionHeader";
 
 interface SessionHeaderProps {
   session?: SessionDTO | null;
@@ -59,25 +60,20 @@ export function SessionHeader({
 
   return (
     <>
-      <header className="bg-primary text-white shadow-lg">
-        <div className="container mx-auto px-4 py-6 flex items-center justify-between gap-2">
-          <h1 className="text-2xl font-bold">
-            {session?.name ?? "Untitled session"}
-          </h1>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => {
-              setDraftName(session?.name ?? "");
-              setIsEditing(true);
-            }}
-            disabled={isBusy}
-            aria-label="Rename session"
-          >
-            <Pencil className="h-4 w-4 text-white" aria-hidden />
-          </Button>
-        </div>
-      </header>
+      <SectionHeader headerTitle={session?.name ?? "Untitled session"}>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => {
+            setDraftName(session?.name ?? "");
+            setIsEditing(true);
+          }}
+          disabled={isBusy}
+          aria-label="Rename session"
+        >
+          <Pencil className="h-4 w-4 text-white" aria-hidden />
+        </Button>
+      </SectionHeader>
 
       {isEditing && (
         <div

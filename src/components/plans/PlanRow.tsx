@@ -10,6 +10,7 @@ import type { PlanDTO } from "../../types";
 import { Button } from "../ui/button";
 import { Pencil, Play, Trash2 } from "lucide-react";
 import { inferSessionName } from "../../lib/utils/sessionName";
+import { Card } from "../ui/card";
 
 interface PlanRowProps {
   plan: PlanDTO;
@@ -56,56 +57,60 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900">{plan.name}</h3>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                <span className="flex items-center gap-1">
-                  <span className="font-medium">{exerciseCount}</span>
-                  <span>{exerciseCount === 1 ? "exercise" : "exercises"}</span>
-                </span>
-                {plan.notes && (
-                  <span className="text-secondary0" title={plan.notes}>
-                    📝 Notes
-                  </span>
-                )}
-              </div>
+      <Card
+        role="listitem"
+        cardHeader={
+          <>
+            <span className="text-md font-semibold text-slate-900 whitespace-nowrap text-ellipsis overflow-hidden">
+              {plan.name || "Untitled Plan"}
+            </span>
+            <Button
+              onClick={handleInstantiate}
+              disabled={!dbReady || instantiateMutation.isPending}
+              variant="primary"
+              size="icon-small"
+              aria-label={`Start workout from ${plan.name}`}
+            >
+              <Play className="h-4 w-4" aria-hidden />
+            </Button>
+          </>
+        }
+        cardFooter={
+          <>
+            <span className="flex items-center gap-1">
+              <span className="font-medium">{exerciseCount}</span>
+              <span>{exerciseCount === 1 ? "exercise" : "exercises"}</span>
+            </span>
 
-              <div className="flex items-center">
-                <Button
-                  onClick={handleInstantiate}
-                  disabled={!dbReady || instantiateMutation.isPending}
-                  variant="ghost"
-                  size="icon"
-                  aria-label={`Start workout from ${plan.name}`}
-                >
-                  <Play className="h-4 w-4" aria-hidden />
-                </Button>
-                <Button
-                  onClick={() => {
-                    onEdit(plan.id);
-                  }}
-                  variant="ghost"
-                  size="icon"
-                >
-                  <Pencil className="h-4 w-4" aria-hidden />
-                </Button>
-                <Button
-                  onClick={() => {
-                    setShowDeleteModal(true);
-                  }}
-                  variant="ghost"
-                  size="icon"
-                >
-                  <Trash2 className="h-4 w-4" aria-hidden />
-                </Button>
-              </div>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => {
+                  onEdit(plan.id);
+                }}
+                variant="secondary"
+                size="icon-small"
+              >
+                <Pencil className="h-4 w-4" aria-hidden />
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowDeleteModal(true);
+                }}
+                variant="destructive"
+                size="icon-small"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden />
+              </Button>
             </div>
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      >
+        {plan.notes && (
+          <span className="text-secondary0" title={plan.notes}>
+            📝 Notes
+          </span>
+        )}
+      </Card>
 
       {/* Delete confirmation modal */}
       {showDeleteModal && (

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SectionHeader } from "../components/layouts/SectionHeader";
 import { CreatePlanFAB } from "../components/plans/CreatePlanFAB";
 import { PlanEditor } from "../components/plans/PlanEditor";
 import { PlanList } from "../components/plans/PlanList";
@@ -35,68 +36,26 @@ export function PlansPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-primary text-white shadow-lg">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold">Workout Plans</h1>
-        </div>
-      </header>
+      <SectionHeader headerTitle="Workout Plans"></SectionHeader>
 
-      <main className="flex flex-col gap-6 container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4 py-6 space-y-6">
+        <PlanList
+          plans={plans}
+          onEdit={handleEditPlan}
+          dbReady={isInitialized}
+          isLoading={isLoading}
+          error={error}
+          handleCreateClick={handleCreateClick}
+        />
         <Button
-          className="w-full "
           onClick={handleCreateClick}
           disabled={!isInitialized}
+          variant="primary"
+          size="md"
+          className="w-full"
         >
           Create New Plan
         </Button>
-
-        {/* Loading state */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <p className="mt-2 text-gray-600">Loading plans...</p>
-            </div>
-          </div>
-        )}
-
-        {/* Error state */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-600 p-4 rounded">
-            <p className="text-red-800">
-              Failed to load plans: {error.message}
-            </p>
-          </div>
-        )}
-
-        {/* Plans list */}
-        {!isLoading && !error && (
-          <PlanList
-            plans={plans}
-            onEdit={handleEditPlan}
-            dbReady={isInitialized}
-          />
-        )}
-
-        {/* Empty state */}
-        {!isLoading && !error && plans.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <div className="text-6xl mb-4">🏋️</div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-              No plans yet
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Create your first workout plan to get started
-            </p>
-            <Button
-              onClick={handleCreateClick}
-              disabled={!isInitialized}
-              size="lg"
-            >
-              Create Your First Plan
-            </Button>
-          </div>
-        )}
       </main>
 
       {/* Floating Action Button */}
