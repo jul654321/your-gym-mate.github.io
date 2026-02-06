@@ -42,7 +42,7 @@ export function Modal({
     >
       <div
         ref={modalRef}
-        className="w-full max-w-md h-full max-h-[calc(100vh-2rem)] rounded-2xl bg-card shadow-xl"
+        className="w-full max-w-md max-h-full max-h-[calc(100vh-2rem)] rounded-2xl bg-card shadow-xl"
       >
         <header className="flex items-center justify-between p-4">
           <h2
