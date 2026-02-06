@@ -7,6 +7,7 @@ import { Button } from "../components/ui/button";
 import { useDbInit } from "../hooks/useDbInit";
 import { usePlans } from "../hooks/usePlans";
 import type { PlansQueryParams } from "../types";
+import { Plus } from "lucide-react";
 
 export function PlansPage() {
   const { isInitialized } = useDbInit();
@@ -54,7 +55,7 @@ export function PlansPage() {
           size="md"
           className="w-full"
         >
-          Create New Plan
+          <Plus className="h-4 w-4" aria-hidden /> Create New Plan
         </Button>
       </main>
 

@@ -9,7 +9,6 @@ interface PlanExercisesListProps {
   ) => void;
   onRemoveExercise: (index: number) => void;
   onMoveExercise: (fromIndex: number, toIndex: number) => void;
-  isCreating: boolean;
   errors?: Record<
     string,
     {
@@ -32,7 +31,6 @@ export function PlanExercisesList({
   onUpdateExercise,
   onRemoveExercise,
   onMoveExercise,
-  isCreating,
   errors = {},
 }: PlanExercisesListProps) {
   if (exercises.length === 0) {
@@ -50,7 +48,6 @@ export function PlanExercisesList({
       {exercises.map((exercise, index) => (
         <PlanExerciseRow
           key={exercise.id}
-          isCreating={isCreating}
           value={exercise}
           onChange={(updated) => onUpdateExercise(index, updated)}
           onRemove={() => onRemoveExercise(index)}

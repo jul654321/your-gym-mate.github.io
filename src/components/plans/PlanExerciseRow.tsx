@@ -1,4 +1,3 @@
-import { useId, useState } from "react";
 import { ExerciseAutocomplete } from "./ExerciseAutocomplete";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -8,13 +7,13 @@ import type {
 } from "../../hooks/usePlanFormReducer";
 import type { ExerciseDTO } from "../../types";
 import { Textarea } from "../ui/textarea";
+import { Accordion } from "../ui/accordion";
 
 interface PlanExerciseRowProps {
   value: PlanExerciseFormModel;
   onChange: (updated: Partial<PlanExerciseFormModel>) => void;
   onRemove: () => void;
   index: number;
-  isCreating: boolean;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
   canMoveUp: boolean;
@@ -38,17 +37,12 @@ export function PlanExerciseRow({
   onChange,
   onRemove,
   index,
-  isCreating,
   onMoveUp,
   onMoveDown,
   canMoveUp,
   canMoveDown,
   errors,
 }: PlanExerciseRowProps) {
-  const [isExpanded, setIsExpanded] = useState(isCreating);
-  const idPrefix = useId().replace(/:/g, "-");
-  const toggleId = `plan-exercise-toggle-${idPrefix}`;
-  const detailsId = `plan-exercise-details-${idPrefix}`;
   const exerciseLabel = value.nameSnapshot ?? "Select an exercise";
 
   const handleExerciseSelect = (exerciseId: string, exercise: ExerciseDTO) => {
@@ -91,127 +85,105 @@ export function PlanExerciseRow({
   };
 
   return (
-    <div className="flex flex-col bg-background border border-gray-200 rounded-lg p-4 gap-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-4 h-4 max-w-4 max-h-4"
-            id={toggleId}
-            aria-expanded={isExpanded}
-            aria-controls={detailsId}
-            onClick={() => setIsExpanded((prev) => !prev)}
-          >
-            <span className="sr-only">
-              {isExpanded ? "Collapse" : "Expand"} exercise details for{" "}
-              {exerciseLabel}
-            </span>
-            <svg
-              className={`h-4 w-4 transition-transform ${
-                isExpanded ? "rotate-90" : ""
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </Button>
+    <Accordion
+      headerContent={
+        <div className="flex flex-grow items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-medium text-gray-600">
+            <p className="text-sm font-medium text-foreground">
               Exercise {index + 1}
             </p>
-            <p className="text-xs text-gray-500">{exerciseLabel}</p>
+            <p className="text-xs text-muted-foreground">{exerciseLabel}</p>
+          </div>
+
+          <div className="flex gap-1">
+            <Button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onMoveUp?.();
+              }}
+              disabled={!canMoveUp}
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-foreground disabled:text-muted-foreground"
+              aria-label="Move up"
+              title="Move up"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 15l7-7 7 7"
+                />
+              </svg>
+            </Button>
+            <Button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onMoveDown?.();
+              }}
+              disabled={!canMoveDown}
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-foreground disabled:text-muted-foreground"
+              aria-label="Move down"
+              title="Move down"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </Button>
+            <Button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onRemove?.();
+              }}
+              variant="ghost"
+              size="icon"
+              className="text-red-600 hover:text-red-800"
+              aria-label="Remove exercise"
+              title="Remove exercise"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </Button>
           </div>
         </div>
-
-        <div className="flex gap-1">
-          <Button
-            type="button"
-            onClick={onMoveUp}
-            disabled={!canMoveUp}
-            variant="ghost"
-            size="icon"
-            className="text-slate-400 hover:text-slate-600 disabled:text-slate-400"
-            aria-label="Move up"
-            title="Move up"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 15l7-7 7 7"
-              />
-            </svg>
-          </Button>
-          <Button
-            type="button"
-            onClick={onMoveDown}
-            disabled={!canMoveDown}
-            variant="ghost"
-            size="icon"
-            className="text-slate-400 hover:text-slate-600 disabled:text-slate-400"
-            aria-label="Move down"
-            title="Move down"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </Button>
-          <Button
-            type="button"
-            onClick={onRemove}
-            variant="ghost"
-            size="icon"
-            className="text-red-600 hover:text-red-800"
-            aria-label="Remove exercise"
-            title="Remove exercise"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-          </Button>
-        </div>
-      </div>
-
-      <div
-        id={detailsId}
-        aria-labelledby={toggleId}
-        aria-hidden={!isExpanded}
-        className={`space-y-4 ${isExpanded ? "" : "hidden"}`}
-      >
+      }
+    >
+      <div className="space-y-4">
         {/* Exercise selection */}
         <ExerciseAutocomplete
           value={value.exerciseId}
@@ -453,6 +425,6 @@ export function PlanExerciseRow({
           />
         </div>
       </div>
-    </div>
+    </Accordion>
   );
 }

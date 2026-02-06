@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
   usePlan,
@@ -214,7 +214,6 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
                 onUpdateExercise={updateExercise}
                 onRemoveExercise={removeExercise}
                 onMoveExercise={moveExercise}
-                isCreating={!planId}
                 errors={errors.planExercises}
               />
             </div>
