@@ -64,7 +64,7 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
         clickable
         cardHeader={
           <>
-            <span className="text-md font-semibold text-slate-900 whitespace-nowrap text-ellipsis overflow-hidden">
+            <span className="whitespace-nowrap text-ellipsis overflow-hidden">
               {session.name || "Untitled Session"}
             </span>
             <Button
@@ -78,7 +78,7 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
         }
         cardFooter={
           <>
-            <p className="text-sm text-slate-500">{formattedDate}</p>
+            <p className="text-sm text-muted-foreground">{formattedDate}</p>
             <div className="flex items-center gap-2">
               <Button
                 size="icon-small"

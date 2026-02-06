@@ -61,7 +61,7 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
         role="listitem"
         cardHeader={
           <>
-            <span className="text-md font-semibold text-slate-900 whitespace-nowrap text-ellipsis overflow-hidden">
+            <span className="whitespace-nowrap text-ellipsis overflow-hidden">
               {plan.name || "Untitled Plan"}
             </span>
             <Button
@@ -77,7 +77,7 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
         }
         cardFooter={
           <>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 text-muted-foreground">
               <span className="font-medium">{exerciseCount}</span>
               <span>{exerciseCount === 1 ? "exercise" : "exercises"}</span>
             </span>

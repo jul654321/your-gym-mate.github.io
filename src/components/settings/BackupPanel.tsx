@@ -70,7 +70,7 @@ export function BackupPanel() {
           theme="secondary"
           cardHeader={<p className="text-xs text-gray-500">Last export</p>}
           cardFooter={
-            <p className="text-sm text-slate-900 font-semibold">
+            <p className="text-sm text-muted-foreground font-semibold">
               {lastExportLabel}
             </p>
           }
@@ -81,7 +81,7 @@ export function BackupPanel() {
             <p className="text-xs text-gray-500">Database estimate</p>
           }
           cardFooter={
-            <p className="text-sm text-slate-900 font-semibold">
+            <p className="text-sm text-muted-foreground font-semibold">
               {dbEstimateLabel}
             </p>
           }

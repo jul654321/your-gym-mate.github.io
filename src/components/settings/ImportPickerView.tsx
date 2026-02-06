@@ -94,7 +94,7 @@ export function ImportPickerView({
             {selectedFileLabel}
           </p>
 
-          <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4 text-xs text-gray-500">
+          <div className="rounded-2xl border border-dashed border-gray-200 bg-background p-4 text-xs text-gray-500">
             <p>{validationLiveMessage}</p>
             {validationError && (
               <p className="mt-2 text-xs font-semibold text-red-600">
@@ -165,7 +165,7 @@ export function ImportPickerView({
           </div>
 
           <div
-            className="rounded-2xl border border-gray-200 bg-gray-50 p-4 text-xs text-gray-500"
+            className="rounded-2xl border border-gray-200 bg-background p-4 text-xs text-gray-500"
             aria-live="polite"
             id={liveRegionId}
           >

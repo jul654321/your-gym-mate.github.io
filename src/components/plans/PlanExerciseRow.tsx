@@ -90,7 +90,7 @@ export function PlanExerciseRow({
   };
 
   return (
-    <div className="flex flex-col bg-gray-50 border border-gray-200 rounded-lg p-4 gap-4">
+    <div className="flex flex-col bg-background border border-gray-200 rounded-lg p-4 gap-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <Button

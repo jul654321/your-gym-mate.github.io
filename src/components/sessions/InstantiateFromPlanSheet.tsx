@@ -67,7 +67,7 @@ export function InstantiateFromPlanSheet({
       <div className="relative w-full max-w-2xl rounded-t-3xl bg-white p-6 shadow-2xl">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-slate-900">
+            <h2 className="text-xl font-semibold text-muted-foreground">
               Instantiate From Plan
             </h2>
             <p className="text-sm text-slate-500">
@@ -118,7 +118,7 @@ export function InstantiateFromPlanSheet({
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-lg font-semibold text-slate-900">
+                  <p className="text-lg font-semibold text-muted-foreground">
                     {plan.name}
                   </p>
                   <p className="text-xs text-slate-500">

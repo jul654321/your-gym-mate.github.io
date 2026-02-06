@@ -28,7 +28,9 @@ function ExerciseHeader({
   return (
     <header className="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <p className="text-sm font-semibold text-slate-900">{exerciseName}</p>
+        <p className="text-sm font-semibold text-muted-foreground">
+          {exerciseName}
+        </p>
         <p className="text-xs uppercase tracking-wide text-slate-400">
           {setCount} set{setCount === 1 ? "" : "s"}
         </p>

@@ -21,7 +21,7 @@ export function Card({
   return (
     <article
       className={cn(
-        "rounded-2xl bg-card p-4 shadow-sm flex flex-col gap-2",
+        "rounded-2xl bg-card p-4 shadow-sm flex flex-col gap-2 text-foreground",
         clickable && "cursor-pointer transition hover:shadow-lg",
         theme === "secondary" && "bg-secondary",
         theme === "secondary" && "text-secondary-foreground",
@@ -30,7 +30,7 @@ export function Card({
       {...props}
     >
       {cardHeader && (
-        <header className="flex items-start gap-4 justify-between">
+        <header className="flex items-start text-foreground gap-4 justify-between text-md font-semibold">
           {cardHeader}
         </header>
       )}

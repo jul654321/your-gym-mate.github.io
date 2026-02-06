@@ -11,7 +11,7 @@ export function PageShell({ children }: PageShellProps) {
   const { tabs, navigateTo, openQuickLogModal, navState } = useNavigation();
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 text-gray-900">
+    <div className="flex min-h-screen flex-col bg-background text-gray-900">
       <main className="flex-1 pb-28">{children}</main>
 
       <BottomTabBar

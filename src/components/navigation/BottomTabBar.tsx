@@ -28,7 +28,7 @@ export function BottomTabBar({
       aria-label="Primary navigation"
       aria-hidden={hidden}
       className={clsx(
-        "fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/90 backdrop-blur-md shadow-lg",
+        "fixed inset-x-0 bottom-0 z-50 border-t bg-card text-foreground backdrop-blur-md shadow-lg",
         hidden && "pointer-events-none opacity-0",
         className
       )}

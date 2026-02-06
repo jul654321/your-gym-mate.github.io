@@ -100,7 +100,7 @@ export function FilterBar({ onChange, initial }: FilterBarProps) {
             <button
               key={preset.label}
               type="button"
-              className="rounded-full border border-slate-200 px-3 py-1 text-sm font-medium text-slate-600 hover:border-slate-400 hover:text-slate-900"
+              className="rounded-full border border-slate-200 px-3 py-1 text-sm font-medium text-slate-600 hover:border-slate-400 hover:text-muted-foreground"
               onClick={() => handlePreset(preset.days)}
             >
               {preset.label}

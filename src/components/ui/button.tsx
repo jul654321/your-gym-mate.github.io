@@ -17,14 +17,14 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary:
     "bg-primary text-primary-foreground hover:bg-primary-dark focus-visible:ring-primary/70 focus-visible:ring-offset-2 cursor-pointer",
   secondary:
-    "bg-secondary text-slate-900 hover:bg-secondary focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
+    "bg-secondary text-secondary-foreground hover:bg-secondary focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
   ghost:
-    "bg-transparent text-slate-900 hover:bg-slate-50 focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
+    "bg-transparent text-muted-foreground hover:bg-slate-50 focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
   outline:
-    "border border-slate-200 text-slate-900 hover:bg-slate-50 focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
+    "border border-slate-200 text-muted-foreground hover:bg-slate-50 focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
   link: "bg-transparent text-primary underline-offset-4 hover:underline focus-visible:ring-offset-0 focus-visible:ring-transparent",
   destructive:
-    "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 focus-visible:ring-offset-2 cursor-pointer",
+    "bg-secondary text-red-500 hover:bg-secondary focus-visible:ring-red-500 focus-visible:ring-offset-2 cursor-pointer",
   icon: "rounded-full bg-white shadow-sm hover:bg-slate-100 focus-visible:ring-primary/70 focus-visible:ring-offset-2 cursor-pointer  ",
 };
 

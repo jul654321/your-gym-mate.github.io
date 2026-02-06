@@ -198,7 +198,7 @@ export function ExportSheet({ isOpen, onClose }: ExportSheetProps) {
           </div>
 
           <div
-            className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4 text-xs text-gray-500"
+            className="rounded-2xl border border-dashed border-gray-200 bg-background p-4 text-xs text-gray-500"
             aria-live="polite"
           >
             <p>{progressMessage}</p>

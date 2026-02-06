@@ -34,13 +34,15 @@ export function LoggedSetRow({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
+      <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4 text-foreground">
         <div className="min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            <span className="font-semibold text-slate-900">{primaryLabel}</span>
+            <span className="font-semibold text-muted-foreground">
+              {primaryLabel}
+            </span>
             <span>{displayTime}</span>
           </div>
-          <p className="text-lg font-semibold text-slate-900">
+          <p className="text-lg font-semibold text-muted-foreground">
             {formattedWeight} × {set.reps ?? 0}
           </p>
           {set.alternative && (

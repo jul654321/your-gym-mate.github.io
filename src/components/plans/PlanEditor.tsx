@@ -186,13 +186,13 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
     >
       <div
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-card rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col text-foreground"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-border">
           <h2
             id="plan-editor-title"
-            className="text-2xl font-bold text-gray-900"
+            className="text-2xl font-bold text-muted-foreground"
           >
             {planId ? "Edit Plan" : "Create New Plan"}
           </h2>
@@ -200,7 +200,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-muted-foreground hover:text-muted-foreground transition-colors"
             aria-label="Close"
           >
             <svg
@@ -225,7 +225,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
           <div>
             <label
               htmlFor="plan-name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-muted-foreground mb-1"
             >
               Plan Name <span className="text-red-600">*</span>
             </label>
@@ -236,11 +236,11 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Push Day, Leg Day, Full Body"
               className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
-                errors.name ? "border-red-500" : "border-gray-300"
+                errors.name ? "border-red-500" : "border-border"
               }`}
             />
             {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+              <p className="mt-1 text-sm text-destructive">{errors.name}</p>
             )}
           </div>
 
@@ -248,7 +248,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
           <div>
             <label
               htmlFor="plan-notes"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-muted-foreground mb-1"
             >
               Notes (Optional)
             </label>
@@ -258,14 +258,16 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add any notes about this plan..."
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-border rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
           </div>
 
           {/* Exercises list */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Exercises</h3>
+              <h3 className="text-lg font-semibold text-muted-foreground">
+                Exercises
+              </h3>
               <Button
                 onClick={addExercise}
                 className="px-4 py-2 text-sm font-medium transition-colors"
@@ -286,19 +288,19 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
 
           {/* Save error */}
           {saveError && (
-            <div className="bg-red-50 border-l-4 border-red-600 p-4 rounded">
-              <p className="text-red-800">{saveError}</p>
+            <div className="bg-destructive/10 border-l-4 border-destructive p-4 rounded">
+              <p className="text-destructive">{saveError}</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between px-6 py-3 border-t border-border bg-card">
           <Button
             onClick={onClose}
             disabled={isSaving || isInstantiating}
             variant="ghost"
-            className="!border-gray-300 text-gray-700 hover:bg-gray-50 disabled:current/80 disabled:cursor-not-allowed transition-colors"
+            className="!border-gray-300 text-gray-700 hover:bg-background disabled:current/80 disabled:cursor-not-allowed transition-colors"
           >
             Cancel
           </Button>

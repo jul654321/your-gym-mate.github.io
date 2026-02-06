@@ -130,7 +130,7 @@ export function NewSessionModal({
                 id="session-plan"
                 value={selectedPlanId}
                 onChange={(event) => setSelectedPlanId(event.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
                 disabled={isPlansLoading}
               >
                 <option value="">No plan — start from scratch</option>
@@ -157,7 +157,7 @@ export function NewSessionModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
+          <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-background">
             <Button
               type="button"
               variant="ghost"

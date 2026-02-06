@@ -28,10 +28,10 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <p className="mt-4 text-gray-600">Initializing database...</p>
+          <p className="mt-4 text-muted-foreground">Initializing database...</p>
         </div>
       </div>
     );
@@ -39,15 +39,15 @@ function App() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center max-w-md p-6 bg-white rounded-lg shadow-lg">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center max-w-md p-6 bg-card rounded-lg shadow-lg">
+          <h1 className="text-2xl font-bold text-destructive mb-4">
             Database Error
           </h1>
-          <p className="text-gray-700 mb-4">
+          <p className="text-muted-foreground mb-4">
             Failed to initialize the database:
           </p>
-          <p className="text-sm text-gray-600 bg-gray-100 p-4 rounded">
+          <p className="text-sm text-muted-foreground bg-gray-100 p-4 rounded">
             {error.message}
           </p>
           <Button
@@ -63,8 +63,10 @@ function App() {
 
   if (!isInitialized) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <p className="text-gray-600">Database not initialized</p>
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <p className="text-muted-foreground text-center">
+          Database not initialized
+        </p>
       </div>
     );
   }

@@ -462,7 +462,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
               Exercise
             </label>
             <select
-              className="mt-1 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/60 disabled:cursor-not-allowed disabled:bg-slate-50"
+              className="mt-1 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/60 disabled:cursor-not-allowed disabled:bg-slate-50"
               value={formState.exerciseId}
               onChange={(event) =>
                 setFormState((prev) => ({
@@ -504,7 +504,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
             <div>
               <label className="text-sm font-medium text-slate-600">Unit</label>
               <select
-                className="mt-1 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/60"
+                className="mt-1 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/60"
                 value={formState.weightUnit}
                 onChange={(event) =>
                   setFormState((prev) => ({
@@ -543,7 +543,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
           <div className="rounded-2xl border border-slate-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="text-sm font-semibold text-muted-foreground">
                   Alternative set
                 </p>
                 <p className="text-xs text-slate-500">
@@ -572,7 +572,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
                     Alternative exercise
                   </label>
                   <select
-                    className="mt-1 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/60"
+                    className="mt-1 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/60"
                     value={formState.alternativeExerciseId}
                     onChange={(event) =>
                       setFormState((prev) => ({
@@ -646,7 +646,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
           <div className="px-6 py-4 space-y-3">
             <label
               htmlFor={applyCheckboxId}
-              className="flex cursor-pointer items-start gap-3 text-sm font-medium text-slate-900"
+              className="flex cursor-pointer items-start gap-3 text-sm font-medium text-muted-foreground"
             >
               <input
                 id={applyCheckboxId}
@@ -675,12 +675,12 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-background">
           <Button
             onClick={handleAttemptClose}
             disabled={isBusy}
             variant="ghost"
-            className="!border-gray-300 text-gray-700 hover:bg-gray-50 disabled:current/80 disabled:cursor-not-allowed transition-colors"
+            className="!border-gray-300 text-gray-700 hover:bg-background disabled:current/80 disabled:cursor-not-allowed transition-colors"
           >
             Cancel
           </Button>

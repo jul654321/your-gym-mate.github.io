@@ -77,7 +77,7 @@ Essential code locations to modify
 
 ```441:459:src/components/sessionDetail/EditSetModal.tsx
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-background">
           <Button
             onClick={onClose}
             disabled={isBusy}

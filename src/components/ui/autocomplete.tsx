@@ -203,7 +203,7 @@ export function Autocomplete<T>({
                       className={cn(
                         "w-full justify-between text-left px-4 py-3 transition-colors duration-150",
                         isActive
-                          ? "bg-slate-100 text-slate-900"
+                          ? "bg-slate-100 text-muted-foreground"
                           : "text-slate-700 hover:bg-slate-50"
                       )}
                     >

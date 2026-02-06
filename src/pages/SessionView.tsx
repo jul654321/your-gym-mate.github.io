@@ -17,7 +17,7 @@ export function SessionView() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="rounded-2xl bg-white p-6 text-center shadow">
-          <p className="text-lg font-semibold text-slate-900">
+          <p className="text-lg font-semibold text-muted-foreground">
             No session selected
           </p>
           <p className="text-sm text-slate-500">
@@ -37,7 +37,7 @@ export function SessionView() {
 
   if (!ready || viewModel.isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <div className="flex flex-col items-center gap-4 rounded-2xl bg-white p-6 shadow">
           <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
           <p className="text-sm text-slate-600">Loading session details…</p>
@@ -48,9 +48,9 @@ export function SessionView() {
 
   if (viewModel.isSessionMissing) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <div className="max-w-md space-y-4 rounded-2xl bg-white p-6 text-center shadow">
-          <p className="text-xl font-semibold text-slate-900">
+          <p className="text-xl font-semibold text-muted-foreground">
             Session not found
           </p>
           <p className="text-sm text-slate-500">
@@ -59,7 +59,7 @@ export function SessionView() {
           </p>
           <Link
             to="/sessions"
-            className="inline-flex rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-slate-900"
+            className="inline-flex rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-muted-foreground"
           >
             Return to sessions
           </Link>
