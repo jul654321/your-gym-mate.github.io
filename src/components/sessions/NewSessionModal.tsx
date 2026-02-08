@@ -11,21 +11,30 @@ interface NewSessionModalProps {
   onCreate: (
     name: string,
     basedOnPlanId?: string | null,
-    planName?: string | null
+    planName?: string | null,
+    dateMs?: number
   ) => void;
+  initialDate?: number;
   isLoading?: boolean;
   error?: string | null;
 }
+
+const formatDateInputValue = (value?: number) =>
+  value ? new Date(value).toISOString().slice(0, 10) : "";
 
 export function NewSessionModal({
   isOpen,
   onClose,
   onCreate,
+  initialDate,
   isLoading = false,
   error,
 }: NewSessionModalProps) {
   const [name, setName] = useState("");
   const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [dateISO, setDateISO] = useState(() =>
+    formatDateInputValue(initialDate ?? new Date().getTime())
+  );
   const {
     data: plans = [],
     isLoading: isPlansLoading,
@@ -42,11 +51,27 @@ export function NewSessionModal({
     }
   }, [isOpen, plans]);
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setDateISO(formatDateInputValue(initialDate ?? new Date().getTime()));
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [initialDate, isOpen]);
+
+  const handleSubmit = (event?: React.FormEvent) => {
+    event?.preventDefault();
+    const selectedDateMs = dateISO ? new Date(dateISO).getTime() : undefined;
+
     onCreate(
       name,
       selectedPlanId || undefined,
-      plans.find((plan) => plan.id === selectedPlanId)?.name || undefined
+      plans.find((plan) => plan.id === selectedPlanId)?.name || undefined,
+      selectedDateMs
     );
   };
 
@@ -61,10 +86,7 @@ export function NewSessionModal({
       actionButtons={[
         <Button
           key="save"
-          onClick={(e) => {
-            e.preventDefault();
-            handleSubmit();
-          }}
+          onClick={(e) => handleSubmit(e)}
           isLoading={isLoading}
           variant="primary"
         >
@@ -72,7 +94,7 @@ export function NewSessionModal({
         </Button>,
       ]}
     >
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(event) => handleSubmit(event)}>
         <p className="mt-2 text-sm text-muted-foreground">
           Give your session a name (required). Leave blank to auto-generate one
           based on today’s date.
@@ -93,6 +115,24 @@ export function NewSessionModal({
           />
         </div>
 
+        <div className="mt-4 space-y-2">
+          <label
+            className="block text-sm font-medium text-muted-foreground mb-1"
+            htmlFor="session-date"
+          >
+            Session date
+          </label>
+          <Input
+            id="session-date"
+            type="date"
+            value={dateISO}
+            onChange={(event) => setDateISO(event.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">
+            Pick a specific day so the session log uses that timestamp.
+          </p>
+        </div>
+
         {error && (
           <p className="mt-2 text-sm text-red-600" role="alert">
             {error}
@@ -111,6 +151,7 @@ export function NewSessionModal({
             onChange={(event) => setSelectedPlanId(event.target.value)}
             disabled={isPlansLoading}
           >
+            <option value="">None</option>
             {plans.map((plan) => (
               <option key={plan.id} value={plan.id}>
                 {plan.name}

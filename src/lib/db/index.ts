@@ -31,7 +31,7 @@ export const STORE_NAMES = {
 } as const;
 
 // Define the database schema
-interface GymMateDB extends DBSchema {
+export interface GymMateDB extends DBSchema {
   exercises: {
     key: string;
     value: ExerciseDTO;

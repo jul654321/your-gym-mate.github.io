@@ -2,10 +2,11 @@
 // Each migration is versioned and should be idempotent
 
 import type { IDBPDatabase } from "idb";
+import type { GymMateDB } from "../index";
 import type { PlanDTO } from "../../../types";
 
 export type MigrationFunction = (
-  db: IDBPDatabase,
+  db: IDBPDatabase<GymMateDB>,
   oldVersion: number,
   newVersion: number | null
 ) => Promise<void>;
@@ -55,7 +56,7 @@ export const migrations: Record<number, MigrationFunction> = {
  * Runs all migrations between oldVersion and newVersion
  */
 export async function runMigrations(
-  db: IDBPDatabase,
+  db: IDBPDatabase<GymMateDB>,
   oldVersion: number,
   newVersion: number | null
 ): Promise<void> {
