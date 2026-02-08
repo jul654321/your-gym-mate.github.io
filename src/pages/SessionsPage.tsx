@@ -13,6 +13,7 @@ import { inferSessionName } from "../lib/utils/sessionName";
 import { endOfDay, endOfWeek, startOfDay, startOfWeek } from "../lib/date/week";
 import type { CreateSessionCmd } from "../types";
 import { SectionHeader } from "../components/layouts/SectionHeader";
+import { SectionMain } from "../components/layouts/SectionMain";
 
 export type SessionsPageLocationState = {
   openNewSession?: boolean;
@@ -185,7 +186,7 @@ export function SessionsPage() {
     <div className="min-h-screen">
       <SectionHeader headerTitle="Sessions Log"></SectionHeader>
 
-      <main className="container mx-auto px-4 pt-2 pb-4 space-y-6">
+      <SectionMain>
         <WeekBar
           referenceDate={currentWeekReference}
           selectedDate={selectedDate}
@@ -206,7 +207,7 @@ export function SessionsPage() {
         >
           Start New Session
         </Button>
-      </main>
+      </SectionMain>
 
       <NewSessionModal
         isOpen={isNewSessionOpen}

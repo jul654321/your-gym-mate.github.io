@@ -62,7 +62,7 @@
   --spacing: 0.25rem;
 }
 
-.dark {
+[data-theme="dark"] {
   /* deep green near-black background */
   --background: oklab(0.13 0 0 / 1);
   /* primary foreground: near-white with a cool green tint for legibility */
@@ -212,4 +212,8 @@ body,
   -webkit-overflow-scrolling: touch;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+body {
+  background-color: var(--background);
 }
