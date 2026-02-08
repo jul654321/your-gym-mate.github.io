@@ -16,9 +16,15 @@ import type {
 
 const TAB_DEFINITIONS: TabDTO[] = [
   {
+    id: "sessions",
+    label: "Sessions",
+    path: "/sessions",
+    icon: "sessions",
+  },
+  {
     id: "plans",
     label: "Plans",
-    path: "/",
+    path: "/plans",
     icon: "plans",
   },
   {
@@ -27,12 +33,6 @@ const TAB_DEFINITIONS: TabDTO[] = [
     path: "/quick-log",
     icon: "quickLog",
     isCenter: true,
-  },
-  {
-    id: "sessions",
-    label: "Sessions",
-    path: "/sessions",
-    icon: "sessions",
   },
   {
     id: "settings",

@@ -34,10 +34,13 @@ export function NewSessionModal({
 
   useEffect(() => {
     if (isOpen) {
-      setName("");
-      setSelectedPlanId("");
+      setTimeout(() => {
+        const firstPlanId = plans.length > 0 ? plans[0]?.id : undefined;
+
+        setSelectedPlanId(firstPlanId ?? "");
+      }, 0);
     }
-  }, [isOpen]);
+  }, [isOpen, plans]);
 
   const handleSubmit = () => {
     onCreate(

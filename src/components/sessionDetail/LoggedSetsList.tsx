@@ -28,7 +28,7 @@ function ExerciseHeader({
   return (
     <header>
       <div className="flex-grow flex justify-between gap-4 items-start">
-        <div>
+        <div className="flex-1 overflow-hidden">
           <p className="text-md font-semibold text-muted-foreground whitespace-nowrap text-ellipsis overflow-hidden">
             {exerciseName}
           </p>
@@ -39,6 +39,7 @@ function ExerciseHeader({
         <Button
           size="sm"
           variant="primary"
+          className="whitespace-nowrap"
           onClick={onAdd}
           disabled={isBusy}
           aria-label={`Quick add set for ${exerciseName}`}

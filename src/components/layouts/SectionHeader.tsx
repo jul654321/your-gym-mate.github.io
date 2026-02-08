@@ -21,7 +21,7 @@ export function SectionHeader({
       {...props}
     >
       {headerTitle ? (
-        <h1 className="text-lg text-muted-foreground text-center">
+        <h1 className="text-lg text-muted-foreground text-center whitespace-nowrap overflow-hidden text-ellipsis">
           {headerTitle}
         </h1>
       ) : null}

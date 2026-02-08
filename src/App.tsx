@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import "./App.css";
 import { useDbInit } from "./hooks/useDbInit";
 import { UpdateAvailableBanner } from "./components/UpdateAvailableBanner";
@@ -79,9 +84,10 @@ function App() {
 
         <PageShell>
           <Routes>
+            <Route path="/" element={<Navigate to="/sessions" />} />
             <Route path="/sessions" element={<SessionsPage />} />
             <Route path="/sessions/:sessionId" element={<SessionView />} />
-            <Route path="/" element={<PlansPage />} />
+            <Route path="/plans" element={<PlansPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </PageShell>
