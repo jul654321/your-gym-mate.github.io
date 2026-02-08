@@ -10,7 +10,10 @@ import type { PlanDTO } from "../../types";
 import { Button } from "../ui/button";
 import { Pencil, Play, Trash2 } from "lucide-react";
 import { inferSessionName } from "../../lib/utils/sessionName";
-import { getWeekdayLongName, getWeekdayShortName } from "../../lib/utils/weekdays";
+import {
+  getWeekdayLongName,
+  getWeekdayShortName,
+} from "../../lib/utils/weekdays";
 import { Card } from "../ui/card";
 
 interface PlanRowProps {
@@ -70,8 +73,10 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
               </span>
               {weekdayShort && (
                 <span
-                  className="rounded-full border border-border px-3 py-[2px] text-[11px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted/80"
-                  aria-label={`Scheduled weekday: ${weekdayLong ?? weekdayShort}`}
+                  className="rounded-full border border-border px-3 py-[2px] text-[11px] font-semibold tracking-wide text-muted-foreground bg-muted/80"
+                  aria-label={`Scheduled weekday: ${
+                    weekdayLong ?? weekdayShort
+                  }`}
                 >
                   {weekdayShort}
                 </span>

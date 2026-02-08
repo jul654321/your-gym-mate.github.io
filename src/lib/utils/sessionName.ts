@@ -13,5 +13,5 @@ export function inferSessionName(
     dateStyle: "medium",
   }).format(new Date(timestamp));
 
-  return `${planName ?? "Session"} — ${formattedDate}`;
+  return planName ?? `Session - ${formattedDate}`;
 }
