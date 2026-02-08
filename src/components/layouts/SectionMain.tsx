@@ -13,7 +13,7 @@ export function SectionMain({
   return (
     <main
       className={cn(
-        "container mx-auto px-4 pt-2 pb-4 space-y-6 overflow-y-auto",
+        "relative z-2 container mx-auto px-4 pt-2 pb-4 space-y-6 overflow-y-auto",
         className
       )}
       {...props}
