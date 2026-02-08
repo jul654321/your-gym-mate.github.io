@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useSessions } from "../../hooks/useSessions";
 import type { SessionListQueryParams, SessionsQueryParams } from "../../types";
 import { SessionRow } from "./SessionRow";
+import { Card } from "../ui/card";
 
 interface SessionListProps {
   params?: SessionListQueryParams;
@@ -81,9 +82,15 @@ export function SessionList({
       )}
 
       {!isLoading && !error && filteredSessions.length === 0 && (
-        <div className="py-16 text-center text-sm text-slate-500">
-          No sessions match the current filters.
-        </div>
+        <Card theme="secondary" className="text-center mt-4">
+          <div className="text-6xl mb-4">🏋️</div>
+          <h2 className="text-lg font-semibold text-muted-foreground mb-2">
+            No sessions logged yet
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            Start your first workout session
+          </p>
+        </Card>
       )}
 
       {!isLoading && !error && filteredSessions.length > 0 && (

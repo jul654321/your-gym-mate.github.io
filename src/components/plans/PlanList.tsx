@@ -1,6 +1,7 @@
 import { PlanRow } from "./PlanRow";
 import type { PlanDTO } from "../../types";
 import { Button } from "../ui/button";
+import { Card } from "../ui/card";
 
 interface PlanListProps {
   plans: PlanDTO[];
@@ -43,7 +44,7 @@ export function PlanList({
       )}
 
       {/* Plans list */}
-      {!isLoading && !error && (
+      {!isLoading && !error && plans.length > 0 && (
         <div className="mt-4 space-y-3">
           {plans.map((plan) => (
             <PlanRow
@@ -58,18 +59,15 @@ export function PlanList({
 
       {/* Empty state */}
       {!isLoading && !error && plans.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-lg shadow">
+        <Card theme="secondary" className="text-center mt-4">
           <div className="text-6xl mb-4">🏋️</div>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-            No plans yet
+          <h2 className="text-lg font-semibold text-muted-foreground mb-2">
+            No plans logged yet
           </h2>
-          <p className="text-gray-600 mb-6">
-            Create your first workout plan to get started
+          <p className="text-muted-foreground mb-6">
+            Start your first workout plan
           </p>
-          <Button onClick={handleCreateClick} disabled={!dbReady} size="lg">
-            Create Your First Plan
-          </Button>
-        </div>
+        </Card>
       )}
     </section>
   );
