@@ -2,13 +2,13 @@
 // Each migration is versioned and should be idempotent
 
 import type { IDBPDatabase } from "idb";
-import type { PlanDTO } from "../../types";
+import type { PlanDTO } from "../../../types";
 
 export type MigrationFunction = (
   db: IDBPDatabase,
   oldVersion: number,
   newVersion: number | null
-): Promise<void>;
+) => Promise<void>;
 
 /**
  * Registry of all database migrations

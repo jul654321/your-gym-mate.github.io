@@ -18,6 +18,8 @@ import { Modal } from "../shared/Modal";
 import { Textarea } from "../ui/textarea";
 import { Plus } from "lucide-react";
 import { Label } from "../ui/label";
+import { Select } from "../ui/select";
+import { WEEKDAY_SELECT_OPTIONS } from "../../lib/utils/weekdays";
 
 interface PlanEditorProps {
   planId?: string;
@@ -45,6 +47,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
     updateExercise,
     moveExercise,
     setForm,
+    setWeekday,
     validate,
   } = usePlanFormReducer();
 
@@ -61,6 +64,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
         name: existingPlan.name,
         notes: existingPlan.notes,
         planExercises: existingPlan.planExercises,
+        weekday: existingPlan.weekday ?? null,
       });
     }
   }, [existingPlan, setForm]);
@@ -93,6 +97,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
             optionalAlternativeExerciseId: pe.optionalAlternativeExerciseId,
             alternativeDefaults: pe.alternativeDefaults,
           })),
+          weekday: form.weekday ?? null,
           updatedAt: Date.now(),
         };
 
@@ -116,6 +121,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
           exerciseIds: form.planExercises
             .map((pe) => pe.exerciseId!)
             .filter(Boolean),
+          weekday: form.weekday ?? null,
           createdAt: Date.now(),
         };
 
@@ -188,6 +194,29 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add any notes about this plan..."
               />
+            </div>
+
+            {/* Weekday selector */}
+            <div>
+              <Label htmlFor="plan-weekday">Scheduled Weekday</Label>
+              <Select
+                id="plan-weekday"
+                value={form.weekday ?? ""}
+                onChange={(e) =>
+                  setWeekday(
+                    e.target.value === "" ? null : Number(e.target.value)
+                  )
+                }
+              >
+                {WEEKDAY_SELECT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Pick a weekday tag to help organize and filter plans.
+              </p>
             </div>
 
             {/* Exercises list */}

@@ -27,6 +27,7 @@ export type PlanFormModel = {
   name: string;
   planExercises: PlanExerciseFormModel[]; // ordered
   notes?: string;
+  weekday?: number | null;
 };
 
 // Validation errors
@@ -60,6 +61,7 @@ type PlanFormAction =
       payload: { index: number; exercise: Partial<PlanExerciseFormModel> };
     }
   | { type: "MOVE_EXERCISE"; payload: { fromIndex: number; toIndex: number } }
+  | { type: "SET_WEEKDAY"; payload: number | null }
   | { type: "SET_FORM"; payload: PlanFormModel };
 
 // Reducer
@@ -124,7 +126,14 @@ function planFormReducer(
     }
 
     case "SET_FORM":
-      return action.payload;
+      return {
+        ...action.payload,
+        weekday:
+          action.payload.weekday === undefined ? null : action.payload.weekday,
+      };
+
+    case "SET_WEEKDAY":
+      return { ...state, weekday: action.payload };
 
     default:
       return state;
@@ -251,6 +260,7 @@ export function usePlanFormReducer(initialForm?: PlanFormModel) {
       name: "",
       planExercises: [],
       notes: "",
+      weekday: null,
     }
   );
 
@@ -285,6 +295,10 @@ export function usePlanFormReducer(initialForm?: PlanFormModel) {
     dispatch({ type: "SET_FORM", payload: newForm });
   }, []);
 
+  const setWeekday = useCallback((weekday: number | null) => {
+    dispatch({ type: "SET_WEEKDAY", payload: weekday });
+  }, []);
+
   const validate = useCallback(() => {
     return validatePlanForm(form);
   }, [form]);
@@ -298,6 +312,7 @@ export function usePlanFormReducer(initialForm?: PlanFormModel) {
     updateExercise,
     moveExercise,
     setForm,
+    setWeekday,
     validate,
   };
 }

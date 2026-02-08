@@ -10,6 +10,7 @@ import type { PlanDTO } from "../../types";
 import { Button } from "../ui/button";
 import { Pencil, Play, Trash2 } from "lucide-react";
 import { inferSessionName } from "../../lib/utils/sessionName";
+import { getWeekdayLongName, getWeekdayShortName } from "../../lib/utils/weekdays";
 import { Card } from "../ui/card";
 
 interface PlanRowProps {
@@ -21,6 +22,8 @@ interface PlanRowProps {
 export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const weekdayShort = getWeekdayShortName(plan.weekday ?? null);
+  const weekdayLong = getWeekdayLongName(plan.weekday ?? null);
 
   const instantiateMutation = useInstantiateSessionFromPlan();
   const deleteMutation = useDeletePlan();
@@ -61,9 +64,19 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
         role="listitem"
         cardHeader={
           <>
-            <span className="whitespace-nowrap text-ellipsis overflow-hidden">
-              {plan.name || "Untitled Plan"}
-            </span>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="whitespace-nowrap text-ellipsis overflow-hidden">
+                {plan.name || "Untitled Plan"}
+              </span>
+              {weekdayShort && (
+                <span
+                  className="rounded-full border border-border px-3 py-[2px] text-[11px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted/80"
+                  aria-label={`Scheduled weekday: ${weekdayLong ?? weekdayShort}`}
+                >
+                  {weekdayShort}
+                </span>
+              )}
+            </div>
             <Button
               onClick={handleInstantiate}
               disabled={!dbReady || instantiateMutation.isPending}
