@@ -60,6 +60,7 @@ interface Plan {
   updatedAt?: number;
   planExercises: PlanExercise[]; // ordered
   exerciseIds: string[]; // denormalized from planExercises for multiEntry indexing
+  weekday?: number | null; // optional scheduled weekday metadata (0=Sunday..6=Saturday)
   notes?: string;
 }
 ```
@@ -67,6 +68,7 @@ interface Plan {
 - Indexes:
   - `{ name: "name", keyPath: "name", unique: false }`
   - `{ name: "exerciseIds", keyPath: "exerciseIds", unique: false, multiEntry: true }` (find plans that contain a given exercise)
+- Migration note: bump DB version and backfill `weekday = null` for existing plans so records remain compatible while giving the UI an optional day-of-week tag.
 - `sessions`
   - keyPath: `id` (string UUID)
   - autoIncrement: false

@@ -33,12 +33,12 @@ Primary personas:
 - Persona A — Beginner: wants simple defaults and minimal setup; cares about logging quickly and seeing basic progress.
 - Persona B — Experienced lifter: wants accurate set-level data, PR tracking, and filters by exercise/date for analysis.
 
-## 3. Functional Requirements
+-## 3. Functional Requirements
 
 Data model (minimal, extensible):
 
 - Exercise: id, name, optional metadata (category, equipment)
-- Plan: id, name, list of planExercise {exerciseId, defaultSets, defaultReps, defaultWeight, optionalAlternativeExerciseId, notes}
+- Plan: id, name, optional `weekday` (0=Sun..6=Sat) plus list of planExercise {exerciseId, defaultSets, defaultReps, defaultWeight, optionalAlternativeExerciseId, notes}; `weekday` documents the scheduled day without creating sessions
 - Session: id, name, date/time, sourcePlanId (nullable), list of loggedSetIds, status (active/completed)
 - LoggedSet: id, sessionId, exerciseId (primary), timestamp, weight (number + unit), reps (integer), setIndex (order), alternative (nullable object: {exerciseId, weight, reps}), notes
 - PR / Aggregates computed from LoggedSet data (not stored as single source of truth)
@@ -387,3 +387,4 @@ Appendix: Acceptance checklist before marking MVP done
 - PWA manifest + service worker present; app installable to iOS homescreen and persists data offline.
 - Basic settings and optional local access control present.
 - Manual verification of data persistence across restarts.
+- Plan editor allows setting an optional weekday, and plans list surfaces the badge when the field is populated.

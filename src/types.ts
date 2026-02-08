@@ -66,6 +66,7 @@ export interface PlanDTO {
   planExercises: PlanExerciseDTO[];
   // denormalized array used for multiEntry index (always derived from planExercises)
   exerciseIds: UUID[];
+  weekday?: number | null;
   notes?: string;
 }
 
@@ -207,6 +208,7 @@ export type ExercisesQueryParams = {
 export type PlansQueryParams = {
   q?: string;
   exerciseId?: UUID; // filter using plans.exerciseIds multiEntry
+  weekday?: number;
   pagination?: Pagination;
   sort?: "name" | "createdAt";
 };

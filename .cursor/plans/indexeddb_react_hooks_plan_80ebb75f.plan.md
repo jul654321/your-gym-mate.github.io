@@ -69,7 +69,9 @@ For each object store provide read/write/business logic hooks. All hooks assume 
 
 #### Read Operations
 
-- Hook: `usePlans({ q?, exerciseId?, page?, pageSize?, sort? })`
+- Hook: `usePlans({ q?, exerciseId?, weekday?, page?, pageSize?, sort? })`
+- Parameters:
+  - optional `weekday` (0=Sunday..6=Saturday) to filter plans that target a specific day. Since the Plan store is lightweight, the hook can fetch all matching plans (optionally using `name` index for sorting) and apply the weekday filter client-side or via an index if one is added later.
 - IndexedDB ops: query `exerciseIds` (multiEntry) when filtering by exercise; otherwise open cursor on `name` index.
 
 #### Write Operations
