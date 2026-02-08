@@ -30,7 +30,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 pb-18"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 p-4 pb-18"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
