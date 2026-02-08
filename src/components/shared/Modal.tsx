@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "../ui/button";
 
 interface ModalProps {
@@ -14,8 +15,14 @@ export function Modal({
   onClose,
   actionButtons,
 }: ModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  const [portalContainer] = useState<HTMLDivElement | null>(() => {
+    if (typeof document === "undefined") {
+      return null;
+    }
+
+    return document.createElement("div");
+  });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -28,9 +35,28 @@ export function Modal({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  return (
+  useEffect(() => {
+    if (!portalContainer) {
+      return;
+    }
+
+    const portalRoot = document.getElementById("modal-root") ?? document.body;
+    portalRoot.appendChild(portalContainer);
+
+    return () => {
+      if (portalRoot.contains(portalContainer)) {
+        portalRoot.removeChild(portalContainer);
+      }
+    };
+  }, [portalContainer]);
+
+  if (!portalContainer) {
+    return null;
+  }
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 p-4 pb-18"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/80 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
@@ -40,10 +66,7 @@ export function Modal({
         }
       }}
     >
-      <div
-        ref={modalRef}
-        className="flex flex-col w-full max-w-md max-h-full max-h-[calc(100vh-4rem)] rounded-2xl bg-card shadow-xl"
-      >
+      <div className="flex flex-col w-full max-w-md max-h-full max-h-[calc(100vh-4rem)] rounded-2xl bg-card shadow-xl">
         <header className="flex items-center justify-between p-4 border-b border-border">
           <h2
             id={titleId}
@@ -83,6 +106,7 @@ export function Modal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    portalContainer
   );
 }
