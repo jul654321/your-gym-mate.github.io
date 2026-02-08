@@ -154,6 +154,7 @@ export interface LoggedSetDTO {
   weight: number;
   weightUnit?: WeightUnit;
   reps: number;
+  setType: SetType;
   setIndex?: number; // order within session/exercise
   orderIndex?: number;
   alternative?: AlternativeSnapshotDTO | null;
@@ -171,10 +172,13 @@ export type UpdateLoggedSetCmd = { id: UUID } & Partial<
 >;
 export type DeleteLoggedSetCmd = { id: UUID };
 
+export type SetType = "warmup" | "main" | "drop set";
+
 // Quick add command (optimistic quick-add flow). Caller typically pre-fills id, createdAt,
 // timestamp, and weight/reps; hooks may use useGetLastSetForExercise to prepopulate.
 export type QuickAddSetCmd = {
   id: UUID;
+  setType: SetType;
   sessionId: UUID;
   exerciseId: UUID;
   timestamp: EpochMs;

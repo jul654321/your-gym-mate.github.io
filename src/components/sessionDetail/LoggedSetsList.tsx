@@ -3,7 +3,13 @@ import { LoggedSetRow } from "./LoggedSetRow";
 import type { GroupedExerciseVM } from "../../hooks/useSessionViewModel";
 import { Plus } from "lucide-react";
 import type { LoggedSetDTO } from "../../types";
-import { Fragment } from "react";
+import {
+  Fragment,
+  useEffect,
+  useMemo,
+  useRef,
+  type MutableRefObject,
+} from "react";
 
 interface LoggedSetsListProps {
   groupedSets: GroupedExerciseVM[];
@@ -58,12 +64,14 @@ function ExerciseGroup({
   onEditSet,
   onDeleteSet,
   isMutating,
+  setRefs,
 }: {
   group: GroupedExerciseVM;
   onAddSet: (exerciseId: string) => void;
   onEditSet: (setId: string, set: LoggedSetDTO) => void;
   onDeleteSet: (setId: string) => void;
   isMutating?: boolean;
+  setRefs: MutableRefObject<Map<string, HTMLDivElement>>;
 }) {
   if (!group.sets.length) {
     return null;
@@ -81,6 +89,13 @@ function ExerciseGroup({
         {group.sets.map((set) => (
           <LoggedSetRow
             key={set.id}
+            ref={(node) => {
+              if (node) {
+                setRefs.current.set(set.id, node);
+              } else {
+                setRefs.current.delete(set.id);
+              }
+            }}
             set={set}
             onEdit={(setId) => onEditSet(setId, set)}
             onDelete={onDeleteSet}
@@ -100,6 +115,54 @@ export function LoggedSetsList({
   isLoading = false,
   isMutating = false,
 }: LoggedSetsListProps) {
+  const setRefs = useRef(new Map<string, HTMLDivElement>());
+  const prevSetIdsRef = useRef<string[]>([]);
+
+  const currentSetIds = useMemo(
+    () => groupedSets.flatMap((group) => group.sets.map((set) => set.id)),
+    [groupedSets]
+  );
+
+  useEffect(() => {
+    const previousIds = prevSetIdsRef.current;
+    prevSetIdsRef.current = currentSetIds;
+
+    if (previousIds.length === 0) {
+      return;
+    }
+
+    if (currentSetIds.length <= previousIds.length) {
+      return;
+    }
+
+    const previousIdSet = new Set(previousIds);
+    const newSetIds = currentSetIds.filter((id) => !previousIdSet.has(id));
+    const newSetId = newSetIds[newSetIds.length - 1];
+
+    if (!newSetId) {
+      return;
+    }
+
+    let rafId: number | null = null;
+    const tryScroll = () => {
+      const node = setRefs.current.get(newSetId);
+      if (node) {
+        node.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        return;
+      }
+
+      rafId = requestAnimationFrame(tryScroll);
+    };
+
+    tryScroll();
+
+    return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, [currentSetIds]);
+
   if (isLoading && !groupedSets.length) {
     return <p className="text-sm text-slate-500">Loading logged sets…</p>;
   }
@@ -122,6 +185,7 @@ export function LoggedSetsList({
             onEditSet={onEditSet}
             onDeleteSet={onDeleteSet}
             isMutating={isMutating}
+            setRefs={setRefs}
           />
         </Fragment>
       ))}

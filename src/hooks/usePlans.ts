@@ -249,7 +249,10 @@ export function useInstantiateSessionFromPlan() {
       await sessionStore.add(session);
 
       const baseTimestamp = Date.now();
-      for (const [exerciseOrderIndex, planExercise] of plan.planExercises.entries()) {
+      for (const [
+        exerciseOrderIndex,
+        planExercise,
+      ] of plan.planExercises.entries()) {
         const exerciseRecord = await exercisesStore.get(
           planExercise.exerciseId
         );
@@ -259,6 +262,7 @@ export function useInstantiateSessionFromPlan() {
         const weight = lastSet?.weight ?? planExercise.defaultWeight ?? 0;
         const reps = lastSet?.reps ?? planExercise.defaultReps ?? 8;
         const weightUnit = lastSet?.weightUnit ?? "kg";
+        const setType = lastSet?.setType ?? "main";
         const altId = planExercise.optionalAlternativeExerciseId ?? null;
         const altExercise = altId ? await exercisesStore.get(altId) : null;
         const altDefaults = planExercise.alternativeDefaults;
@@ -285,6 +289,7 @@ export function useInstantiateSessionFromPlan() {
             weight,
             weightUnit,
             reps,
+            setType,
             setIndex,
             orderIndex: exerciseOrderIndex,
             alternative: alternativeSnapshot,

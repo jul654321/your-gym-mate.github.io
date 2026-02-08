@@ -3,6 +3,7 @@ import type {
   LoggedSetDTO,
   SessionDTO,
   SessionStatus,
+  SetType,
   WeightUnit,
 } from "../../types";
 import type { SessionExportRow } from "../../hooks/useExportBackup";
@@ -161,6 +162,7 @@ export function buildSessionRow(
     weight: toNumber(cells["Weight"]),
     weightUnit: (cells["Unit"]?.trim() as WeightUnit) ?? "",
     reps: toNumber(cells["Reps"]),
+    setType: (cells["Set type"]?.trim() as SetType) ?? "main",
     timestamp: parseEpochMs(cells["Set timestamp"]),
     orderIndex: toOptionalNumber(cells["Order index"]),
     notes: cells["Notes"]?.trim() ?? "",
@@ -354,6 +356,7 @@ function createLoggedSetPayload(
     weight: row.weight,
     weightUnit: row.weightUnit || undefined,
     reps: row.reps,
+    setType: row.setType ?? "main",
     timestamp: Number.isFinite(row.timestamp) ? row.timestamp : Date.now(),
     orderIndex: typeof row.orderIndex === "number" ? row.orderIndex : undefined,
     notes: row.notes || undefined,

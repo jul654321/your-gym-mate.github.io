@@ -4,6 +4,7 @@ import type {
   LoggedSetDTO,
   SessionDTO,
   SessionStatus,
+  SetType,
   WeightUnit,
 } from "../types";
 
@@ -21,6 +22,7 @@ export interface SessionExportRow extends Record<string, unknown> {
   weight: number;
   weightUnit?: WeightUnit;
   reps: number;
+  setType: SetType;
   timestamp: number;
   orderIndex: number | "";
   notes: string;
@@ -72,6 +74,7 @@ export const SESSION_EXPORT_COLUMNS: CsvColumn<SessionExportRow>[] = [
   { header: "Weight", key: "weight" },
   { header: "Unit", key: "weightUnit" },
   { header: "Reps", key: "reps" },
+  { header: "Set type", key: "setType" },
   {
     header: "Set timestamp",
     key: "timestamp",
@@ -190,6 +193,7 @@ function createRow(
     weight: set.weight,
     weightUnit: set.weightUnit,
     reps: set.reps,
+    setType: set.setType,
     timestamp: set.timestamp,
     orderIndex: set.orderIndex ?? "",
     notes: set.notes ?? "",

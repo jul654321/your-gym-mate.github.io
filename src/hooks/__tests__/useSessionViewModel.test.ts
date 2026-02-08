@@ -22,6 +22,7 @@ const createSet = (
     exerciseNameSnapshot: rest.exerciseNameSnapshot,
     setIndex: rest.setIndex,
     weightUnit: rest.weightUnit,
+    setType: rest.setType ?? "main",
     notes: rest.notes,
     alternative: rest.alternative ?? null,
     updatedAt: rest.updatedAt,

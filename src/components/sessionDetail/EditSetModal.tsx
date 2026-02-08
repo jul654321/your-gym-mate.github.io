@@ -17,6 +17,7 @@ import type {
   ExerciseDefaultDTO,
   ExerciseDefaultsDTO,
   LoggedSetDTO,
+  SetType,
   UpdateLoggedSetCmd,
   WeightUnit,
 } from "../../types";
@@ -37,6 +38,7 @@ interface EditSetModalProps {
 interface EditSetFormState {
   exerciseId: string;
   weightUnit: WeightUnit;
+  setType: SetType;
   weight: string;
   reps: string;
   alternativeEnabled: boolean;
@@ -52,6 +54,7 @@ function buildFormState(set: LoggedSetDTO): EditSetFormState {
   return {
     exerciseId: set.exerciseId,
     weightUnit: set.weightUnit ?? "kg",
+    setType: set.setType ?? "main",
     weight: String(set.weight ?? 0),
     reps: String(set.reps ?? 0),
     alternativeEnabled: Boolean(set.alternative),
@@ -314,6 +317,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
       weight: mainWeightValue,
       weightUnit: formState.weightUnit,
       reps: mainRepsValue,
+      setType: formState.setType,
       exerciseNameSnapshot: mainExerciseLabel,
       alternative: alternativePayload,
     };
@@ -332,6 +336,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
           weight: mainWeightValue,
           weightUnit: formState.weightUnit,
           reps: mainRepsValue,
+          setType: formState.setType,
           exerciseNameSnapshot: mainExerciseLabel,
           alternative: alternativePayload,
         }));
@@ -422,12 +427,32 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
             </Checkbox>
           </Label>
 
+          <div>
+            <Label htmlFor="set-type">Set type</Label>
+            <Select
+              value={formState.setType}
+              onChange={(event) =>
+                setFormState((prev) => ({
+                  ...prev,
+                  setType: event.target.value as SetType,
+                }))
+              }
+              disabled={!ready}
+            >
+              <option value="warmup">Warmup</option>
+              <option value="main">Main</option>
+              <option value="drop set">Drop set</option>
+            </Select>
+          </div>
+
           {formState.applyToSession && (
             <p className="text-xs text-muted-foreground">
               Updates every logged set with the new weight/reps when you save.
             </p>
           )}
         </div>
+
+        <hr className="my-6 border-secondary" />
 
         <div>
           <Label htmlFor="exercise">Exercise</Label>

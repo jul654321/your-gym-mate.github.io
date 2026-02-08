@@ -244,7 +244,12 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
         exerciseOrder: sessionQuery.data?.exerciseOrder,
         altToMainMap,
       }),
-    [accumulatedSets, exercisesById, sessionQuery.data?.exerciseOrder, altToMainMap]
+    [
+      accumulatedSets,
+      exercisesById,
+      sessionQuery.data?.exerciseOrder,
+      altToMainMap,
+    ]
   );
 
   const totals = useMemo(() => {
@@ -314,6 +319,7 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
         weight: 0,
         weightUnit: DEFAULT_WEIGHT_UNIT,
         reps: 1,
+        setType: "main",
         timestamp: now,
         createdAt: now,
         exerciseIds: [exerciseId],
