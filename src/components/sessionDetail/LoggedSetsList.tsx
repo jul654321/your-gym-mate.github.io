@@ -147,7 +147,7 @@ export function LoggedSetsList({
     const tryScroll = () => {
       const node = setRefs.current.get(newSetId);
       if (node) {
-        node.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        node.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
 
