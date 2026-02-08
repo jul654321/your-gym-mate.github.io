@@ -18,6 +18,7 @@ This directory contains database migration files for Your Gym Mate IndexedDB sch
 ## Migration Best Practices
 
 ### DO:
+
 - Keep migrations small and focused
 - Test with realistic data volumes
 - Use batch processing for large datasets (100-500 records per batch)
@@ -25,6 +26,7 @@ This directory contains database migration files for Your Gym Mate IndexedDB sch
 - Make migrations resumable if they can be interrupted
 
 ### DON'T:
+
 - Modify migration code after it's deployed
 - Delete old migration code
 - Block the main thread for long operations
@@ -33,32 +35,23 @@ This directory contains database migration files for Your Gym Mate IndexedDB sch
 ## Example Migration
 
 ```typescript
-// Migration v2: Add exerciseIds to plans
+// Migration v2: Backfill weekday metadata on plans
 2: async (db) => {
-  const tx = db.transaction('plans', 'readwrite');
-  const store = tx.objectStore('plans');
-  const plans = await store.getAll();
-  
-  // Batch processing
-  const batchSize = 100;
-  for (let i = 0; i < plans.length; i += batchSize) {
-    const batch = plans.slice(i, i + batchSize);
-    
-    for (const plan of batch) {
-      if (!plan.exerciseIds) {
-        plan.exerciseIds = plan.planExercises.map(pe => pe.exerciseId);
-        await store.put(plan);
-      }
+  const tx = db.transaction("plans", "readwrite");
+  const store = tx.objectStore("plans");
+  let cursor = await store.openCursor();
+
+  while (cursor) {
+    const plan = cursor.value;
+    if (!Object.prototype.hasOwnProperty.call(plan, "weekday") || plan.weekday === undefined) {
+      await cursor.update({ ...plan, weekday: null });
     }
-    
-    // Yield to prevent blocking
-    if (i + batchSize < plans.length) {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    }
+
+    cursor = await cursor.continue();
   }
-  
+
   await tx.done;
-  console.log('[Migration v2] Updated', plans.length, 'plans');
+  console.log("[Migration v2] Backfilled weekday metadata for plans");
 },
 ```
 

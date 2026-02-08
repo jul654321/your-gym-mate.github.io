@@ -13,10 +13,11 @@ import type {
   EventRecordDTO,
   TrashRecordDTO,
 } from "../../types";
+import { runMigrations } from "./migrations";
 
 // Database configuration
 export const DB_NAME = "your-gym-mate";
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 // Object store names
 export const STORE_NAMES = {
@@ -103,7 +104,7 @@ export async function getDB(): Promise<IDBPDatabase<GymMateDB>> {
   }
 
   dbInstance = await openDB<GymMateDB>(DB_NAME, DB_VERSION, {
-    upgrade(db, oldVersion, newVersion) {
+    upgrade: async (db, oldVersion, newVersion) => {
       console.log(
         `[DB] Upgrading database from version ${oldVersion} to ${newVersion}`
       );
@@ -205,8 +206,8 @@ export async function getDB(): Promise<IDBPDatabase<GymMateDB>> {
         }
       }
 
-      // Future migrations will go here
-      // if (oldVersion < 2) { ... }
+      // Run registered migrations after initial schema creation
+      await runMigrations(db, oldVersion, newVersion);
     },
     blocked() {
       console.warn(

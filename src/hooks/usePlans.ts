@@ -38,6 +38,11 @@ export function usePlans(params: PlansQueryParams = {}) {
         plans = await store.getAll();
       }
 
+      // Filter by weekday
+      if (params.weekday !== undefined) {
+        plans = plans.filter((plan) => plan.weekday === params.weekday);
+      }
+
       // Text search on name
       if (params.q) {
         const query = params.q.toLowerCase();
@@ -119,6 +124,7 @@ export function useCreatePlan() {
       const planToCreate: PlanDTO = {
         ...plan,
         exerciseIds: plan.planExercises.map((pe) => pe.exerciseId),
+        weekday: plan.weekday ?? null,
       };
 
       await db.add(STORE_NAMES.plans, planToCreate);
@@ -145,14 +151,24 @@ export function useUpdatePlan() {
         throw new Error(`Plan ${cmd.id} not found`);
       }
 
+      const recalcExerciseIds = cmd.planExercises
+        ? cmd.planExercises.map((pe) => pe.exerciseId)
+        : existing.exerciseIds;
+
+      const hasWeekdayField = Object.prototype.hasOwnProperty.call(
+        cmd,
+        "weekday"
+      );
+      const weekdayValue = hasWeekdayField
+        ? cmd.weekday ?? null
+        : existing.weekday ?? null;
+
       const updated: PlanDTO = {
         ...existing,
         ...cmd,
         updatedAt: Date.now(),
-        // Recalculate exerciseIds if planExercises changed
-        exerciseIds: cmd.planExercises
-          ? cmd.planExercises.map((pe) => pe.exerciseId)
-          : existing.exerciseIds,
+        weekday: weekdayValue,
+        exerciseIds: recalcExerciseIds,
       };
 
       await db.put(STORE_NAMES.plans, updated);

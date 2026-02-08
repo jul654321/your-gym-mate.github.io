@@ -2,12 +2,13 @@
 // Each migration is versioned and should be idempotent
 
 import type { IDBPDatabase } from "idb";
+import type { PlanDTO } from "../../types";
 
 export type MigrationFunction = (
   db: IDBPDatabase,
   oldVersion: number,
   newVersion: number | null
-) => Promise<void>;
+): Promise<void>;
 
 /**
  * Registry of all database migrations
@@ -16,28 +17,38 @@ export type MigrationFunction = (
 export const migrations: Record<number, MigrationFunction> = {
   // Version 1: Initial schema (handled in main upgrade function)
   1: async () => {
-    // Initial schema is created in the main upgrade function
-    // No additional migration needed
     console.log("[Migration v1] Initial schema created");
   },
 
-  // Example for future migrations:
-  // 2: async (db) => {
-  //   // Add exerciseIds array to existing plans
-  //   const tx = db.transaction('plans', 'readwrite');
-  //   const store = tx.objectStore('plans');
-  //   const plans = await store.getAll();
-  //
-  //   for (const plan of plans) {
-  //     if (!plan.exerciseIds) {
-  //       plan.exerciseIds = plan.planExercises.map(pe => pe.exerciseId);
-  //       await store.put(plan);
-  //     }
-  //   }
-  //
-  //   await tx.done;
-  //   console.log('[Migration v2] Added exerciseIds to plans');
-  // },
+  2: async (db) => {
+    const tx = db.transaction("plans", "readwrite");
+    const store = tx.objectStore("plans");
+    let cursor = await store.openCursor();
+    let processed = 0;
+
+    while (cursor) {
+      const plan = cursor.value as PlanDTO;
+      const shouldSetWeekday =
+        !Object.prototype.hasOwnProperty.call(plan, "weekday") ||
+        plan.weekday === undefined;
+
+      if (shouldSetWeekday) {
+        await cursor.update({ ...plan, weekday: null });
+      }
+
+      processed += 1;
+      if (processed % 100 === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+
+      cursor = await cursor.continue();
+    }
+
+    await tx.done;
+    console.log(
+      "[Migration v2] Added `weekday` metadata to plans and backfilled missing values"
+    );
+  },
 };
 
 /**
