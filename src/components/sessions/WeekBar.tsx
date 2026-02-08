@@ -80,7 +80,7 @@ export function WeekBar({
               onClick={() => onDayClick(dayStart)}
               aria-pressed={isSelected}
               aria-label={`${dayLabel} — ${dotStatus}`}
-              className={`flex min-w-[40px] flex-col items-center rounded-xl border p-2 text-center shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+              className={`flex flex-1 min-w-[40px] flex-col items-center rounded-xl border p-2 text-center shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                 isSelected
                   ? "border-primary bg-primary/10 font-semibold text-primary shadow-primary/50"
                   : "border-transparent bg-secondary text-secondary-foreground hover:border-secondary hover:text-secondary-foreground"
