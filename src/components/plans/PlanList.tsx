@@ -1,6 +1,5 @@
 import { PlanRow } from "./PlanRow";
 import type { PlanDTO } from "../../types";
-import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 
 interface PlanListProps {
@@ -9,7 +8,6 @@ interface PlanListProps {
   dbReady: boolean;
   isLoading: boolean;
   error: Error | null;
-  handleCreateClick: () => void;
 }
 
 export function PlanList({
@@ -18,7 +16,6 @@ export function PlanList({
   dbReady,
   isLoading,
   error,
-  handleCreateClick,
 }: PlanListProps) {
   return (
     <section aria-live="polite">

@@ -47,7 +47,6 @@ export function PlansPage() {
           dbReady={isInitialized}
           isLoading={isLoading}
           error={error}
-          handleCreateClick={handleCreateClick}
         />
         <Button
           onClick={handleCreateClick}

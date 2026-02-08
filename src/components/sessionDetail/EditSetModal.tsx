@@ -381,15 +381,6 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
     );
   };
 
-  const handleUnsavedConfirm = useCallback(() => {
-    setShowUnsavedConfirm(false);
-    closeModal();
-  }, [closeModal]);
-
-  const handleUnsavedCancel = useCallback(() => {
-    setShowUnsavedConfirm(false);
-  }, []);
-
   return (
     <Modal
       title="Edit Set"
@@ -646,11 +637,12 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
       {showUnsavedConfirm && (
         <ConfirmModal
           title="Discard changes?"
-          description="Discard your changes? Unsaved progress will be lost."
+          description={
+            <p>Discard your changes? Unsaved progress will be lost.</p>
+          }
           confirmLabel="Discard"
-          cancelLabel="Keep editing"
-          onConfirm={handleUnsavedConfirm}
-          onCancel={handleUnsavedCancel}
+          onConfirm={closeModal}
+          onCancel={() => setShowUnsavedConfirm(false)}
         />
       )}
     </Modal>
