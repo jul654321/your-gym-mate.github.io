@@ -2,8 +2,8 @@
 // Minimal, deterministic SW with cache-first for static assets
 // and network-first for dynamic data
 
-const CACHE_NAME = "gymmate-static-v1";
-const RUNTIME_CACHE = "gymmate-runtime-v1";
+const CACHE_NAME = "gymmate-static-v2";
+const RUNTIME_CACHE = "gymmate-runtime-v2";
 const BASE_PATH = "/your-gym-mate.github.io/";
 
 // Static assets to precache - will be updated by build process
