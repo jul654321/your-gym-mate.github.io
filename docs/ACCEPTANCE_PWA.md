@@ -18,18 +18,16 @@ This document provides a manual acceptance test checklist for verifying PWA func
   - Tap "Add to Home Screen"
   - Verify icon appears on home screen
   - Verify app name is "GymMate" or "Your Gym Mate"
-  
 - [ ] **Launch Behavior**
   - Tap installed icon
   - App launches in standalone mode (no browser UI)
   - Verify splash screen shows (if configured)
-  - Verify status bar color matches theme (#0ea5a4)
-  
+  - Verify status bar color matches theme (#fccb21)
 - [ ] **Manifest Properties**
   - Open DevTools → Application → Manifest
   - Verify all properties are present and correct
   - Verify icons are loaded (192x192, 512x512)
-  - Verify theme color is #0ea5a4
+  - Verify theme color is #fccb21
 
 ### 2. Service Worker Registration
 
@@ -39,7 +37,6 @@ This document provides a manual acceptance test checklist for verifying PWA func
   - Open DevTools → Application → Service Workers
   - Verify service worker is registered
   - Verify status is "activated and running"
-  
 - [ ] **SW Not in Development**
   - Run `npm run dev`
   - Open DevTools console
@@ -59,8 +56,8 @@ This document provides a manual acceptance test checklist for verifying PWA func
     - settings
     - events
     - undo_trash
-  
 - [ ] **Offline Access**
+
   - Load the app online
   - Open DevTools → Network
   - Set throttling to "Offline"
@@ -85,13 +82,12 @@ This document provides a manual acceptance test checklist for verifying PWA func
   - Rebuild: `npm run build`
   - In running app, wait for SW to check for updates
   - Or manually: DevTools → Application → Service Workers → Update
-  
 - [ ] **Update Notification**
   - Verify update banner appears at bottom of screen
   - Verify banner shows: "New version available!"
   - Verify banner has "Later" and "Update Now" buttons
-  
 - [ ] **Update Action**
+
   - Click "Update Now"
   - Verify page reloads
   - Verify new service worker is active
@@ -114,7 +110,6 @@ This document provides a manual acceptance test checklist for verifying PWA func
     - /manifest.json
     - Icons
     - JS/CSS bundles
-  
 - [ ] **Runtime Cache**
   - Navigate app and load various resources
   - Verify "gymmate-runtime-v1" cache is created
@@ -127,20 +122,20 @@ This document provides a manual acceptance test checklist for verifying PWA func
   - Verify it appears in UI immediately
   - Refresh page
   - Verify exercise persists
-  
 - [ ] **Update Exercise**
   - Edit an exercise
   - Verify changes appear immediately
   - Refresh page
   - Verify changes persist
-  
 - [ ] **Delete Exercise**
+
   - Delete an exercise
   - Verify it's removed from UI
   - Refresh page
   - Verify deletion persists
 
 - [ ] **Create Session**
+
   - Create a new workout session
   - Verify session appears in list
   - Refresh page
@@ -162,10 +157,8 @@ This document provides a manual acceptance test checklist for verifying PWA func
   - Clear cache
   - Measure time to first meaningful paint
   - Should be < 2 seconds on 3G
-  
 - [ ] **Subsequent Loads**
   - With cache, load time should be < 500ms
-  
 - [ ] **Database Query Performance**
   - With realistic data (100+ exercises, 50+ sessions, 1000+ sets)
   - Verify queries complete in < 100ms
@@ -176,16 +169,13 @@ This document provides a manual acceptance test checklist for verifying PWA func
 - [ ] **Status Bar**
   - Verify status bar style is appropriate
   - Verify status bar doesn't overlap content
-  
 - [ ] **Viewport**
   - Verify app fills entire screen
   - Verify no horizontal scrolling
   - Test on different iOS devices (if available)
-  
 - [ ] **Touch Targets**
   - Verify all buttons are at least 44x44 pixels
   - Verify buttons are easily tappable
-  
 - [ ] **Orientation**
   - Test in portrait mode (primary)
   - Verify landscape mode works (if supported)
@@ -196,7 +186,6 @@ This document provides a manual acceptance test checklist for verifying PWA func
   - Simulate DB initialization failure (if possible)
   - Verify error message is shown
   - Verify reload button is present
-  
 - [ ] **Network Error**
   - Go offline while performing network operation
   - Verify graceful degradation
@@ -207,15 +196,12 @@ This document provides a manual acceptance test checklist for verifying PWA func
 - [ ] **iOS Safari** (Primary)
   - Version: Latest
   - All tests pass
-  
 - [ ] **Chrome Mobile**
   - Version: Latest
   - All tests pass
-  
 - [ ] **Desktop Chrome**
   - Version: Latest
   - All tests pass
-  
 - [ ] **Desktop Safari**
   - Version: Latest
   - All tests pass
@@ -223,6 +209,7 @@ This document provides a manual acceptance test checklist for verifying PWA func
 ## Pass Criteria
 
 For PWA acceptance:
+
 - [ ] App is installable on iOS Safari
 - [ ] App launches in standalone mode
 - [ ] All CRUD operations work offline
@@ -241,13 +228,13 @@ For PWA acceptance:
 
 ## Testing Date
 
-- Date: ___________
-- Tester: ___________
-- Build Version: ___________
+- Date: ****\_\_\_****
+- Tester: ****\_\_\_****
+- Build Version: ****\_\_\_****
 - Result: [ ] Pass / [ ] Fail
 
 ## Issues Found
 
-1. _____________________________
-2. _____________________________
-3. _____________________________
+1. ***
+2. ***
+3. ***

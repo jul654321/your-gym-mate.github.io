@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const primary = "#0ea5a4";
+const primary = "#fccb21";
 const primaryDark = "#0b8380";
 
 export default {

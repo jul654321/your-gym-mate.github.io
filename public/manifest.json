@@ -4,8 +4,8 @@
   "description": "Your personal gym companion for tracking workouts and progress",
   "start_url": "/your-gym-mate.github.io/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0ea5a4",
+  "background_color": "#070707",
+  "theme_color": "#fccb21",
   "orientation": "portrait",
   "icons": [
     {

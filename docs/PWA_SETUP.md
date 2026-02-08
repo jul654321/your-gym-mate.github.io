@@ -17,18 +17,21 @@ Your Gym Mate is configured as a fully offline-capable PWA with the following fe
 ### Components
 
 1. **Service Worker** (`public/sw.js`)
+
    - Handles asset caching and offline support
    - Cache-first strategy for static assets
    - Network-first for dynamic data
    - Automatic cache cleanup
 
 2. **IndexedDB** (`src/lib/db/`)
+
    - Local-first data storage
    - Full schema with migrations support
    - Object stores: exercises, plans, sessions, loggedSets, settings, events, undo_trash
    - Comprehensive indexes for efficient queries
 
 3. **React Hooks** (`src/hooks/`)
+
    - `useDbInit` - Initializes database on app start
    - `useExercises` - Exercise CRUD operations
    - `usePlans` - Plan CRUD operations
@@ -37,6 +40,7 @@ Your Gym Mate is configured as a fully offline-capable PWA with the following fe
    - All hooks use React Query for caching and optimistic updates
 
 4. **Service Worker Registration** (`src/serviceWorker/register.ts`)
+
    - Registers SW only in production
    - Provides update callbacks
    - Handles SW lifecycle events
@@ -102,7 +106,7 @@ your-gym-mate/
   "short_name": "GymMate",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#0ea5a4",
+  "theme_color": "#fccb21",
   "background_color": "#ffffff"
 }
 ```
@@ -111,7 +115,6 @@ your-gym-mate/
 
 - **Static cache**: `gymmate-static-v1`
   - Contains precached assets (index.html, JS, CSS, icons)
-  
 - **Runtime cache**: `gymmate-runtime-v1`
   - Dynamically caches assets as they're fetched
 
@@ -121,6 +124,7 @@ your-gym-mate/
 **Version**: 1
 
 **Object Stores**:
+
 - `exercises` - Exercise definitions
 - `plans` - Workout plans
 - `sessions` - Workout sessions
@@ -154,16 +158,16 @@ In browser console (development mode only):
 
 ```javascript
 // Get database instance
-const db = await window.__getDB()
+const db = await window.__getDB();
 
 // View all exercises
-const exercises = await db.getAll('exercises')
+const exercises = await db.getAll("exercises");
 
 // Export all data
-const data = await window.__exportData()
+const data = await window.__exportData();
 
 // Clear all data (dev only!)
-await window.__clearAllData()
+await window.__clearAllData();
 ```
 
 ## Guidelines
@@ -202,6 +206,7 @@ When adding new hooks:
 See [ACCEPTANCE_PWA.md](./ACCEPTANCE_PWA.md) for comprehensive test checklist.
 
 **Quick test:**
+
 1. Build: `npm run build && npm run preview`
 2. Open in browser
 3. Check Application tab → Service Workers (should be registered)
@@ -229,12 +234,14 @@ See [ACCEPTANCE_PWA.md](./ACCEPTANCE_PWA.md) for comprehensive test checklist.
 **Primary target**: iOS Safari (latest)
 
 **Supported**:
+
 - iOS Safari 14+
 - Chrome 90+
 - Edge 90+
 - Safari 14+
 
 **Not supported**:
+
 - IE11 (no IndexedDB or Service Worker support)
 - Very old browsers
 
@@ -271,12 +278,14 @@ Future enhancements:
 ## Maintenance
 
 **Regular tasks**:
+
 - Update dependencies monthly
 - Test PWA features after major updates
 - Monitor browser compatibility
 - Update cache version when deploying
 
 **Before each release**:
+
 - [ ] Run `npm run build` successfully
 - [ ] Test on iOS Safari
 - [ ] Verify offline functionality
