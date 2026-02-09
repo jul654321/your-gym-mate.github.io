@@ -56,7 +56,6 @@ export function WeekBar({
         <Button
           type="button"
           onClick={onPrevWeek}
-          disabled={isCurrentWeek}
           aria-label="Show previous week"
           variant="ghost"
           size="sm"
