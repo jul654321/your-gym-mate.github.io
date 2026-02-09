@@ -213,19 +213,34 @@ export function LoggedSetsList({
   }
 
   return (
-    <div className="space-y-5">
-      {groupedSets.map((group) => (
-        <Fragment key={group.exerciseId}>
-          <ExerciseGroup
-            group={group}
-            onAddSet={onAddSet}
-            onEditSet={onEditSet}
-            onDeleteSet={onDeleteSet}
-            isMutating={isMutating}
-            setRefs={setRefs}
-          />
-        </Fragment>
-      ))}
-    </div>
+    <>
+      <div className="space-y-5">
+        {groupedSets.map((group) => (
+          <Fragment key={group.exerciseId}>
+            <ExerciseGroup
+              group={group}
+              onAddSet={onAddSet}
+              onEditSet={onEditSet}
+              onDeleteSet={onDeleteSet}
+              isMutating={isMutating}
+              setRefs={setRefs}
+            />
+          </Fragment>
+        ))}
+        <Button
+          variant="primary"
+          onClick={handleOpenPicker}
+          className="mt-4 w-full"
+        >
+          <Plus className="mr-1 h-4 w-4" aria-hidden />
+          Add Set
+        </Button>
+      </div>
+      <ExercisePickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={handleSelectExercise}
+      />
+    </>
   );
 }
