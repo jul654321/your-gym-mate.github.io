@@ -1,6 +1,6 @@
 import { useReducer, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
-import type { UUID } from "../types";
+import type { UUID, WorkoutType } from "../types";
 
 // Form model types as defined in the plan
 export type PlanExerciseAlternativeDefaultsFormModel = {
@@ -28,6 +28,7 @@ export type PlanFormModel = {
   planExercises: PlanExerciseFormModel[]; // ordered
   notes?: string;
   weekday?: number | null;
+  workoutType?: WorkoutType | null;
 };
 
 // Validation errors
@@ -62,7 +63,8 @@ type PlanFormAction =
     }
   | { type: "MOVE_EXERCISE"; payload: { fromIndex: number; toIndex: number } }
   | { type: "SET_WEEKDAY"; payload: number | null }
-  | { type: "SET_FORM"; payload: PlanFormModel };
+  | { type: "SET_FORM"; payload: PlanFormModel }
+  | { type: "SET_WORKOUT_TYPE"; payload: WorkoutType | null };
 
 // Reducer
 function planFormReducer(
@@ -130,10 +132,17 @@ function planFormReducer(
         ...action.payload,
         weekday:
           action.payload.weekday === undefined ? null : action.payload.weekday,
+        workoutType:
+          action.payload.workoutType === undefined
+            ? null
+            : action.payload.workoutType,
       };
 
     case "SET_WEEKDAY":
       return { ...state, weekday: action.payload };
+
+    case "SET_WORKOUT_TYPE":
+      return { ...state, workoutType: action.payload };
 
     default:
       return state;
@@ -261,6 +270,7 @@ export function usePlanFormReducer(initialForm?: PlanFormModel) {
       planExercises: [],
       notes: "",
       weekday: null,
+      workoutType: null,
     }
   );
 
@@ -299,6 +309,10 @@ export function usePlanFormReducer(initialForm?: PlanFormModel) {
     dispatch({ type: "SET_WEEKDAY", payload: weekday });
   }, []);
 
+  const setWorkoutType = useCallback((workoutType: WorkoutType | null) => {
+    dispatch({ type: "SET_WORKOUT_TYPE", payload: workoutType });
+  }, []);
+
   const validate = useCallback(() => {
     return validatePlanForm(form);
   }, [form]);
@@ -313,6 +327,7 @@ export function usePlanFormReducer(initialForm?: PlanFormModel) {
     moveExercise,
     setForm,
     setWeekday,
+    setWorkoutType,
     validate,
   };
 }

@@ -11,7 +11,12 @@ import {
   type PlanFormErrors,
 } from "../../hooks/usePlanFormReducer";
 import { PlanExercisesList } from "./PlanExercisesList";
-import type { PlanDTO, CreatePlanCmd, UpdatePlanCmd } from "../../types";
+import type {
+  PlanDTO,
+  CreatePlanCmd,
+  UpdatePlanCmd,
+  WorkoutType,
+} from "../../types";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Modal } from "../shared/Modal";
@@ -20,6 +25,7 @@ import { Plus } from "lucide-react";
 import { Label } from "../ui/label";
 import { Select } from "../ui/select";
 import { WEEKDAY_SELECT_OPTIONS } from "../../lib/utils/weekdays";
+import { WORKOUT_TYPE_SELECT_OPTIONS } from "../../lib/utils/workoutTypes";
 
 interface PlanEditorProps {
   planId?: string;
@@ -48,6 +54,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
     moveExercise,
     setForm,
     setWeekday,
+    setWorkoutType,
     validate,
   } = usePlanFormReducer();
 
@@ -65,6 +72,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
         notes: existingPlan.notes,
         planExercises: existingPlan.planExercises,
         weekday: existingPlan.weekday ?? null,
+        workoutType: existingPlan.workoutType ?? null,
       });
     }
   }, [existingPlan, setForm]);
@@ -98,6 +106,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
             alternativeDefaults: pe.alternativeDefaults,
           })),
           weekday: form.weekday ?? null,
+          workoutType: form.workoutType ?? null,
           updatedAt: Date.now(),
         };
 
@@ -122,6 +131,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
             .map((pe) => pe.exerciseId!)
             .filter(Boolean),
           weekday: form.weekday ?? null,
+          workoutType: form.workoutType ?? null,
           createdAt: Date.now(),
         };
 
@@ -216,6 +226,31 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
               </Select>
               <p className="text-xs text-muted-foreground">
                 Pick a weekday tag to help organize and filter plans.
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="plan-workout-type">Workout type</Label>
+              <Select
+                id="plan-workout-type"
+                value={form.workoutType ?? ""}
+                onChange={(e) =>
+                  setWorkoutType(
+                    (e.target.value === ""
+                      ? null
+                      : (e.target.value as WorkoutType)) ?? null
+                  )
+                }
+              >
+                {WORKOUT_TYPE_SELECT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Categorize the plan to help surface it alongside similar
+                workouts.
               </p>
             </div>
 

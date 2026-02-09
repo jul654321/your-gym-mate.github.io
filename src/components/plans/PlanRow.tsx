@@ -14,6 +14,7 @@ import {
   getWeekdayLongName,
   getWeekdayShortName,
 } from "../../lib/utils/weekdays";
+import { getWorkoutTypeLabel } from "../../lib/utils/workoutTypes";
 import { Card } from "../ui/card";
 
 interface PlanRowProps {
@@ -27,6 +28,7 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const weekdayShort = getWeekdayShortName(plan.weekday ?? null);
   const weekdayLong = getWeekdayLongName(plan.weekday ?? null);
+  const workoutTypeLabel = getWorkoutTypeLabel(plan.workoutType ?? null);
 
   const instantiateMutation = useInstantiateSessionFromPlan();
   const deleteMutation = useDeletePlan();
@@ -79,6 +81,14 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
                   }`}
                 >
                   {weekdayShort}
+                </span>
+              )}
+              {workoutTypeLabel && (
+                <span
+                  className="rounded-full border border-border px-3 py-[2px] text-[11px] font-semibold tracking-wide text-primary bg-primary/10"
+                  aria-label={`Workout type: ${workoutTypeLabel}`}
+                >
+                  {workoutTypeLabel}
                 </span>
               )}
             </div>
