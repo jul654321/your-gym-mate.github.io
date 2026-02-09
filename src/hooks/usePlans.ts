@@ -43,6 +43,12 @@ export function usePlans(params: PlansQueryParams = {}) {
         plans = plans.filter((plan) => plan.weekday === params.weekday);
       }
 
+      if (params.workoutType !== undefined) {
+        plans = plans.filter(
+          (plan) => (plan.workoutType ?? null) === params.workoutType
+        );
+      }
+
       // Text search on name
       if (params.q) {
         const query = params.q.toLowerCase();
@@ -125,6 +131,7 @@ export function useCreatePlan() {
         ...plan,
         exerciseIds: plan.planExercises.map((pe) => pe.exerciseId),
         weekday: plan.weekday ?? null,
+        workoutType: plan.workoutType ?? null,
       };
 
       await db.add(STORE_NAMES.plans, planToCreate);
@@ -162,12 +169,20 @@ export function useUpdatePlan() {
       const weekdayValue = hasWeekdayField
         ? cmd.weekday ?? null
         : existing.weekday ?? null;
+      const hasWorkoutTypeField = Object.prototype.hasOwnProperty.call(
+        cmd,
+        "workoutType"
+      );
+      const workoutTypeValue = hasWorkoutTypeField
+        ? cmd.workoutType ?? null
+        : existing.workoutType ?? null;
 
       const updated: PlanDTO = {
         ...existing,
         ...cmd,
         updatedAt: Date.now(),
         weekday: weekdayValue,
+        workoutType: workoutTypeValue,
         exerciseIds: recalcExerciseIds,
       };
 
@@ -257,6 +272,7 @@ export function useInstantiateSessionFromPlan() {
         name: cmd.overrides?.name ?? plan.name,
         date: cmd.overrides?.date ?? Date.now(),
         sourcePlanId: cmd.planId,
+        workoutType: plan.workoutType ?? null,
         exerciseOrder: plan.planExercises.map((pe) => pe.exerciseId),
         status: "active",
         createdAt: cmd.createdAt ?? Date.now(),

@@ -10,6 +10,7 @@ import {
   useRef,
   type MutableRefObject,
 } from "react";
+import { Card } from "../ui/card";
 
 interface LoggedSetsListProps {
   groupedSets: GroupedExerciseVM[];
@@ -169,9 +170,15 @@ export function LoggedSetsList({
 
   if (!groupedSets.length && !isLoading) {
     return (
-      <p className="text-sm text-slate-500">
-        No sets logged yet. Tap Quick Add to capture your first set.
-      </p>
+      <Card theme="secondary" className="text-center mt-4">
+        <div className="text-6xl mb-4">🏋️</div>
+        <h2 className="text-lg font-semibold text-muted-foreground mb-2">
+          No sets logged yet
+        </h2>
+        <p className="text-muted-foreground mb-6">
+          Start your first workout set
+        </p>
+      </Card>
     );
   }
 

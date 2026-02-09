@@ -57,6 +57,8 @@ export interface PlanExerciseAlternativeDefaultsDTO {
   notes?: string;
 }
 
+export type WorkoutType = "Cardio" | "HighIntensity" | "Strength";
+
 export interface PlanDTO {
   id: UUID;
   name: string;
@@ -67,6 +69,7 @@ export interface PlanDTO {
   // denormalized array used for multiEntry index (always derived from planExercises)
   exerciseIds: UUID[];
   weekday?: number | null;
+  workoutType?: WorkoutType | null;
   notes?: string;
 }
 
@@ -98,6 +101,7 @@ export interface SessionDTO {
   name?: string;
   date: EpochMs; // session start epoch ms
   sourcePlanId?: UUID | null;
+  workoutType?: WorkoutType | null;
   // ordered exerciseIds for UI
   exerciseOrder?: UUID[];
   status: SessionStatus;
@@ -209,6 +213,7 @@ export type PlansQueryParams = {
   q?: string;
   exerciseId?: UUID; // filter using plans.exerciseIds multiEntry
   weekday?: number;
+  workoutType?: WorkoutType | null;
   pagination?: Pagination;
   sort?: "name" | "createdAt";
 };
