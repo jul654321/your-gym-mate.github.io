@@ -36,6 +36,8 @@ interface Exercise {
   - `{ name: "name", keyPath: "name", unique: false, multiEntry: false }`
   - `{ name: "category", keyPath: "category", unique: false, multiEntry: false }`
   - `{ name: "equipment", keyPath: "equipment", unique: false, multiEntry: true }` (multiEntry for array)
+- Notes:
+  - Inline quick-log creation (from the “Log a set” flow when no sets exist) writes the same minimal structure (`id`, `name`, `createdAt`) so no schema migration is required.
 - `plans`
   - keyPath: `id` (string UUID)
   - autoIncrement: false

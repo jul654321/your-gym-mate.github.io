@@ -1,16 +1,19 @@
-import { Button } from "../ui/button";
-import { LoggedSetRow } from "./LoggedSetRow";
-import type { GroupedExerciseVM } from "../../hooks/useSessionViewModel";
-import { Plus } from "lucide-react";
-import type { LoggedSetDTO } from "../../types";
 import {
   Fragment,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
+  useState,
   type MutableRefObject,
 } from "react";
+import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { LoggedSetRow } from "./LoggedSetRow";
+import { ExercisePickerModal } from "./ExercisePickerModal";
+import type { GroupedExerciseVM } from "../../hooks/useSessionViewModel";
+import { Plus } from "lucide-react";
+import type { LoggedSetDTO } from "../../types";
 
 interface LoggedSetsListProps {
   groupedSets: GroupedExerciseVM[];
@@ -116,8 +119,21 @@ export function LoggedSetsList({
   isLoading = false,
   isMutating = false,
 }: LoggedSetsListProps) {
+  const [pickerOpen, setPickerOpen] = useState(false);
   const setRefs = useRef(new Map<string, HTMLDivElement>());
   const prevSetIdsRef = useRef<string[]>([]);
+
+  const handleSelectExercise = useCallback(
+    (exerciseId: string) => {
+      setPickerOpen(false);
+      onAddSet(exerciseId);
+    },
+    [onAddSet]
+  );
+
+  const handleOpenPicker = useCallback(() => {
+    setPickerOpen(true);
+  }, []);
 
   const currentSetIds = useMemo(
     () => groupedSets.flatMap((group) => group.sets.map((set) => set.id)),
@@ -170,15 +186,29 @@ export function LoggedSetsList({
 
   if (!groupedSets.length && !isLoading) {
     return (
-      <Card theme="secondary" className="text-center mt-4">
-        <div className="text-6xl mb-4">🏋️</div>
-        <h2 className="text-lg font-semibold text-muted-foreground mb-2">
-          No sets logged yet
-        </h2>
-        <p className="text-muted-foreground mb-6">
-          Start your first workout set
-        </p>
-      </Card>
+      <>
+        <Card theme="secondary" className="text-center mt-4 space-y-3">
+          <div className="text-6xl">🏋️</div>
+          <h2 className="text-lg font-semibold text-muted-foreground">
+            No sets logged yet
+          </h2>
+          <p className="text-muted-foreground">
+            Start your first workout set to track progress.
+          </p>
+          <Button
+            variant="primary"
+            onClick={handleOpenPicker}
+            className="mt-4 w-full"
+          >
+            Log a set
+          </Button>
+        </Card>
+        <ExercisePickerModal
+          open={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          onSelect={handleSelectExercise}
+        />
+      </>
     );
   }
 

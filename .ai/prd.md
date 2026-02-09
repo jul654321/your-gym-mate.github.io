@@ -182,6 +182,7 @@ US-007
 1.  User can select an exercise in an active session and enter weight and reps.
 2.  The logged set is saved (automatic and manually) and visible in session history immediately.
 3.  Multiple sets for same exercise are supported and ordered by setIndex/timestamp.
+4.  When no exercise exists yet, the “Log a set” empty state lets the user create an exercise inline; the new record (id, name, createdAt) is saved locally and used to log the set immediately.
 
 US-008
 
