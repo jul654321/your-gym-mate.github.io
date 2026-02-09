@@ -101,12 +101,18 @@ export function SessionsPage() {
 
   const handleDayClick = (dateMs: number) => {
     const dayStart = startOfDay(dateMs).getTime();
+
     setSelectedDate((prev) => (prev === dayStart ? undefined : dayStart));
     setModalInitialDate(dayStart);
   };
 
   const handlePrevWeek = () => {
     setWeekOffset((prev) => prev + 1);
+    setSelectedDate(undefined);
+  };
+
+  const handleNextWeek = () => {
+    setWeekOffset((prev) => prev - 1);
     setSelectedDate(undefined);
   };
 
@@ -171,15 +177,12 @@ export function SessionsPage() {
   };
 
   const openNewSession = () => {
-    setSelectedDate(undefined);
-    setModalInitialDate(undefined);
     setIsNewSessionOpen(true);
   };
 
   const closeNewSessionModal = () => {
     setIsNewSessionOpen(false);
     setCreationError(null);
-    setModalInitialDate(undefined);
   };
 
   return (
@@ -192,6 +195,7 @@ export function SessionsPage() {
           selectedDate={selectedDate}
           onDayClick={handleDayClick}
           onPrevWeek={handlePrevWeek}
+          onNextWeek={handleNextWeek}
           hasSessionForDate={hasSessionForDate}
         />
         <SessionList

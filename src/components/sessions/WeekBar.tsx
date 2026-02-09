@@ -2,12 +2,14 @@ import { useMemo } from "react";
 
 import { startOfDay, startOfWeek } from "../../lib/date/week";
 import { Button } from "../ui/button";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 interface WeekBarProps {
   referenceDate: number | Date;
   selectedDate?: number;
   onDayClick: (dateMs: number) => void;
   onPrevWeek: () => void;
+  onNextWeek: () => void;
   hasSessionForDate: (dateMs: number) => boolean;
 }
 
@@ -27,6 +29,7 @@ export function WeekBar({
   selectedDate,
   onDayClick,
   onPrevWeek,
+  onNextWeek,
   hasSessionForDate,
 }: WeekBarProps) {
   const weekStart = useMemo(() => startOfWeek(referenceDate), [referenceDate]);
@@ -60,9 +63,19 @@ export function WeekBar({
           variant="ghost"
           size="sm"
         >
-          Previous Week
+          <ChevronLeftIcon className="h-4 w-4" />
         </Button>
         <p className="text-sm text-card-foreground">Week of {headerLabel}</p>
+        <Button
+          type="button"
+          onClick={onNextWeek}
+          disabled={isCurrentWeek}
+          aria-label="Show next week"
+          variant="ghost"
+          size="sm"
+        >
+          <ChevronRightIcon className="h-4 w-4" />
+        </Button>
       </div>
       <div className="flex gap-1 overflow-x-auto px-1">
         {daysOfWeek.map((date) => {

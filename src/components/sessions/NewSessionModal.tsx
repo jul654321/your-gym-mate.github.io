@@ -19,8 +19,26 @@ interface NewSessionModalProps {
   error?: string | null;
 }
 
-const formatDateInputValue = (value?: number) =>
-  value ? new Date(value).toISOString().slice(0, 10) : "";
+const formatDateInputValue = (value?: number) => {
+  if (!value) {
+    return "";
+  }
+  const date = new Date(value);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+};
+
+const parseDateISOValue = (value?: string) => {
+  if (!value) {
+    return undefined;
+  }
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) {
+    return undefined;
+  }
+  return new Date(year, month - 1, day);
+};
 
 export function NewSessionModal({
   isOpen,
@@ -44,19 +62,23 @@ export function NewSessionModal({
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
+        const date = parseDateISOValue(dateISO) ?? new Date();
+        const todaysPlanId = plans.find(
+          (plan) => plan.weekday === date.getDay()
+        )?.id;
         const firstPlanId = plans.length > 0 ? plans[0]?.id : undefined;
 
-        setSelectedPlanId(firstPlanId ?? "");
+        setSelectedPlanId(todaysPlanId ?? firstPlanId ?? "");
       }, 0);
     }
-  }, [isOpen, plans]);
+  }, [isOpen, plans, dateISO]);
 
   useEffect(() => {
     if (!isOpen) {
       return;
     }
 
-    const timeoutId = window.setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setDateISO(formatDateInputValue(initialDate ?? new Date().getTime()));
     }, 0);
 
@@ -65,7 +87,7 @@ export function NewSessionModal({
 
   const handleSubmit = (event?: React.FormEvent) => {
     event?.preventDefault();
-    const selectedDateMs = dateISO ? new Date(dateISO).getTime() : undefined;
+    const selectedDateMs = parseDateISOValue(dateISO)?.getTime();
 
     onCreate(
       name,
