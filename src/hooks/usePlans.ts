@@ -17,6 +17,64 @@ import type {
 
 const QUERY_KEY = "plans";
 
+function resolveNullableField<T>(
+  cmd: UpdatePlanCmd,
+  field: keyof Pick<UpdatePlanCmd, "weekday" | "workoutType">,
+  existingValue: T | null | undefined
+): T | null {
+  const hasField = Object.prototype.hasOwnProperty.call(cmd, field);
+  if (!hasField) {
+    return existingValue ?? null;
+  }
+  const value = cmd[field] as T | null | undefined;
+  return value ?? null;
+}
+
+export function buildPlanToCreate(plan: CreatePlanCmd): PlanDTO {
+  return {
+    ...plan,
+    exerciseIds: plan.planExercises.map((pe) => pe.exerciseId),
+    weekday: plan.weekday ?? null,
+    workoutType: plan.workoutType ?? null,
+  };
+}
+
+export function buildPlanUpdate(
+  existing: PlanDTO,
+  cmd: UpdatePlanCmd
+): PlanDTO {
+  const recalcExerciseIds = cmd.planExercises
+    ? cmd.planExercises.map((pe) => pe.exerciseId)
+    : existing.exerciseIds;
+
+  const updated: PlanDTO = {
+    ...existing,
+    ...cmd,
+    updatedAt: Date.now(),
+    weekday: resolveNullableField(cmd, "weekday", existing.weekday),
+    workoutType: resolveNullableField(cmd, "workoutType", existing.workoutType),
+    exerciseIds: recalcExerciseIds,
+  };
+
+  return updated;
+}
+
+export function buildSessionFromPlan(
+  plan: PlanDTO,
+  cmd: InstantiateSessionFromPlanCmd
+): SessionDTO {
+  return {
+    id: cmd.id,
+    name: cmd.overrides?.name ?? plan.name,
+    date: cmd.overrides?.date ?? Date.now(),
+    sourcePlanId: cmd.planId,
+    exerciseOrder: plan.planExercises.map((pe) => pe.exerciseId),
+    status: "active",
+    createdAt: cmd.createdAt ?? Date.now(),
+    workoutType: plan.workoutType ?? null,
+  };
+}
+
 /**
  * Fetches all plans with optional filtering
  */
@@ -41,6 +99,12 @@ export function usePlans(params: PlansQueryParams = {}) {
       // Filter by weekday
       if (params.weekday !== undefined) {
         plans = plans.filter((plan) => plan.weekday === params.weekday);
+      }
+
+      if (params.workoutType !== undefined) {
+        plans = plans.filter(
+          (plan) => (plan.workoutType ?? null) === params.workoutType
+        );
       }
 
       if (params.workoutType !== undefined) {
@@ -127,12 +191,7 @@ export function useCreatePlan() {
       const db = await getDB();
 
       // Ensure exerciseIds is populated
-      const planToCreate: PlanDTO = {
-        ...plan,
-        exerciseIds: plan.planExercises.map((pe) => pe.exerciseId),
-        weekday: plan.weekday ?? null,
-        workoutType: plan.workoutType ?? null,
-      };
+      const planToCreate = buildPlanToCreate(plan);
 
       await db.add(STORE_NAMES.plans, planToCreate);
       return planToCreate;
@@ -158,33 +217,7 @@ export function useUpdatePlan() {
         throw new Error(`Plan ${cmd.id} not found`);
       }
 
-      const recalcExerciseIds = cmd.planExercises
-        ? cmd.planExercises.map((pe) => pe.exerciseId)
-        : existing.exerciseIds;
-
-      const hasWeekdayField = Object.prototype.hasOwnProperty.call(
-        cmd,
-        "weekday"
-      );
-      const weekdayValue = hasWeekdayField
-        ? cmd.weekday ?? null
-        : existing.weekday ?? null;
-      const hasWorkoutTypeField = Object.prototype.hasOwnProperty.call(
-        cmd,
-        "workoutType"
-      );
-      const workoutTypeValue = hasWorkoutTypeField
-        ? cmd.workoutType ?? null
-        : existing.workoutType ?? null;
-
-      const updated: PlanDTO = {
-        ...existing,
-        ...cmd,
-        updatedAt: Date.now(),
-        weekday: weekdayValue,
-        workoutType: workoutTypeValue,
-        exerciseIds: recalcExerciseIds,
-      };
+      const updated = buildPlanUpdate(existing, cmd);
 
       await db.put(STORE_NAMES.plans, updated);
       return updated;
@@ -267,16 +300,7 @@ export function useInstantiateSessionFromPlan() {
         }
       }
 
-      const session: SessionDTO = {
-        id: cmd.id,
-        name: cmd.overrides?.name ?? plan.name,
-        date: cmd.overrides?.date ?? Date.now(),
-        sourcePlanId: cmd.planId,
-        workoutType: plan.workoutType ?? null,
-        exerciseOrder: plan.planExercises.map((pe) => pe.exerciseId),
-        status: "active",
-        createdAt: cmd.createdAt ?? Date.now(),
-      };
+      const session = buildSessionFromPlan(plan, cmd);
 
       await sessionStore.add(session);
 

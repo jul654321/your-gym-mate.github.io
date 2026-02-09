@@ -38,8 +38,8 @@ Primary personas:
 Data model (minimal, extensible):
 
 - Exercise: id, name, optional metadata (category, equipment)
-- Plan: id, name, optional `weekday` (0=Sun..6=Sat) plus list of planExercise {exerciseId, defaultSets, defaultReps, defaultWeight, optionalAlternativeExerciseId, notes}; `weekday` documents the scheduled day without creating sessions
-- Session: id, name, date/time, sourcePlanId (nullable), list of loggedSetIds, status (active/completed)
+- Plan: id, name, optional `weekday` (0=Sun..6=Sat) plus list of planExercise {exerciseId, defaultSets, defaultReps, defaultWeight, optionalAlternativeExerciseId, notes}; `weekday` documents the scheduled day without creating sessions. Each plan may also include an optional `workoutType` (Cardio | HighIntensity | Strength) to categorize the training style; sessions instantiated from a plan should inherit that type so filters and analytics can use it.
+- Session: id, name, date/time, sourcePlanId (nullable), workoutType? (copied from the source plan), list of loggedSetIds, status (active/completed)
 - LoggedSet: id, sessionId, exerciseId (primary), timestamp, weight (number + unit), reps (integer), setIndex (order), alternative (nullable object: {exerciseId, weight, reps}), notes
 - PR / Aggregates computed from LoggedSet data (not stored as single source of truth)
 
@@ -388,3 +388,4 @@ Appendix: Acceptance checklist before marking MVP done
 - Basic settings and optional local access control present.
 - Manual verification of data persistence across restarts.
 - Plan editor allows setting an optional weekday, and plans list surfaces the badge when the field is populated.
+- Plan editor also allows selecting an optional workout type (Cardio, HighIntensity, Strength); plan rows should surface a compact pill for the type and sessions instantiated from the plan should inherit it so filtering/analytics can use the classification.

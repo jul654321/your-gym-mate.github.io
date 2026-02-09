@@ -61,6 +61,7 @@ interface Plan {
   planExercises: PlanExercise[]; // ordered
   exerciseIds: string[]; // denormalized from planExercises for multiEntry indexing
   weekday?: number | null; // optional scheduled weekday metadata (0=Sunday..6=Saturday)
+  workoutType?: "Cardio" | "HighIntensity" | "Strength" | null; // optional classification for filtering/recommendations
   notes?: string;
 }
 ```
@@ -68,7 +69,9 @@ interface Plan {
 - Indexes:
   - `{ name: "name", keyPath: "name", unique: false }`
   - `{ name: "exerciseIds", keyPath: "exerciseIds", unique: false, multiEntry: true }` (find plans that contain a given exercise)
-- Migration note: bump DB version and backfill `weekday = null` for existing plans so records remain compatible while giving the UI an optional day-of-week tag.
+- Migration notes:
+  - `v2`: bump DB version and backfill `weekday = null` for existing plans so records remain compatible while giving the UI an optional day-of-week tag.
+  - `v3`: add `workoutType` metadata (Cardio | HighIntensity | Strength) and backfill existing plans with `workoutType = null` so the field can be used without breaking older records.
 - `sessions`
   - keyPath: `id` (string UUID)
   - autoIncrement: false

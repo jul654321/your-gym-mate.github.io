@@ -50,6 +50,35 @@ export const migrations: Record<number, MigrationFunction> = {
       "[Migration v2] Added `weekday` metadata to plans and backfilled missing values"
     );
   },
+  3: async (db) => {
+    const tx = db.transaction("plans", "readwrite");
+    const store = tx.objectStore("plans");
+    let cursor = await store.openCursor();
+    let processed = 0;
+
+    while (cursor) {
+      const plan = cursor.value as PlanDTO;
+      const hasWorkoutTypeField = Object.prototype.hasOwnProperty.call(
+        plan,
+        "workoutType"
+      );
+      if (!hasWorkoutTypeField || plan.workoutType === undefined) {
+        await cursor.update({ ...plan, workoutType: null });
+      }
+
+      processed += 1;
+      if (processed % 100 === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+
+      cursor = await cursor.continue();
+    }
+
+    await tx.done;
+    console.log(
+      "[Migration v3] Added `workoutType` metadata to plans and backfilled missing values"
+    );
+  },
 };
 
 /**

@@ -69,9 +69,10 @@ For each object store provide read/write/business logic hooks. All hooks assume 
 
 #### Read Operations
 
-- Hook: `usePlans({ q?, exerciseId?, weekday?, page?, pageSize?, sort? })`
+- Hook: `usePlans({ q?, exerciseId?, weekday?, workoutType?, page?, pageSize?, sort? })`
 - Parameters:
   - optional `weekday` (0=Sunday..6=Saturday) to filter plans that target a specific day. Since the Plan store is lightweight, the hook can fetch all matching plans (optionally using `name` index for sorting) and apply the weekday filter client-side or via an index if one is added later.
+  - optional `workoutType` (Cardio, HighIntensity, Strength) so consumers can filter by the plan's training classification; like `weekday`, this can be applied after fetching thanks to the small data set.
 - IndexedDB ops: query `exerciseIds` (multiEntry) when filtering by exercise; otherwise open cursor on `name` index.
 
 #### Write Operations
@@ -86,7 +87,7 @@ For each object store provide read/write/business logic hooks. All hooks assume 
 - `useInstantiateSessionFromPlan()`
   - Parameters: `planId`, optional overrides (name, date)
   - Return: `{ createSessionFromPlan(planId, opts), loading, error }`
-  - Implementation: read plan by id, build session object with `exerciseOrder = plan.planExercises.map(pe => pe.exerciseId)` and create session record. Use a transaction on `sessions` (single store). No cascade writes needed.
+  - Implementation: read plan by id, build session object with `exerciseOrder = plan.planExercises.map(pe => pe.exerciseId)`, copy the plan's `workoutType`, and create session record. Use a transaction on `sessions` (single store). No cascade writes needed.
 
 ### useSessions
 
