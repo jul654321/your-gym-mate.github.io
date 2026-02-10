@@ -27,7 +27,6 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
 
     return new Intl.DateTimeFormat("en-US", {
       dateStyle: "medium",
-      timeStyle: "short",
     }).format(new Date(session.date));
   }, [session.date]);
 

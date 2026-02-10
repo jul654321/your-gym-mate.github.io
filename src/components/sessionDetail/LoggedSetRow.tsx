@@ -1,8 +1,8 @@
-import { Button } from "../ui/button";
-import type { LoggedSetDTO } from "../../types";
 import { Pencil, Trash2 } from "lucide-react";
-import { forwardRef, useMemo, useState } from "react";
+import { forwardRef, useState } from "react";
+import type { LoggedSetDTO } from "../../types";
 import { ConfirmDeleteModal } from "../shared/ConfirmDeleteModal";
+import { Button } from "../ui/button";
 
 interface LoggedSetRowProps {
   set: LoggedSetDTO;
@@ -14,13 +14,6 @@ interface LoggedSetRowProps {
 export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
   function LoggedSetRow({ set, onEdit, onDelete, isBusy = false }, ref) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-    const displayTime = useMemo(() => {
-      return new Intl.DateTimeFormat("en-US", {
-        hour: "numeric",
-        minute: "numeric",
-      }).format(set.timestamp);
-    }, [set.timestamp]);
 
     const primaryLabel =
       set.setIndex != null ? `Set ${set.setIndex + 1}` : "Set";
@@ -45,7 +38,6 @@ export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
                   ? "Drop set"
                   : "Main"}
               </span>
-              <span>{displayTime}</span>
             </div>
             <p className="text-lg font-semibold text-muted-foreground">
               {formattedWeight} × {set.reps ?? 0}
