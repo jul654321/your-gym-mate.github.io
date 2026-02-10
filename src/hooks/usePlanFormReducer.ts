@@ -1,6 +1,6 @@
 import { useReducer, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
-import type { UUID, WorkoutType } from "../types";
+import type { UUID, WorkoutType, PlanExerciseGuideLinkDTO } from "../types";
 
 // Form model types as defined in the plan
 export type PlanExerciseAlternativeDefaultsFormModel = {
@@ -20,6 +20,7 @@ export type PlanExerciseFormModel = {
   optionalAlternativeExerciseId?: UUID | null;
   alternativeDefaults?: PlanExerciseAlternativeDefaultsFormModel;
   notes?: string;
+  guideLinks?: PlanExerciseGuideLinkDTO[];
 };
 
 export type PlanFormModel = {
@@ -97,6 +98,7 @@ function planFormReducer(
               notes: "",
             },
             notes: "",
+            guideLinks: [],
           },
         ],
       };

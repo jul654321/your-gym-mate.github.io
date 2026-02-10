@@ -17,7 +17,7 @@ import { runMigrations } from "./migrations";
 
 // Database configuration
 export const DB_NAME = "your-gym-mate";
-export const DB_VERSION = 3;
+export const DB_VERSION = 4;
 
 // Object store names
 export const STORE_NAMES = {

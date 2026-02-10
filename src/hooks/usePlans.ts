@@ -6,6 +6,7 @@ import { getDB, STORE_NAMES } from "../lib/db";
 import { v4 as uuidv4 } from "uuid";
 import type {
   PlanDTO,
+  PlanExerciseDTO,
   CreatePlanCmd,
   UpdatePlanCmd,
   DeletePlanCmd,
@@ -30,10 +31,23 @@ function resolveNullableField<T>(
   return value ?? null;
 }
 
+function ensureGuideLinks(pe: PlanExerciseDTO): PlanExerciseDTO {
+  return {
+    ...pe,
+    guideLinks: pe.guideLinks ?? [],
+  };
+}
+
+function normalizePlanExercises(exercises: PlanExerciseDTO[]) {
+  return exercises.map(ensureGuideLinks);
+}
+
 export function buildPlanToCreate(plan: CreatePlanCmd): PlanDTO {
+  const normalizedExercises = normalizePlanExercises(plan.planExercises);
   return {
     ...plan,
-    exerciseIds: plan.planExercises.map((pe) => pe.exerciseId),
+    planExercises: normalizedExercises,
+    exerciseIds: normalizedExercises.map((pe) => pe.exerciseId),
     weekday: plan.weekday ?? null,
     workoutType: plan.workoutType ?? null,
   };
@@ -43,13 +57,17 @@ export function buildPlanUpdate(
   existing: PlanDTO,
   cmd: UpdatePlanCmd
 ): PlanDTO {
-  const recalcExerciseIds = cmd.planExercises
-    ? cmd.planExercises.map((pe) => pe.exerciseId)
-    : existing.exerciseIds;
+  const normalizedExercises =
+    cmd.planExercises !== undefined
+      ? normalizePlanExercises(cmd.planExercises)
+      : existing.planExercises;
+
+  const recalcExerciseIds = normalizedExercises.map((pe) => pe.exerciseId);
 
   const updated: PlanDTO = {
     ...existing,
     ...cmd,
+    planExercises: normalizedExercises,
     updatedAt: Date.now(),
     weekday: resolveNullableField(cmd, "weekday", existing.weekday),
     workoutType: resolveNullableField(cmd, "workoutType", existing.workoutType),

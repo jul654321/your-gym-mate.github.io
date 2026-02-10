@@ -53,6 +53,11 @@ interface PlanExercise {
   defaultWeight?: number; // numeric
   optionalAlternativeExerciseId?: string | null;
   notes?: string;
+  guideLinks?: {
+    id: string;
+    title: string;
+    url: string;
+  }[];
 }
 
 interface Plan {
@@ -74,6 +79,7 @@ interface Plan {
 - Migration notes:
   - `v2`: bump DB version and backfill `weekday = null` for existing plans so records remain compatible while giving the UI an optional day-of-week tag.
   - `v3`: add `workoutType` metadata (Cardio | HighIntensity | Strength) and backfill existing plans with `workoutType = null` so the field can be used without breaking older records.
+  - `v4`: add `guideLinks` arrays to each `PlanExercise` (id/title/url) and backfill empty arrays so legacy plans can surface the new indicator without missing metadata.
 - `sessions`
   - keyPath: `id` (string UUID)
   - autoIncrement: false

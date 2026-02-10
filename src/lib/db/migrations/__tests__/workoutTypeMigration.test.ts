@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { migrations } from "../index";
-import type { PlanDTO } from "../../../../types";
+import type { PlanDTO, PlanExerciseDTO } from "../../../../types";
 
 function createMockCursor(plans: PlanDTO[]) {
   let index = 0;
@@ -89,5 +89,61 @@ describe("Migration v3 (workoutType)", () => {
 
     await migrations[3](db as any, 2, 3);
     expect(plans[0].workoutType).toBeNull();
+  });
+});
+
+describe("Migration v4 (guideLinks)", () => {
+  it("creates empty guideLinks arrays when missing", async () => {
+    const plans: PlanDTO[] = [
+      {
+        id: "plan-no-links",
+        name: "No links",
+        createdAt: 1,
+        planExercises: [
+          {
+            id: "pe-1",
+            exerciseId: "exercise-1",
+          } as PlanExerciseDTO,
+        ],
+        exerciseIds: [],
+        notes: "",
+      },
+    ];
+
+    const db = createMockDb(plans);
+    await migrations[4](db as any, 3, 4);
+
+    expect(plans[0].planExercises[0].guideLinks).toEqual([]);
+  });
+
+  it("keeps existing guideLinks untouched", async () => {
+    const existingLink = {
+      id: "link-1",
+      title: "Cue video",
+      url: "https://example.com",
+    };
+    const plans: PlanDTO[] = [
+      {
+        id: "plan-has-links",
+        name: "Has links",
+        createdAt: 2,
+        planExercises: [
+          {
+            id: "pe-2",
+            exerciseId: "exercise-2",
+            guideLinks: [{ ...existingLink }],
+          } as PlanExerciseDTO,
+        ],
+        exerciseIds: [],
+        notes: "",
+      },
+    ];
+
+    const db = createMockDb(plans);
+    await migrations[4](db as any, 3, 4);
+
+    expect(plans[0].planExercises[0].guideLinks).toEqual([
+      expect.objectContaining(existingLink),
+    ]);
   });
 });

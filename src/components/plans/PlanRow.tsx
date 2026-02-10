@@ -8,7 +8,7 @@ import { ConfirmDeleteModal } from "../shared/ConfirmDeleteModal";
 import { v4 as uuidv4 } from "uuid";
 import type { PlanDTO } from "../../types";
 import { Button } from "../ui/button";
-import { Pencil, Play, Trash2 } from "lucide-react";
+import { Link as LinkIcon, Pencil, Play, Trash2 } from "lucide-react";
 import { inferSessionName } from "../../lib/utils/sessionName";
 import {
   getWeekdayLongName,
@@ -62,6 +62,24 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
   };
 
   const exerciseCount = plan.planExercises.length;
+  const guideLinkTitles = plan.planExercises.flatMap(
+    (pe) => pe.guideLinks?.map((link) => link.title || link.url) ?? []
+  );
+  const totalGuideLinks = guideLinkTitles.length;
+  const previewLinks = guideLinkTitles.slice(0, 2);
+  const hasMoreLinks = totalGuideLinks > previewLinks.length;
+  const guideLinksTooltip =
+    totalGuideLinks > 0
+      ? `${totalGuideLinks} guide link${totalGuideLinks === 1 ? "" : "s"}${
+          previewLinks.length
+            ? `: ${previewLinks.join(", ")}${
+                hasMoreLinks
+                  ? ` +${totalGuideLinks - previewLinks.length} more`
+                  : ""
+              }`
+            : ""
+        }`
+      : undefined;
 
   return (
     <>
@@ -73,6 +91,16 @@ export function PlanRow({ plan, onEdit, dbReady }: PlanRowProps) {
               <span className="whitespace-nowrap text-ellipsis overflow-hidden">
                 {plan.name || "Untitled Plan"}
               </span>
+              {totalGuideLinks > 0 && (
+                <span
+                  className="flex items-center gap-1 rounded-full border border-border px-2 py-[2px] text-[11px] font-semibold tracking-wide text-primary bg-primary/10"
+                  title={guideLinksTooltip}
+                  aria-label={guideLinksTooltip}
+                >
+                  <LinkIcon className="h-3 w-3" aria-hidden />
+                  <span>{totalGuideLinks}</span>
+                </span>
+              )}
               {weekdayShort && (
                 <span
                   className="rounded-full border border-border px-3 py-[2px] text-[11px] font-semibold tracking-wide text-muted-foreground bg-muted/80"

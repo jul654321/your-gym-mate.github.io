@@ -104,6 +104,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
             defaultWeight: pe.defaultWeight,
             optionalAlternativeExerciseId: pe.optionalAlternativeExerciseId,
             alternativeDefaults: pe.alternativeDefaults,
+            guideLinks: pe.guideLinks ?? [],
           })),
           weekday: form.weekday ?? null,
           workoutType: form.workoutType ?? null,
@@ -126,6 +127,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
             defaultWeight: pe.defaultWeight,
             optionalAlternativeExerciseId: pe.optionalAlternativeExerciseId,
             alternativeDefaults: pe.alternativeDefaults,
+            guideLinks: pe.guideLinks ?? [],
           })),
           exerciseIds: form.planExercises
             .map((pe) => pe.exerciseId!)

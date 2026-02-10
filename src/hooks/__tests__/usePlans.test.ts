@@ -9,7 +9,14 @@ import type {
   UpdatePlanCmd,
   PlanDTO,
   InstantiateSessionFromPlanCmd,
+  PlanExerciseGuideLinkDTO,
 } from "../../types";
+
+const link: PlanExerciseGuideLinkDTO = {
+  id: "link-1",
+  title: "Technique drill",
+  url: "https://example.com",
+};
 
 const basePlanExercise = {
   id: "plan-exercise-1",
@@ -83,4 +90,29 @@ describe("usePlans helpers", () => {
     const session = buildSessionFromPlan(existingPlan, instantiateCmd);
     expect(session.workoutType).toBe(existingPlan.workoutType);
   });
+
+  it("ensures guideLinks exist when creating a new plan", () => {
+    const cmd: CreatePlanCmd = {
+      ...createPlanCmd,
+      id: "plan-with-links",
+      planExercises: [{ ...basePlanExercise, guideLinks: undefined }],
+    };
+    const result = buildPlanToCreate(cmd);
+    expect(result.planExercises[0].guideLinks).toEqual([]);
+  });
+
+  it("normalizes guideLinks when updating a plan", () => {
+    const updateCmd: UpdatePlanCmd = {
+      id: existingPlan.id,
+      planExercises: [
+        {
+          ...basePlanExercise,
+          guideLinks: [link],
+        },
+      ],
+    };
+    const updated = buildPlanUpdate(existingPlan, updateCmd);
+    expect(updated.planExercises[0].guideLinks).toEqual([link]);
+  });
+});
 });

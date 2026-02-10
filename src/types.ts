@@ -38,6 +38,12 @@ export type DeleteExerciseCmd = { id: UUID };
 
 // === Plans & PlanExercises ===
 // Mirrors `plans` store schema and embedded `planExercises`.
+export interface PlanExerciseGuideLinkDTO {
+  id: UUID; // uuid for the link
+  title: string; // short human-friendly title
+  url: string; // validated http(s) URL
+}
+
 export interface PlanExerciseDTO {
   id: UUID; // uuid for planExercise row
   exerciseId: UUID;
@@ -48,6 +54,7 @@ export interface PlanExerciseDTO {
   optionalAlternativeExerciseId?: UUID | null;
   alternativeDefaults?: PlanExerciseAlternativeDefaultsDTO;
   notes?: string;
+  guideLinks?: PlanExerciseGuideLinkDTO[];
 }
 
 export interface PlanExerciseAlternativeDefaultsDTO {

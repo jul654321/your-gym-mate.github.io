@@ -38,7 +38,7 @@ Primary personas:
 Data model (minimal, extensible):
 
 - Exercise: id, name, optional metadata (category, equipment)
-- Plan: id, name, optional `weekday` (0=Sun..6=Sat) plus list of planExercise {exerciseId, defaultSets, defaultReps, defaultWeight, optionalAlternativeExerciseId, notes}; `weekday` documents the scheduled day without creating sessions. Each plan may also include an optional `workoutType` (Cardio | HighIntensity | Strength) to categorize the training style; sessions instantiated from a plan should inherit that type so filters and analytics can use it.
+- Plan: id, name, optional `weekday` (0=Sun..6=Sat) plus list of planExercise {exerciseId, defaultSets, defaultReps, defaultWeight, optionalAlternativeExerciseId, notes, guideLinks}; `weekday` documents the scheduled day without creating sessions. Each plan may also include an optional `workoutType` (Cardio | HighIntensity | Strength) to categorize the training style; sessions instantiated from a plan should inherit that type so filters and analytics can use it. Each `planExercise` can attach an array of `guideLinks` (id/title/url tuples) so authors can surface resources directly from the plan editor or list.
 - Session: id, name, date/time, sourcePlanId (nullable), workoutType? (copied from the source plan), list of loggedSetIds, status (active/completed)
 - LoggedSet: id, sessionId, exerciseId (primary), timestamp, weight (number + unit), reps (integer), setIndex (order), alternative (nullable object: {exerciseId, weight, reps}), notes
 - PR / Aggregates computed from LoggedSet data (not stored as single source of truth)
@@ -124,6 +124,7 @@ US-001
 3.  Each exercise row accepts name, default sets, reps, weight
 4.  Alternative exercise (related to the given exercise) field that also accepts name, default sets, reps, weight.
 5.  Plan is saved locally and appears in the plans list.
+6.  Each exercise row allows attaching titled guide links (http(s) URLs) and the plan list surfaces a link-count indicator when guides are present so authors can access resources quickly.
 
 US-002
 
@@ -133,6 +134,7 @@ US-002
 
 1.  User can open a plan, change name and exercise defaults, add/remove exercises.
 2.  Changes persist locally and reflect in subsequent session instantiations.
+3.  Users can add, edit, or remove guide links per exercise and those links are preserved in the plan.
 
 US-003
 
@@ -390,3 +392,4 @@ Appendix: Acceptance checklist before marking MVP done
 - Manual verification of data persistence across restarts.
 - Plan editor allows setting an optional weekday, and plans list surfaces the badge when the field is populated.
 - Plan editor also allows selecting an optional workout type (Cardio, HighIntensity, Strength); plan rows should surface a compact pill for the type and sessions instantiated from the plan should inherit it so filtering/analytics can use the classification.
+- Plan editor lets authors attach guide links to each exercise, and plan rows surface a compact link-count indicator when guides are present.

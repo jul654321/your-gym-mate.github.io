@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { usePlans } from "../../hooks/usePlans";
+import { getWeekdayShortName } from "../../lib/utils/weekdays";
+import { Modal } from "../shared/Modal";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { usePlans } from "../../hooks/usePlans";
-import { Modal } from "../shared/Modal";
 import { Select } from "../ui/select";
 
 interface NewSessionModalProps {
@@ -176,7 +177,7 @@ export function NewSessionModal({
             <option value="">None</option>
             {plans.map((plan) => (
               <option key={plan.id} value={plan.id}>
-                {plan.name}
+                {plan.name} - {getWeekdayShortName(plan.weekday)}
               </option>
             ))}
           </Select>

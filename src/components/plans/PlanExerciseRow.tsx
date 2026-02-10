@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ExerciseAutocomplete } from "./ExerciseAutocomplete";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -5,10 +6,11 @@ import type {
   PlanExerciseFormModel,
   PlanExerciseAlternativeDefaultsFormModel,
 } from "../../hooks/usePlanFormReducer";
-import type { ExerciseDTO } from "../../types";
+import type { ExerciseDTO, PlanExerciseGuideLinkDTO } from "../../types";
 import { Textarea } from "../ui/textarea";
 import { Accordion } from "../ui/accordion";
 import { Label } from "../ui/label";
+import { v4 as uuidv4 } from "uuid";
 
 interface PlanExerciseRowProps {
   value: PlanExerciseFormModel;
@@ -45,6 +47,10 @@ export function PlanExerciseRow({
   errors,
 }: PlanExerciseRowProps) {
   const exerciseLabel = value.nameSnapshot ?? "Select an exercise";
+  const guideLinks = value.guideLinks ?? [];
+  const [newGuideTitle, setNewGuideTitle] = useState("");
+  const [newGuideUrl, setNewGuideUrl] = useState("");
+  const [guideLinkError, setGuideLinkError] = useState<string | null>(null);
 
   const handleExerciseSelect = (exerciseId: string, exercise: ExerciseDTO) => {
     onChange({
@@ -83,6 +89,48 @@ export function PlanExerciseRow({
         ...changes,
       },
     });
+  };
+
+  const updateGuideLinks = (updated: PlanExerciseGuideLinkDTO[]) => {
+    onChange({ guideLinks: updated });
+  };
+
+  const handleGuideLinkChange = (
+    linkId: string,
+    changes: Partial<PlanExerciseGuideLinkDTO>
+  ) => {
+    updateGuideLinks(
+      guideLinks.map((link) =>
+        link.id === linkId ? { ...link, ...changes } : link
+      )
+    );
+  };
+
+  const removeGuideLink = (linkId: string) => {
+    updateGuideLinks(guideLinks.filter((link) => link.id !== linkId));
+  };
+
+  const resetNewLinkForm = () => {
+    setNewGuideTitle("");
+    setNewGuideUrl("");
+    setGuideLinkError(null);
+  };
+
+  const handleAddGuideLink = () => {
+    const title = newGuideTitle.trim();
+    const url = newGuideUrl.trim();
+    if (!title) {
+      setGuideLinkError("Title is required");
+      return;
+    }
+    if (!/^https?:\/\//i.test(url)) {
+      setGuideLinkError("URL must start with http:// or https://");
+      return;
+    }
+
+    updateGuideLinks([...guideLinks, { id: uuidv4(), title, url }]);
+
+    resetNewLinkForm();
   };
 
   return (
@@ -386,6 +434,116 @@ export function PlanExerciseRow({
             onChange={(e) => onChange({ notes: e.target.value })}
             placeholder="e.g. Focus on form"
           />
+        </div>
+
+        {/* Guide links */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label>Guide Links</Label>
+            <p className="text-xs text-muted-foreground">Optional</p>
+          </div>
+
+          {guideLinks.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No links added yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {guideLinks.map((link) => (
+                <div
+                  key={link.id}
+                  className="rounded border border-border/70 p-3 space-y-2"
+                >
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <div>
+                      <Label htmlFor={`guide-title-${link.id}`}>Title</Label>
+                      <Input
+                        id={`guide-title-${link.id}`}
+                        value={link.title}
+                        onChange={(e) =>
+                          handleGuideLinkChange(link.id, {
+                            title: e.target.value,
+                          })
+                        }
+                        placeholder="e.g. Armbar breakdown"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`guide-url-${link.id}`}>URL</Label>
+                      <Input
+                        id={`guide-url-${link.id}`}
+                        value={link.url}
+                        onChange={(e) =>
+                          handleGuideLinkChange(link.id, {
+                            url: e.target.value,
+                          })
+                        }
+                        placeholder="https://"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline text-primary"
+                    >
+                      Preview link
+                    </a>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeGuideLink(link.id)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="grid gap-2 md:grid-cols-[1.5fr,2fr,auto] items-end">
+            <div>
+              <Label htmlFor={`new-link-title-${value.id}`}>Title</Label>
+              <Input
+                id={`new-link-title-${value.id}`}
+                value={newGuideTitle}
+                onChange={(e) => {
+                  setNewGuideTitle(e.target.value);
+                  if (guideLinkError) {
+                    setGuideLinkError(null);
+                  }
+                }}
+                placeholder="e.g. Form cues"
+              />
+            </div>
+            <div>
+              <Label htmlFor={`new-link-url-${value.id}`}>URL</Label>
+              <Input
+                id={`new-link-url-${value.id}`}
+                value={newGuideUrl}
+                onChange={(e) => {
+                  setNewGuideUrl(e.target.value);
+                  if (guideLinkError) {
+                    setGuideLinkError(null);
+                  }
+                }}
+                placeholder="https://example.com"
+              />
+            </div>
+            <Button
+              type="button"
+              onClick={handleAddGuideLink}
+              variant="secondary"
+              size="sm"
+            >
+              Add Link
+            </Button>
+          </div>
+          {guideLinkError && (
+            <p className="text-xs text-destructive">{guideLinkError}</p>
+          )}
         </div>
       </div>
     </Accordion>

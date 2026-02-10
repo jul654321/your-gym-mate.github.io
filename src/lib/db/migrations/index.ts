@@ -3,7 +3,7 @@
 
 import type { IDBPDatabase } from "idb";
 import type { GymMateDB } from "../index";
-import type { PlanDTO } from "../../../types";
+import type { PlanDTO, PlanExerciseDTO } from "../../../types";
 
 export type MigrationFunction = (
   db: IDBPDatabase<GymMateDB>,
@@ -77,6 +77,48 @@ export const migrations: Record<number, MigrationFunction> = {
     await tx.done;
     console.log(
       "[Migration v3] Added `workoutType` metadata to plans and backfilled missing values"
+    );
+  },
+  4: async (db) => {
+    const tx = db.transaction("plans", "readwrite");
+    const store = tx.objectStore("plans");
+    let cursor = await store.openCursor();
+    let processed = 0;
+
+    while (cursor) {
+      const plan = cursor.value as PlanDTO;
+      let needsUpdate = false;
+
+      const normalizedPlanExercises = plan.planExercises.map((exercise) => {
+        if (Array.isArray(exercise.guideLinks)) {
+          return exercise;
+        }
+
+        needsUpdate = true;
+        return {
+          ...exercise,
+          guideLinks: [] as PlanExerciseDTO["guideLinks"],
+        };
+      });
+
+      if (needsUpdate) {
+        await cursor.update({
+          ...plan,
+          planExercises: normalizedPlanExercises,
+        });
+      }
+
+      processed += 1;
+      if (processed % 100 === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+
+      cursor = await cursor.continue();
+    }
+
+    await tx.done;
+    console.log(
+      "[Migration v4] Backfilled guideLinks arrays for existing plan exercises"
     );
   },
 };
