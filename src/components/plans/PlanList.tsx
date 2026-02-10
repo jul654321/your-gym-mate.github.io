@@ -2,6 +2,12 @@ import { PlanRow } from "./PlanRow";
 import type { PlanDTO } from "../../types";
 import { Card } from "../ui/card";
 
+const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+const WEEKDAY_ORDER_INDEX = WEEKDAY_ORDER.reduce((acc, value, index) => {
+  acc[value] = index;
+  return acc;
+}, {} as Record<number, number>);
+
 interface PlanListProps {
   plans: PlanDTO[];
   onEdit: (planId: string) => void;
@@ -17,6 +23,17 @@ export function PlanList({
   isLoading,
   error,
 }: PlanListProps) {
+  const sortedPlans = [...plans].sort((a, b) => {
+    const getIndex = (weekday?: number | null) => {
+      if (weekday === undefined || weekday === null) {
+        return WEEKDAY_ORDER.length;
+      }
+      return WEEKDAY_ORDER_INDEX[weekday] ?? WEEKDAY_ORDER.length;
+    };
+
+    return getIndex(a.weekday) - getIndex(b.weekday);
+  });
+
   return (
     <section aria-live="polite">
       <h2 className="text-lg font-semibold text-muted-foreground">
@@ -41,9 +58,9 @@ export function PlanList({
       )}
 
       {/* Plans list */}
-      {!isLoading && !error && plans.length > 0 && (
+      {!isLoading && !error && sortedPlans.length > 0 && (
         <div className="mt-4 space-y-3">
-          {plans.map((plan) => (
+          {sortedPlans.map((plan) => (
             <PlanRow
               key={plan.id}
               plan={plan}
