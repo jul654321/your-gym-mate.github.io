@@ -38,9 +38,7 @@ export function useExercises(params: ExercisesQueryParams = {}) {
         );
         // Merge and deduplicate
         exercises = Array.from(
-          new Map(
-            allExercises.flat().map((ex) => [ex.id, ex])
-          ).values()
+          new Map(allExercises.flat().map((ex) => [ex.id, ex])).values()
         );
       } else {
         exercises = await store.getAll();
@@ -77,7 +75,7 @@ export function useExercises(params: ExercisesQueryParams = {}) {
  * Fetches a single exercise by ID
  */
 export function useExercise(id: string) {
-  return useQuery({
+  return useQuery<ExerciseDTO | undefined>({
     queryKey: [QUERY_KEY, id],
     queryFn: async () => {
       const db = await getDB();
@@ -144,10 +142,10 @@ export function useDeleteExercise() {
   return useMutation({
     mutationFn: async (cmd: DeleteExerciseCmd) => {
       const db = await getDB();
-      
+
       // TODO: Consider adding to undo_trash before deletion
       await db.delete(STORE_NAMES.exercises, cmd.id);
-      
+
       return cmd.id;
     },
     onSuccess: () => {

@@ -34,7 +34,7 @@ export function BottomTabBar({
       )}
     >
       <div className="relative mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
-        <div className="flex flex-1 items-center justify-start gap-2">
+        <div className="flex flex-1 items-center justify-start gap-3">
           {leftTabs.map((tab) => (
             <TabItem
               key={tab.id}
@@ -52,7 +52,7 @@ export function BottomTabBar({
           <div className="pointer-events-auto">{centerSlot}</div>
         </div>
 
-        <div className="flex flex-1 items-center justify-end gap-2">
+        <div className="flex flex-1 items-center justify-end gap-3">
           {rightTabs.map((tab) => (
             <TabItem
               key={tab.id}

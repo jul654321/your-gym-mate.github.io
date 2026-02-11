@@ -13,7 +13,7 @@ export function SectionMain({
   return (
     <main
       className={cn(
-        "container mx-auto px-4 pt-2 pb-26 space-y-6 overflow-y-auto",
+        "container mx-auto px-4 pt-2 pb-26 flex flex-col gap-4 overflow-y-auto",
         className
       )}
       {...props}

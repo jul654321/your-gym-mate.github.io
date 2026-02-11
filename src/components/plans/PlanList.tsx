@@ -36,7 +36,7 @@ export function PlanList({
 
   return (
     <section aria-live="polite">
-      <h2 className="text-lg font-semibold text-muted-foreground">
+      <h2 className="text-lg font-semibold text-muted-foreground mb-2">
         Plans ({plans.length})
       </h2>
 
@@ -59,7 +59,7 @@ export function PlanList({
 
       {/* Plans list */}
       {!isLoading && !error && sortedPlans.length > 0 && (
-        <div className="mt-4 space-y-3">
+        <div className="flex flex-col gap-3">
           {sortedPlans.map((plan) => (
             <PlanRow
               key={plan.id}

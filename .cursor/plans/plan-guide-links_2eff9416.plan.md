@@ -96,12 +96,12 @@ Concise example JSX (to implement inside the plan exercise row UI):
 <div className="mt-2">
   <Label>Guide Links</Label>
   {pe.guideLinks?.map((g, i) => (
-    <div key={g.id} className="flex items-center gap-2">
+    <div key={g.id} className="flex items-center gap-3">
       <a href={g.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary">{g.title}</a>
       <Button size="icon-small" onClick={() => removeGuideLink(pe.id, g.id)}>Remove</Button>
     </div>
   ))}
-  <div className="flex gap-2 mt-2">
+  <div className="flex gap-3 mt-2">
     <Input placeholder="Title" value={newTitle} onChange=... />
     <Input placeholder="https://..." value={newUrl} onChange=... />
     <Button onClick={() => addGuideLink(pe.id, { id: uuidv4(), title: newTitle, url: newUrl })}>Add</Button>

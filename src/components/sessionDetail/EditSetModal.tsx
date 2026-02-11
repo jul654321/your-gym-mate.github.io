@@ -525,7 +525,7 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
         <Card
           theme="secondary"
           cardHeader={
-            <div className="flex justify-between w-full gap-2">
+            <div className="flex justify-between w-full gap-3">
               <div>
                 <p>Alternative set</p>
                 <p className="text-xs text-muted-foreground">

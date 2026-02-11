@@ -58,7 +58,7 @@ export function ImportPickerView({
           transactionally.
         </p>
 
-        <Label className="flex flex-col gap-2">
+        <Label className="flex flex-col gap-3">
           Select Gym Mate CSV
           <input
             key={inputKey}
@@ -90,7 +90,7 @@ export function ImportPickerView({
         </div>
 
         <Card theme="secondary">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             {validationError && (
               <p className="mt-2 text-sm text-red-600">{validationError}</p>
             )}

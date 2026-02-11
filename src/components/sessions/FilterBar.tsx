@@ -76,7 +76,7 @@ export function FilterBar({ onChange, initial }: FilterBarProps) {
   return (
     <section className="space-y-3 rounded-2xl bg-white/80 p-4 shadow-lg shadow-slate-200 backdrop-blur">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           {STATUS_OPTIONS.map((option) => (
             <button
               key={option}
@@ -95,7 +95,7 @@ export function FilterBar({ onChange, initial }: FilterBarProps) {
             </button>
           ))}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           {PRESET_OPTIONS.map((preset) => (
             <button
               key={preset.label}
@@ -119,7 +119,7 @@ export function FilterBar({ onChange, initial }: FilterBarProps) {
             aria-label="Filter sessions by name"
           />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           <Input
             type="date"
             value={from}

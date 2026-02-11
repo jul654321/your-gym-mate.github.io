@@ -91,6 +91,7 @@ export function PlanEditor({ planId, onClose, onSaved }: PlanEditorProps) {
 
     try {
       if (planId) {
+        debugger;
         // Update existing plan
         const cmd: UpdatePlanCmd = {
           id: planId,

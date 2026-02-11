@@ -1,8 +1,9 @@
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import type { MouseEvent } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDeleteSession, useUpdateSession } from "../../hooks";
+import { getWorkoutTypeLabel } from "../../lib/utils/workoutTypes";
 import type { SessionDTO } from "../../types";
 import { ConfirmDeleteModal } from "../shared/ConfirmDeleteModal";
 import { Button } from "../ui/button";
@@ -17,6 +18,7 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
   const navigate = useNavigate();
   const updateSession = useUpdateSession();
   const deleteSession = useDeleteSession();
+  const workoutTypeLabel = getWorkoutTypeLabel(session.workoutType ?? null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -61,23 +63,15 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
         onClick={handleNavigate}
         role="listitem"
         clickable
-        cardHeader={
-          <>
-            <span className="whitespace-nowrap text-ellipsis overflow-hidden">
-              {session.name || "Untitled Session"}
-            </span>
-            <Button
-              variant="primary"
-              size="icon-small"
-              aria-label={`View session ${session.name}`}
-            >
-              <Eye className="h-4 w-4" aria-hidden />
-            </Button>
-          </>
-        }
+        cardTitle={session.name || "Untitled Session"}
         cardFooter={
           <>
-            <p className="text-sm text-muted-foreground">{formattedDate}</p>
+            <div className="flex flex-col">
+              <p className="text-xs text-muted-foreground">{formattedDate}</p>
+              {workoutTypeLabel && (
+                <span className="text-xs text-primary">{workoutTypeLabel}</span>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <Button
                 size="icon-small"

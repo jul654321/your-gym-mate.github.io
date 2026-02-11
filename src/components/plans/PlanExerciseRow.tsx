@@ -1,16 +1,18 @@
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { ExerciseAutocomplete } from "./ExerciseAutocomplete";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { v4 as uuidv4 } from "uuid";
 import type {
-  PlanExerciseFormModel,
   PlanExerciseAlternativeDefaultsFormModel,
+  PlanExerciseFormModel,
 } from "../../hooks/usePlanFormReducer";
 import type { ExerciseDTO, PlanExerciseGuideLinkDTO } from "../../types";
-import { Textarea } from "../ui/textarea";
 import { Accordion } from "../ui/accordion";
+import { Button } from "../ui/button";
+import { Card } from "../ui/card";
+import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { v4 as uuidv4 } from "uuid";
+import { Textarea } from "../ui/textarea";
+import { ExerciseAutocomplete } from "./ExerciseAutocomplete";
 
 interface PlanExerciseRowProps {
   value: PlanExerciseFormModel;
@@ -51,7 +53,6 @@ export function PlanExerciseRow({
   const [newGuideTitle, setNewGuideTitle] = useState("");
   const [newGuideUrl, setNewGuideUrl] = useState("");
   const [guideLinkError, setGuideLinkError] = useState<string | null>(null);
-
   const handleExerciseSelect = (exerciseId: string, exercise: ExerciseDTO) => {
     onChange({
       exerciseId,
@@ -95,17 +96,6 @@ export function PlanExerciseRow({
     onChange({ guideLinks: updated });
   };
 
-  const handleGuideLinkChange = (
-    linkId: string,
-    changes: Partial<PlanExerciseGuideLinkDTO>
-  ) => {
-    updateGuideLinks(
-      guideLinks.map((link) =>
-        link.id === linkId ? { ...link, ...changes } : link
-      )
-    );
-  };
-
   const removeGuideLink = (linkId: string) => {
     updateGuideLinks(guideLinks.filter((link) => link.id !== linkId));
   };
@@ -119,10 +109,7 @@ export function PlanExerciseRow({
   const handleAddGuideLink = () => {
     const title = newGuideTitle.trim();
     const url = newGuideUrl.trim();
-    if (!title) {
-      setGuideLinkError("Title is required");
-      return;
-    }
+
     if (!/^https?:\/\//i.test(url)) {
       setGuideLinkError("URL must start with http:// or https://");
       return;
@@ -135,6 +122,8 @@ export function PlanExerciseRow({
 
   return (
     <Accordion
+      accordionTitle={`Exercise ${index + 1}`}
+      accordionSubTitle={exerciseLabel}
       headerContent={
         <div className="flex flex-grow items-start justify-between gap-3">
           <div>
@@ -232,7 +221,7 @@ export function PlanExerciseRow({
         </div>
       }
     >
-      <div className="space-y-4">
+      <div className="space-y-4 max-w-full overflow-hidden">
         {/* Exercise selection */}
         <ExerciseAutocomplete
           value={value.exerciseId}
@@ -448,62 +437,36 @@ export function PlanExerciseRow({
           ) : (
             <div className="space-y-3">
               {guideLinks.map((link) => (
-                <div
-                  key={link.id}
-                  className="rounded border border-border/70 p-3 space-y-2"
-                >
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <div>
-                      <Label htmlFor={`guide-title-${link.id}`}>Title</Label>
-                      <Input
-                        id={`guide-title-${link.id}`}
-                        value={link.title}
-                        onChange={(e) =>
-                          handleGuideLinkChange(link.id, {
-                            title: e.target.value,
-                          })
-                        }
-                        placeholder="e.g. Armbar breakdown"
-                      />
+                <Card key={link.id}>
+                  <div className="flex justify-between text-xs text-muted-foreground gap-3">
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-sm font-medium text-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+                        {link.title}
+                      </p>
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-xs text-primary max-w-full whitespace-nowrap overflow-hidden text-ellipsis"
+                      >
+                        {link.url}
+                      </a>
                     </div>
-                    <div>
-                      <Label htmlFor={`guide-url-${link.id}`}>URL</Label>
-                      <Input
-                        id={`guide-url-${link.id}`}
-                        value={link.url}
-                        onChange={(e) =>
-                          handleGuideLinkChange(link.id, {
-                            url: e.target.value,
-                          })
-                        }
-                        placeholder="https://"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline text-primary"
-                    >
-                      Preview link
-                    </a>
                     <Button
                       type="button"
-                      variant="ghost"
-                      size="sm"
+                      variant="destructive"
+                      size="icon-small"
                       onClick={() => removeGuideLink(link.id)}
                     >
-                      Remove
+                      <Trash2 className="h-4 w-4" aria-hidden />
                     </Button>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           )}
 
-          <div className="grid gap-2 md:grid-cols-[1.5fr,2fr,auto] items-end">
+          <div className="grid gap-3 md:grid-cols-[1.5fr,2fr,auto] items-end">
             <div>
               <Label htmlFor={`new-link-title-${value.id}`}>Title</Label>
               <Input
@@ -511,6 +474,7 @@ export function PlanExerciseRow({
                 value={newGuideTitle}
                 onChange={(e) => {
                   setNewGuideTitle(e.target.value);
+
                   if (guideLinkError) {
                     setGuideLinkError(null);
                   }
@@ -525,6 +489,7 @@ export function PlanExerciseRow({
                 value={newGuideUrl}
                 onChange={(e) => {
                   setNewGuideUrl(e.target.value);
+
                   if (guideLinkError) {
                     setGuideLinkError(null);
                   }
@@ -535,7 +500,8 @@ export function PlanExerciseRow({
             <Button
               type="button"
               onClick={handleAddGuideLink}
-              variant="secondary"
+              variant="primary"
+              className="mt-2"
               size="sm"
             >
               Add Link

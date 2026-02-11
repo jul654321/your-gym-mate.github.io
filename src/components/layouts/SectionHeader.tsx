@@ -14,7 +14,7 @@ export function SectionHeader({
   return (
     <header
       className={cn(
-        "z-1 relative text-foreground container mx-auto px-4 py-2 flex items-center gap-2",
+        "z-1 relative text-foreground container mx-auto px-4 py-2 flex items-center gap-3",
         children ? "justify-between" : "justify-center",
         className
       )}
@@ -26,7 +26,7 @@ export function SectionHeader({
         </h1>
       ) : null}
       {children ? (
-        <div className="flex items-center gap-2">{children}</div>
+        <div className="flex items-center gap-3">{children}</div>
       ) : null}
     </header>
   );

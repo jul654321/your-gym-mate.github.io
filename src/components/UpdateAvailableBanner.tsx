@@ -30,7 +30,7 @@ export function UpdateAvailableBanner() {
             A new version of the app is ready. Refresh to update.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Button
             onClick={() => setShowBanner(false)}
             variant="secondary"

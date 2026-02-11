@@ -178,10 +178,12 @@ export function usePlan(id: string) {
           const exerciseRecord = await exercisesStore.get(pe.exerciseId);
           // Preserve existing nameSnapshot if present, otherwise take from exercise record
           const nameSnapshot = pe.nameSnapshot ?? exerciseRecord?.name;
+          const guideLinks = pe.guideLinks ?? exerciseRecord?.guideLinks;
 
           return {
             ...pe,
             nameSnapshot,
+            guideLinks,
           } as typeof pe;
         })
       );
@@ -192,6 +194,28 @@ export function usePlan(id: string) {
         ...plan,
         planExercises: enrichedPlanExercises,
       };
+    },
+    enabled: !!id,
+  });
+}
+
+/**
+ * Fetches a single plan exercise by ID
+ */
+export function usePlanExercise(id: string) {
+  return useQuery<PlanExerciseDTO | undefined>({
+    queryKey: [QUERY_KEY, id],
+    queryFn: async () => {
+      const db = await getDB();
+
+      const planExercise = await db.get(STORE_NAMES.exercises, id);
+      if (!planExercise) return undefined;
+
+      return {
+        ...planExercise,
+        exerciseId: planExercise.id,
+        nameSnapshot: planExercise.name,
+      } as PlanExerciseDTO;
     },
     enabled: !!id,
   });

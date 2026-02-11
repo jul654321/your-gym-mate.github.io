@@ -65,7 +65,7 @@ export function SessionList({
 
   return (
     <section aria-live="polite">
-      <h2 className="text-lg font-semibold text-muted-foreground">
+      <h2 className="text-lg font-semibold text-muted-foreground mb-2">
         Sessions ({filteredSessions.length})
       </h2>
 
@@ -94,7 +94,7 @@ export function SessionList({
       )}
 
       {!isLoading && !error && filteredSessions.length > 0 && (
-        <div className="mt-4 space-y-3">
+        <div className="flex flex-col gap-3">
           {visibleSessions.map((session) => (
             <SessionRow
               key={session.id}

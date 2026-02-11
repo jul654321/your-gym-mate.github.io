@@ -1,8 +1,10 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Book, Pencil, Trash2 } from "lucide-react";
 import { forwardRef, useState } from "react";
+import { usePlanExercise } from "../../hooks";
 import type { LoggedSetDTO } from "../../types";
 import { ConfirmDeleteModal } from "../shared/ConfirmDeleteModal";
 import { Button } from "../ui/button";
+import { Card } from "../ui/card";
 
 interface LoggedSetRowProps {
   set: LoggedSetDTO;
@@ -12,8 +14,9 @@ interface LoggedSetRowProps {
 }
 
 export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
-  function LoggedSetRow({ set, onEdit, onDelete, isBusy = false }, ref) {
+  function LoggedSetRow({ set, onEdit, onDelete, isBusy = false }) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const { data: planExercise } = usePlanExercise(set.exerciseId);
 
     const primaryLabel =
       set.setIndex != null ? `Set ${set.setIndex + 1}` : "Set";
@@ -24,54 +27,48 @@ export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
 
     return (
       <>
-        <div
-          ref={ref}
-          className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4 text-foreground"
-        >
-          <div className="min-w-0 space-y-1">
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <span className="font-semibold text-muted-foreground">
-                {primaryLabel} -{" "}
-                {set.setType === "warmup"
-                  ? "Warmup"
-                  : set.setType === "drop set"
-                  ? "Drop set"
-                  : "Main"}
-              </span>
-            </div>
-            <p className="text-lg font-semibold text-muted-foreground">
-              {formattedWeight} × {set.reps ?? 0}
-            </p>
-            {set.alternative && (
-              <p className="text-xs text-emerald-600">
-                Alt: {set.alternative.nameSnapshot ?? "Alternative"} ·{" "}
-                {(set.alternative.weight ?? 0).toLocaleString()}{" "}
-                {set.weightUnit ?? "kg"} × {set.alternative.reps ?? 0}
+        <Card cardTitle={primaryLabel + " - " + set.setType}>
+          <div className="flex justify-between items-center gap-3">
+            <div className="flex-1 overflow-hidden">
+              <p className="max-w-full text-xs text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+                {formattedWeight} × {set.reps ?? 0}
               </p>
-            )}
-          </div>
+              {set.alternative && (
+                <p className="max-w-full text-xs text-primary whitespace-nowrap overflow-hidden text-ellipsis">
+                  Alt: {set.alternative.nameSnapshot ?? "Alternative"} ·{" "}
+                  {(set.alternative.weight ?? 0).toLocaleString()}{" "}
+                  {set.weightUnit ?? "kg"} × {set.alternative.reps ?? 0}
+                </p>
+              )}
+            </div>
 
-          <div className="flex shrink-0 gap-2">
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => onEdit(set.id, set)}
-              disabled={isBusy}
-              aria-label={`Edit ${primaryLabel}`}
-            >
-              <Pencil className="h-4 w-4" aria-hidden />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => setShowDeleteModal(true)}
-              disabled={isBusy}
-              aria-label={`Delete ${primaryLabel}`}
-            >
-              <Trash2 className="h-4 w-4" aria-hidden />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                size="icon-small"
+                variant="secondary"
+                onClick={() => onEdit(set.id, set)}
+                disabled={isBusy}
+                aria-label={`Edit ${primaryLabel}`}
+              >
+                <Pencil className="h-4 w-4" aria-hidden />
+              </Button>
+              <Button
+                size="icon-small"
+                variant="destructive"
+                onClick={() => setShowDeleteModal(true)}
+                disabled={isBusy}
+                aria-label={`Delete ${primaryLabel}`}
+              >
+                <Trash2 className="h-4 w-4" aria-hidden />
+              </Button>
+              {!!planExercise?.guideLinks?.length && (
+                <Button size="icon-small" variant="ghost" onClick={() => {}}>
+                  <Book className="h-4 w-4" aria-hidden />
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
+        </Card>
 
         {showDeleteModal && (
           <ConfirmDeleteModal

@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import {
   Fragment,
   useCallback,
@@ -7,13 +8,12 @@ import {
   useState,
   type MutableRefObject,
 } from "react";
+import type { GroupedExerciseVM } from "../../hooks/useSessionViewModel";
+import type { LoggedSetDTO } from "../../types";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
-import { LoggedSetRow } from "./LoggedSetRow";
 import { ExercisePickerModal } from "./ExercisePickerModal";
-import type { GroupedExerciseVM } from "../../hooks/useSessionViewModel";
-import { Plus } from "lucide-react";
-import type { LoggedSetDTO } from "../../types";
+import { LoggedSetRow } from "./LoggedSetRow";
 
 interface LoggedSetsListProps {
   groupedSets: GroupedExerciseVM[];
@@ -36,29 +36,32 @@ function ExerciseHeader({
   isBusy?: boolean;
 }) {
   return (
-    <header>
-      <div className="flex-grow flex justify-between gap-4 items-start">
-        <div className="flex-1 overflow-hidden">
-          <p className="text-md font-semibold text-muted-foreground whitespace-nowrap text-ellipsis overflow-hidden">
-            {exerciseName}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {setCount} Set{setCount === 1 ? "" : "s"}
-          </p>
+    <>
+      <header className="flex flex-col gap-3">
+        <div className="flex-grow flex justify-between gap-3 items-start">
+          <div className="flex-1 overflow-hidden">
+            <p className="text-md font-semibold text-foreground whitespace-nowrap text-ellipsis overflow-hidden">
+              {exerciseName}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {setCount} Set{setCount === 1 ? "" : "s"}
+            </p>
+          </div>
+
+          <Button
+            size="sm"
+            variant="primary"
+            className="whitespace-nowrap"
+            onClick={onAdd}
+            disabled={isBusy}
+            aria-label={`Quick add set for ${exerciseName}`}
+          >
+            <Plus className="mr-1 h-4 w-4" aria-hidden />
+            Add Set
+          </Button>
         </div>
-        <Button
-          size="sm"
-          variant="primary"
-          className="whitespace-nowrap"
-          onClick={onAdd}
-          disabled={isBusy}
-          aria-label={`Quick add set for ${exerciseName}`}
-        >
-          <Plus className="mr-1 h-4 w-4" aria-hidden />
-          Add Set
-        </Button>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }
 
@@ -82,14 +85,14 @@ function ExerciseGroup({
   }
 
   return (
-    <>
+    <section className="flex flex-col gap-3">
       <ExerciseHeader
         exerciseName={group.exerciseName}
         setCount={group.sets.length}
         onAdd={() => onAddSet(group.exerciseId)}
         isBusy={isMutating}
       />
-      <div className="mt-4 space-y-3">
+      <div className="flex flex-col gap-3">
         {group.sets.map((set) => (
           <LoggedSetRow
             key={set.id}
@@ -107,7 +110,7 @@ function ExerciseGroup({
           />
         ))}
       </div>
-    </>
+    </section>
   );
 }
 
@@ -187,21 +190,25 @@ export function LoggedSetsList({
   if (!groupedSets.length && !isLoading) {
     return (
       <>
-        <Card theme="secondary" className="text-center mt-4 space-y-3">
-          <div className="text-6xl">🏋️</div>
-          <h2 className="text-lg font-semibold text-muted-foreground">
-            No sets logged yet
-          </h2>
-          <p className="text-muted-foreground">
-            Start your first workout set to track progress.
-          </p>
-          <Button
-            variant="primary"
-            onClick={handleOpenPicker}
-            className="mt-4 w-full"
-          >
-            Log a set
-          </Button>
+        <Card theme="secondary">
+          <div className="flex flex-col gap-3 text-center">
+            <div className="text-6xl">🏋️</div>
+            <div className="flex flex-col">
+              <h2 className="text-lg font-semibold text-foreground">
+                No sets logged yet
+              </h2>
+              <p className="text-muted-foreground">
+                Start your first workout set.
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              onClick={handleOpenPicker}
+              className="w-full"
+            >
+              Log a set
+            </Button>
+          </div>
         </Card>
         <ExercisePickerModal
           open={pickerOpen}
@@ -214,19 +221,21 @@ export function LoggedSetsList({
 
   return (
     <>
-      <div className="space-y-5">
-        {groupedSets.map((group) => (
-          <Fragment key={group.exerciseId}>
-            <ExerciseGroup
-              group={group}
-              onAddSet={onAddSet}
-              onEditSet={onEditSet}
-              onDeleteSet={onDeleteSet}
-              isMutating={isMutating}
-              setRefs={setRefs}
-            />
-          </Fragment>
-        ))}
+      <div>
+        <div className="flex flex-col gap-8">
+          {groupedSets.map((group) => (
+            <Fragment key={group.exerciseId}>
+              <ExerciseGroup
+                group={group}
+                onAddSet={onAddSet}
+                onEditSet={onEditSet}
+                onDeleteSet={onDeleteSet}
+                isMutating={isMutating}
+                setRefs={setRefs}
+              />
+            </Fragment>
+          ))}
+        </div>
         <Button
           variant="primary"
           onClick={handleOpenPicker}

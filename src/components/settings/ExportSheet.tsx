@@ -146,7 +146,7 @@ export function ExportSheet({ isOpen, onClose }: ExportSheetProps) {
               </p>
             </div>
             <div>
-              <Label className="flex items-center gap-2">
+              <Label className="flex items-center gap-3">
                 <Checkbox
                   checked={includeAlternatives}
                   onChange={(event) =>

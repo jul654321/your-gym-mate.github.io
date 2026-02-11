@@ -5,6 +5,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
   clickable?: boolean;
   cardHeader?: ReactNode;
+  cardTitle?: string;
   cardFooter?: ReactNode;
   theme?: "default" | "secondary";
 }
@@ -14,6 +15,7 @@ export function Card({
   className,
   clickable = false,
   cardHeader,
+  cardTitle,
   cardFooter,
   theme = "default",
   ...props
@@ -21,7 +23,7 @@ export function Card({
   return (
     <article
       className={cn(
-        "rounded-2xl bg-card p-4 shadow-sm flex flex-col gap-2 text-foreground",
+        "rounded-2xl bg-card p-4 shadow-sm flex flex-col gap-3 text-foreground",
         clickable && "cursor-pointer transition hover:shadow-lg",
         theme === "secondary" && "bg-secondary",
         theme === "secondary" && "text-secondary-foreground",
@@ -29,6 +31,11 @@ export function Card({
       )}
       {...props}
     >
+      {cardTitle && (
+        <header className="flex items-start text-foreground gap-4 justify-between text-md font-semibold">
+          {cardTitle}
+        </header>
+      )}
       {cardHeader && (
         <header className="flex items-start text-foreground gap-4 justify-between text-md font-semibold">
           {cardHeader}

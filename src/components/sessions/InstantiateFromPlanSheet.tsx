@@ -114,7 +114,7 @@ export function InstantiateFromPlanSheet({
           {filteredPlans.map((plan) => (
             <article
               key={plan.id}
-              className="flex flex-col gap-2 rounded-2xl border border-slate-100 bg-slate-50 p-4"
+              className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4"
             >
               <div className="flex items-center justify-between">
                 <div>

@@ -181,7 +181,7 @@ export function ExercisePickerModal({
               Exercise already exists. Tap the matching item to log it.
             </p>
           ) : (
-            <div className="flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center">
               <div className="flex-1 space-y-1">
                 <p className="text-sm font-medium">Create a new exercise</p>
                 <p className="text-xs text-muted-foreground">

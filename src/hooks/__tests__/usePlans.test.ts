@@ -115,4 +115,3 @@ describe("usePlans helpers", () => {
     expect(updated.planExercises[0].guideLinks).toEqual([link]);
   });
 });
-});

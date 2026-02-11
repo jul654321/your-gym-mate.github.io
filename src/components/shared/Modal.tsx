@@ -93,7 +93,7 @@ export function Modal({
           </Button>
         </header>
 
-        <main className="p-4 text-card-foreground text-sm overflow-y-auto">
+        <main className="max-w-full p-4 text-card-foreground text-sm overflow-y-auto overflow-x-hidden">
           {children}
         </main>
 

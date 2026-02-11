@@ -24,6 +24,7 @@ export interface ExerciseDTO {
   category?: string; // e.g., "Push", "Pull", "Legs"
   equipment?: string[]; // multiEntry index target
   notes?: string;
+  guideLinks?: PlanExerciseGuideLinkDTO[];
   createdAt: EpochMs;
   updatedAt?: EpochMs;
 }
