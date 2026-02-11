@@ -117,13 +117,16 @@ export function NewSessionModal({
         </Button>,
       ]}
     >
-      <form onSubmit={(event) => handleSubmit(event)}>
-        <p className="mt-2 text-sm text-muted-foreground">
+      <form
+        onSubmit={(event) => handleSubmit(event)}
+        className="flex flex-col gap-4"
+      >
+        <p className="text-xs text-muted-foreground">
           Give your session a name (required). Leave blank to auto-generate one
-          based on today’s date.
+          based on plan title and today’s date.
         </p>
 
-        <div className="mt-4">
+        <div>
           <label
             className="block text-sm font-medium text-muted-foreground mb-1"
             htmlFor="new-session-name"
@@ -138,7 +141,7 @@ export function NewSessionModal({
           />
         </div>
 
-        <div className="mt-4 max-w-full">
+        <div className="max-w-full">
           <label
             className="block text-sm font-medium text-muted-foreground mb-1"
             htmlFor="session-date"
@@ -149,12 +152,9 @@ export function NewSessionModal({
             id="session-date"
             type="date"
             value={dateISO}
-            className="max-w-full"
+            className="w-full min-w-0 max-w-full box-border"
             onChange={(event) => setDateISO(event.target.value)}
           />
-          <p className="text-xs text-muted-foreground">
-            Pick a specific day so the session log uses that timestamp.
-          </p>
         </div>
 
         {error && (
@@ -163,7 +163,7 @@ export function NewSessionModal({
           </p>
         )}
 
-        <div className="mt-4 space-y-2">
+        <div>
           <label
             className="block text-sm font-medium text-muted-foreground mb-1"
             htmlFor="session-plan"
@@ -192,9 +192,6 @@ export function NewSessionModal({
               You haven’t created any plans yet.
             </p>
           )}
-          <p className="text-xs text-muted-foreground">
-            Choosing a plan copies its exercise order into the new session.
-          </p>
         </div>
       </form>
     </Modal>
