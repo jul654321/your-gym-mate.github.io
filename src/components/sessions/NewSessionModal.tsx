@@ -138,7 +138,7 @@ export function NewSessionModal({
           />
         </div>
 
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 max-w-full">
           <label
             className="block text-sm font-medium text-muted-foreground mb-1"
             htmlFor="session-date"
@@ -149,6 +149,7 @@ export function NewSessionModal({
             id="session-date"
             type="date"
             value={dateISO}
+            className="max-w-full"
             onChange={(event) => setDateISO(event.target.value)}
           />
           <p className="text-xs text-muted-foreground">
