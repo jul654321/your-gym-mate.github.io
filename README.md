@@ -1,6 +1,8 @@
 # Your Gym Mate 🏋️
 
 A Progressive Web App (PWA) for tracking your workouts offline-first. Built with React, TypeScript, and IndexedDB.
+ 
+Live demo: https://jul654321.github.io/your-gym-mate.github.io/sessions
 
 ## Features
 
