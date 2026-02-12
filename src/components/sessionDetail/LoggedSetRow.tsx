@@ -27,10 +27,11 @@ export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
 
     return (
       <>
-        <Card cardTitle={primaryLabel + " - " + set.setType}>
+        <Card>
           <div className="flex justify-between items-center gap-3">
             <div className="flex-1 overflow-hidden">
-              <p className="max-w-full text-xs text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+              <p className="max-w-full text-sm text-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+                <span className="capitalize font-bold">{set.setType}</span>:{" "}
                 {formattedWeight} × {set.reps ?? 0}
               </p>
               {set.alternative && (
