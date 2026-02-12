@@ -35,6 +35,12 @@ const TAB_DEFINITIONS: TabDTO[] = [
     isCenter: true,
   },
   {
+    id: "dashboard",
+    label: "Dashboard",
+    path: "/dashboard",
+    icon: "dashboard",
+  },
+  {
     id: "settings",
     label: "Settings",
     path: "/settings",
