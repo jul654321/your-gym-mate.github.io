@@ -315,6 +315,57 @@ export interface TrashRecordDTO {
 }
 export type RestoreFromTrashCmd = { trashId: UUID };
 
+// === Dashboard Analytics Types ===
+// Dashboard filter and view model types for US-013, US-014, US-015, US-016
+
+export type DatePreset = "7d" | "30d" | "90d" | "all" | "custom";
+
+export interface DashboardFilters {
+  exerciseIds: UUID[]; // selected exercise ids (empty = all)
+  includeAlternatives: boolean; // default true
+  dateFrom?: string; // ISO date string
+  dateTo?: string; // ISO date string
+  preset?: DatePreset;
+  minWeight?: number;
+  maxWeight?: number;
+  minReps?: number;
+  maxReps?: number;
+}
+
+export interface TrendPoint {
+  date: string; // ISO date
+  weight?: number; // aggregated (max or avg)
+  volume?: number; // aggregated sum(weight*reps)
+}
+
+export interface VolumePoint {
+  sessionId: UUID;
+  date: string; // ISO date
+  volume: number;
+}
+
+export interface PRItem {
+  exerciseId: UUID;
+  exerciseName: string;
+  weight: number;
+  dateAchieved: string; // ISO date
+  setId: UUID;
+  isAlternative?: boolean;
+}
+
+export interface TotalsViewModel {
+  totalVolume: number;
+  totalSessions: number;
+  avgSessionVolume: number;
+}
+
+export interface DashboardViewModel {
+  trendPoints: TrendPoint[];
+  volumePoints: VolumePoint[];
+  prItems: PRItem[];
+  totals: TotalsViewModel;
+}
+
 // === Validation / Utility Notes ===
 // - All Create*Cmd types expect client-generated `id: UUID` and `createdAt: EpochMs` per schema validation rules.
 // - Writes must ensure denormalized arrays are populated:

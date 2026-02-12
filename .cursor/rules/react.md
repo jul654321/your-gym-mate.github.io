@@ -8,6 +8,8 @@ alwaysApply: false
 ### Guidelines for React
 
 - Use functional components with hooks instead of class components
+- Split into smaller components when possible
+- Use hooks for business logic, minimize business logic inside components
 - Never use "use client" and other Next.js directives as we use React with Astro
 - Extract logic into custom hooks in `src/hooks`
 - Extract layout elements such us header, navbar, footer, wrapper and place them in `src/layouts`

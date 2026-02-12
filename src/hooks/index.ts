@@ -8,3 +8,5 @@ export * from "./useLoggedSets";
 export * from "./useNavigation";
 export * from "./useSessionViewModel";
 export * from "./useSettings";
+export * from "./useDashboardFilters";
+export * from "./useDashboardData";
