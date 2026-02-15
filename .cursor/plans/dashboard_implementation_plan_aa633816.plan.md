@@ -94,17 +94,17 @@ Path: `/dashboard`
   - `maxWeight?: number`
   - `minReps?: number`
   - `maxReps?: number`
-    }
+  }
 - `TrendPoint` {
   - `date: string` // ISO
   - `weight?: number` // aggregated (e.g., max or avg)
   - `volume?: number` // aggregated sum(weightreps)
-    }
+  }
 - `VolumePoint` {
   - `sessionId: string`
   - `date: string`
   - `volume: number`
-    }
+  }
 - `PRItem` {
   - `exerciseId: string`
   - `exerciseName: string`
@@ -112,18 +112,18 @@ Path: `/dashboard`
   - `dateAchieved: string`
   - `setId: string`
   - `isAlternative?: boolean`
-    }
+  }
 - `TotalsViewModel` {
   - `totalVolume: number`
   - `totalSessions: number`
   - `avgSessionVolume: number`
-    }
+  }
 - `DashboardViewModel` {
   - `trendPoints: TrendPoint[]`
   - `volumePoints: VolumePoint[]`
   - `prItems: PRItem[]`
   - `totals: TotalsViewModel`
-    }
+  }
 
 ## 6. State variables & custom hooks
 
@@ -194,3 +194,4 @@ All conditions are local (IDB) reads. Component-level checks:
 6. Build `PRTable` and `TotalsCard`.
 7. Wire `DashboardPage` and routing `/dashboard`.
 8. Add tests and manual acceptance checks (offline, SW update flow).
+

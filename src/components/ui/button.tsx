@@ -19,7 +19,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary:
     "bg-secondary text-secondary-foreground hover:bg-secondary focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
   ghost:
-    "bg-transparent text-muted-foreground hover:bg-slate-50 focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
+    "bg-transparent text-muted-foreground focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
   outline:
     "border border-slate-200 text-muted-foreground hover:bg-slate-50 focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
   link: "bg-transparent text-primary underline-offset-4 hover:underline focus-visible:ring-offset-0 focus-visible:ring-transparent",

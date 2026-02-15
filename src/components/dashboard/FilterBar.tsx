@@ -62,11 +62,11 @@ export function FilterBar({
   };
 
   const handleSelectAllExercises = () => {
-    onChange({ exerciseIds: [] });
+    onChange({ exerciseIds: filteredExercises.map((ex) => ex.id) });
   };
 
   const handleDeselectAllExercises = () => {
-    onChange({ exerciseIds: exercises.map((ex) => ex.id) });
+    onChange({ exerciseIds: [] });
   };
 
   const isCustomDate = filters.preset === "custom";
@@ -82,13 +82,20 @@ export function FilterBar({
       {/* Header with toggle */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Filter className="h-5 w-5 text-muted-foreground" />
+          <Button
+            variant="ghost"
+            size="icon-small"
+            onClick={() => setIsExpanded(!isExpanded)}
+            aria-label={isExpanded ? "Collapse filters" : "Expand filters"}
+          >
+            <Filter
+              className={cn(
+                "h-5 w-5 text-muted-foreground",
+                isExpanded ? "text-primary" : ""
+              )}
+            />
+          </Button>
           <h2 className="text-lg font-semibold">Filters</h2>
-          {hasActiveFilters && (
-            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-              Active
-            </span>
-          )}
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -98,19 +105,6 @@ export function FilterBar({
             disabled={!hasActiveFilters}
           >
             Reset
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-small"
-            onClick={() => setIsExpanded(!isExpanded)}
-            aria-label={isExpanded ? "Collapse filters" : "Expand filters"}
-          >
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 transition-transform",
-                isExpanded && "rotate-180"
-              )}
-            />
           </Button>
         </div>
       </div>
@@ -147,26 +141,6 @@ export function FilterBar({
                     />
                   </div>
 
-                  {/* Select/Deselect All */}
-                  <div className="p-2 border-b flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleSelectAllExercises}
-                      className="flex-1"
-                    >
-                      All
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleDeselectAllExercises}
-                      className="flex-1"
-                    >
-                      None
-                    </Button>
-                  </div>
-
                   {/* Exercise List */}
                   <div className="overflow-y-auto max-h-48">
                     {filteredExercises.length === 0 ? (
@@ -174,18 +148,42 @@ export function FilterBar({
                         No exercises found
                       </div>
                     ) : (
-                      filteredExercises.map((exercise) => (
-                        <label
-                          key={exercise.id}
-                          className="flex items-center gap-3 px-4 py-2 hover:bg-muted cursor-pointer"
-                        >
+                      <>
+                        <Label className="flex items-center gap-3 px-4 py-2 hover:bg-muted cursor-pointer">
                           <Checkbox
-                            checked={filters.exerciseIds.includes(exercise.id)}
-                            onChange={() => handleExerciseToggle(exercise.id)}
+                            checked={
+                              filters.exerciseIds.length ===
+                              filteredExercises.length
+                            }
+                            onChange={(
+                              event: React.ChangeEvent<HTMLInputElement>
+                            ) =>
+                              event.target.checked
+                                ? handleSelectAllExercises()
+                                : handleDeselectAllExercises()
+                            }
                           />
-                          <span className="text-sm flex-1">{exercise.name}</span>
-                        </label>
-                      ))
+                          <span className="text-sm text-bold flex-1 text-muted-foreground">
+                            Select all
+                          </span>
+                        </Label>
+                        {filteredExercises.map((exercise) => (
+                          <label
+                            key={exercise.id}
+                            className="flex items-center gap-3 px-4 py-2 hover:bg-muted cursor-pointer"
+                          >
+                            <Checkbox
+                              checked={filters.exerciseIds.includes(
+                                exercise.id
+                              )}
+                              onChange={() => handleExerciseToggle(exercise.id)}
+                            />
+                            <span className="text-sm flex-1 text-muted-foreground">
+                              {exercise.name}
+                            </span>
+                          </label>
+                        ))}
+                      </>
                     )}
                   </div>
                 </div>
