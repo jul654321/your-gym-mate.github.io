@@ -1,29 +1,23 @@
 // DashboardPage - main dashboard view with analytics and filters
 // Implements US-013, US-014, US-015, US-016
 
-import { useState, useMemo } from "react";
+import { AlertCircle, BarChart3 } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SectionHeader } from "../components/layouts/SectionHeader";
-import { SectionMain } from "../components/layouts/SectionMain";
 import {
   FilterBar,
-  TrendChart,
-  VolumeBarChart,
   PRTable,
   TotalsCard,
+  TrendChart,
+  VolumeBarChart,
 } from "../components/dashboard";
-import { useDbInit } from "../hooks/useDbInit";
-import {
-  useDashboardFilters,
-  useDashboardData,
-  useExercises,
-} from "../hooks";
-import { AlertCircle, BarChart3 } from "lucide-react";
+import { SectionHeader } from "../components/layouts/SectionHeader";
+import { SectionMain } from "../components/layouts/SectionMain";
 import { Button } from "../components/ui/button";
+import { useDashboardData, useDashboardFilters, useExercises } from "../hooks";
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const { ready, upgrading } = useDbInit();
   const [trendMetric, setTrendMetric] = useState<"weight" | "volume">("volume");
 
   // Get filters with URL sync and validation
@@ -43,7 +37,6 @@ export function DashboardPage() {
   } = useDashboardData(filters);
 
   const isLoading = exercisesLoading || dataLoading;
-  const disableActions = !ready || upgrading;
 
   // Navigate to session detail when clicking PR row or volume bar
   const handleNavigateToSession = (sessionId: string) => {

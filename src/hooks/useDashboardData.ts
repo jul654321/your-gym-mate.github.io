@@ -11,7 +11,6 @@ import type {
   PRItem,
   TotalsViewModel,
   LoggedSetDTO,
-  SessionDTO,
   ExerciseDTO,
 } from "../types";
 
@@ -189,10 +188,7 @@ async function computePRs(
 /**
  * Computes total statistics
  */
-async function computeTotals(
-  sets: LoggedSetDTO[],
-  db: Awaited<ReturnType<typeof getDB>>
-): Promise<TotalsViewModel> {
+async function computeTotals(sets: LoggedSetDTO[]): Promise<TotalsViewModel> {
   let totalVolume = 0;
   const sessionIds = new Set<string>();
 
@@ -202,8 +198,7 @@ async function computeTotals(
   }
 
   const totalSessions = sessionIds.size;
-  const avgSessionVolume =
-    totalSessions > 0 ? totalVolume / totalSessions : 0;
+  const avgSessionVolume = totalSessions > 0 ? totalVolume / totalSessions : 0;
 
   return {
     totalVolume,
@@ -227,9 +222,7 @@ async function fetchFilteredSets(
   // Query by date range using timestamp index
   if (filters.dateFrom || filters.dateTo) {
     const index = store.index("timestamp");
-    const fromMs = filters.dateFrom
-      ? dateToEpochMs(filters.dateFrom)
-      : 0;
+    const fromMs = filters.dateFrom ? dateToEpochMs(filters.dateFrom) : 0;
     const toMs = filters.dateTo
       ? dateToEpochMs(filters.dateTo) + 86400000 - 1 // End of day
       : Date.now();
@@ -293,7 +286,7 @@ export function useDashboardData(filters: DashboardFilters) {
         Promise.resolve(computeTrendPoints(sets)),
         computeVolumePoints(sets, db),
         computePRs(sets, db, filters.includeAlternatives),
-        computeTotals(sets, db),
+        computeTotals(sets),
       ]);
 
       return {
