@@ -336,7 +336,12 @@ export function useInstantiateSessionFromPlan() {
           .getAll(lastSession.id);
         for (const set of lastSessionSets) {
           const existing = lastSetByExercise.get(set.exerciseId);
-          if (!existing || (set.timestamp ?? 0) > (existing.timestamp ?? 0)) {
+
+          if (
+            !existing ||
+            ((set.timestamp ?? 0) > (existing.timestamp ?? 0) &&
+              set.setType === "main")
+          ) {
             lastSetByExercise.set(set.exerciseId, set);
           }
         }
