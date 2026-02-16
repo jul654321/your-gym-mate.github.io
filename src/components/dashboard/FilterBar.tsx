@@ -97,104 +97,87 @@ export function FilterBar({
             <div className="space-y-2">
               <Label htmlFor="exercise-select">Exercises</Label>
               <div className="relative">
-                <Button
-                  id="exercise-select"
-                  variant="outline"
-                  className="w-full justify-between h-11"
-                  onClick={() =>
-                    setIsExerciseDropdownOpen(!isExerciseDropdownOpen)
-                  }
-                >
-                  <span className="truncate">{selectedExercisesText}</span>
-                  <ChevronDown className="h-4 w-4 ml-2 flex-shrink-0" />
-                </Button>
-
                 {/* Dropdown */}
-                {isExerciseDropdownOpen && (
-                  <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-72 overflow-hidden flex flex-col">
-                    {/* Search */}
-                    <div className="p-2 border-b">
-                      <Input
-                        placeholder="Search exercises..."
-                        value={exerciseSearchQuery}
-                        onChange={(e) => {
-                          setExerciseSearchQuery(e.target.value);
-                        }}
-                        className="h-9"
-                      />
-                    </div>
+                <div className="z-10 w-full mt-1 max-h-72 overflow-hidden flex flex-col">
+                  {/* Search */}
+                  <Input
+                    placeholder="Search exercises..."
+                    value={exerciseSearchQuery}
+                    onChange={(e) => {
+                      setExerciseSearchQuery(e.target.value);
+                    }}
+                    className="h-9"
+                  />
+                </div>
 
-                    {/* Exercise List */}
-                    <div className="overflow-y-auto max-h-48">
-                      {filteredExercises.length === 0 ? (
-                        <div className="p-4 text-sm text-muted-foreground text-center">
-                          No exercises found
-                        </div>
-                      ) : (
-                        <>
-                          <Label className="flex items-center gap-3 px-4 py-2 hover:bg-muted cursor-pointer">
-                            <Checkbox
-                              checked={
-                                filtersForm.exerciseIds.length ===
-                                filteredExercises.length
-                              }
-                              onChange={(
-                                event: React.ChangeEvent<HTMLInputElement>
-                              ) =>
-                                event.target.checked
-                                  ? setFiltersForm({
-                                      ...filtersForm,
-                                      exerciseIds: filteredExercises.map(
-                                        (ex) => ex.id
-                                      ),
-                                    })
-                                  : setFiltersForm({
-                                      ...filtersForm,
-                                      exerciseIds: [],
-                                    })
-                              }
-                            />
-                            <span className="text-sm text-bold flex-1 text-muted-foreground">
-                              Select all
-                            </span>
-                          </Label>
-                          {filteredExercises.map((exercise) => (
-                            <label
-                              key={exercise.id}
-                              className="flex items-center gap-3 px-4 py-2 hover:bg-muted cursor-pointer"
-                            >
-                              <Checkbox
-                                checked={filtersForm.exerciseIds.includes(
-                                  exercise.id
-                                )}
-                                onChange={(event) =>
-                                  event.target.checked
-                                    ? setFiltersForm({
-                                        ...filtersForm,
-                                        exerciseIds: [
-                                          ...filtersForm.exerciseIds,
-                                          exercise.id,
-                                        ],
-                                      })
-                                    : setFiltersForm({
-                                        ...filtersForm,
-                                        exerciseIds:
-                                          filtersForm.exerciseIds.filter(
-                                            (id) => id !== exercise.id
-                                          ),
-                                      })
-                                }
-                              />
-                              <span className="text-sm flex-1 text-muted-foreground">
-                                {exercise.name}
-                              </span>
-                            </label>
-                          ))}
-                        </>
-                      )}
+                {/* Exercise List */}
+                <div className="overflow-y-auto max-h-48">
+                  {filteredExercises.length === 0 ? (
+                    <div className="p-4 text-sm text-muted-foreground text-center">
+                      No exercises found
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <>
+                      <Label className="flex items-center gap-3 px-4 py-2 hover:bg-muted cursor-pointer">
+                        <Checkbox
+                          checked={
+                            filtersForm.exerciseIds.length ===
+                            filteredExercises.length
+                          }
+                          onChange={(
+                            event: React.ChangeEvent<HTMLInputElement>
+                          ) =>
+                            event.target.checked
+                              ? setFiltersForm({
+                                  ...filtersForm,
+                                  exerciseIds: filteredExercises.map(
+                                    (ex) => ex.id
+                                  ),
+                                })
+                              : setFiltersForm({
+                                  ...filtersForm,
+                                  exerciseIds: [],
+                                })
+                          }
+                        />
+                        <span className="text-sm text-bold flex-1 text-muted-foreground">
+                          Select all
+                        </span>
+                      </Label>
+                      {filteredExercises.map((exercise) => (
+                        <label
+                          key={exercise.id}
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-muted cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={filtersForm.exerciseIds.includes(
+                              exercise.id
+                            )}
+                            onChange={(event) =>
+                              event.target.checked
+                                ? setFiltersForm({
+                                    ...filtersForm,
+                                    exerciseIds: [
+                                      ...filtersForm.exerciseIds,
+                                      exercise.id,
+                                    ],
+                                  })
+                                : setFiltersForm({
+                                    ...filtersForm,
+                                    exerciseIds: filtersForm.exerciseIds.filter(
+                                      (id) => id !== exercise.id
+                                    ),
+                                  })
+                            }
+                          />
+                          <span className="text-sm flex-1 text-muted-foreground">
+                            {exercise.name}
+                          </span>
+                        </label>
+                      ))}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
