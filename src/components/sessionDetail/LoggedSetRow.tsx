@@ -1,4 +1,4 @@
-import { Book, Pencil, Trash2 } from "lucide-react";
+import { Book, Copy, Pencil, Trash2 } from "lucide-react";
 import { forwardRef, useState } from "react";
 import { usePlanExercise } from "../../hooks";
 import type { LoggedSetDTO } from "../../types";
@@ -10,11 +10,15 @@ interface LoggedSetRowProps {
   set: LoggedSetDTO;
   onEdit: (setId: string, set: LoggedSetDTO) => void;
   onDelete: (setId: string) => void;
+  onCopy: (setId: string) => void;
   isBusy?: boolean;
 }
 
 export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
-  function LoggedSetRow({ set, onEdit, onDelete, isBusy = false }) {
+  function LoggedSetRow(
+    { set, onEdit, onDelete, onCopy, isBusy = false },
+    ref
+  ) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const { data: planExercise } = usePlanExercise(set.exerciseId);
 
@@ -26,7 +30,7 @@ export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
     }`;
 
     return (
-      <>
+      <div ref={ref} className="flex flex-col gap-3">
         <Card>
           <div className="flex justify-between items-center gap-3">
             <div className="flex-1 overflow-hidden">
@@ -44,6 +48,15 @@ export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
             </div>
 
             <div className="flex gap-2">
+              <Button
+                size="icon-small"
+                variant="secondary"
+                onClick={() => onCopy(set.id)}
+                disabled={isBusy}
+                aria-label={`Copy ${primaryLabel}`}
+              >
+                <Copy className="h-4 w-4" aria-hidden />
+              </Button>
               <Button
                 size="icon-small"
                 variant="secondary"
@@ -82,7 +95,7 @@ export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
             isDeleting={isBusy}
           />
         )}
-      </>
+      </div>
     );
   }
 );

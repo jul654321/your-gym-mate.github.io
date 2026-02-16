@@ -41,6 +41,7 @@ export interface SessionViewModel {
     toggleStatus: (status: SessionStatus) => void;
     deleteSession: () => void;
     addSet: (exerciseId: string) => void;
+    copySet: (setId: string) => void;
     deleteSet: (setId: string) => void;
     updateSet: (setId: string, set: LoggedSetDTO) => void;
   };
@@ -330,6 +331,32 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     [sessionId, createLoggedSet]
   );
 
+  const copySet = useCallback(
+    (setId: string) => {
+      if (!sessionId) return;
+
+      const set = accumulatedSets.find((s) => s.id === setId);
+
+      if (!set) return;
+
+      const payload: CreateLoggedSetCmd = {
+        id: crypto.randomUUID() as UUID,
+        sessionId,
+        exerciseId: set.exerciseId,
+        exerciseNameSnapshot: set.exerciseNameSnapshot,
+        weight: set.weight ?? 0,
+        weightUnit: set.weightUnit ?? DEFAULT_WEIGHT_UNIT,
+        reps: set.reps ?? 1,
+        setType: set.setType ?? "main",
+        timestamp: Date.now(),
+        createdAt: Date.now(),
+        exerciseIds: [set.exerciseId],
+      };
+      createLoggedSet.mutate(payload);
+    },
+    [sessionId, createLoggedSet]
+  );
+
   const deleteSet = useCallback(
     (setId: string) => {
       if (!sessionId) return;
@@ -359,6 +386,7 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
       toggleStatus,
       deleteSession: removeSession,
       addSet,
+      copySet,
       deleteSet,
       updateSet,
     },

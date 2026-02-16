@@ -18,6 +18,7 @@ import { LoggedSetRow } from "./LoggedSetRow";
 interface LoggedSetsListProps {
   groupedSets: GroupedExerciseVM[];
   onAddSet: (exerciseId: string) => void;
+  onCopySet: (setId: string) => void;
   onEditSet: (setId: string, set: LoggedSetDTO) => void;
   onDeleteSet: (setId: string) => void;
   isLoading?: boolean;
@@ -68,6 +69,7 @@ function ExerciseHeader({
 function ExerciseGroup({
   group,
   onAddSet,
+  onCopySet,
   onEditSet,
   onDeleteSet,
   isMutating,
@@ -75,6 +77,7 @@ function ExerciseGroup({
 }: {
   group: GroupedExerciseVM;
   onAddSet: (exerciseId: string) => void;
+  onCopySet: (setId: string) => void;
   onEditSet: (setId: string, set: LoggedSetDTO) => void;
   onDeleteSet: (setId: string) => void;
   isMutating?: boolean;
@@ -96,6 +99,7 @@ function ExerciseGroup({
         {group.sets.map((set) => (
           <LoggedSetRow
             key={set.id}
+            onCopy={(setId) => onCopySet(setId)}
             ref={(node) => {
               if (node) {
                 setRefs.current.set(set.id, node);
@@ -117,6 +121,7 @@ function ExerciseGroup({
 export function LoggedSetsList({
   groupedSets,
   onAddSet,
+  onCopySet,
   onEditSet,
   onDeleteSet,
   isLoading = false,
@@ -228,6 +233,7 @@ export function LoggedSetsList({
               <ExerciseGroup
                 group={group}
                 onAddSet={onAddSet}
+                onCopySet={onCopySet}
                 onEditSet={onEditSet}
                 onDeleteSet={onDeleteSet}
                 isMutating={isMutating}

@@ -81,6 +81,10 @@ export function SessionView() {
     actions.addSet(exerciseId);
   };
 
+  const handleCopySet = (setId: string) => {
+    actions.copySet(setId);
+  };
+
   const handleEditSet = (_setId: string, set: LoggedSetDTO) => {
     setEditingSet(set);
   };
@@ -101,6 +105,7 @@ export function SessionView() {
         <LoggedSetsList
           groupedSets={groupedExercises}
           onAddSet={handleAddSet}
+          onCopySet={handleCopySet}
           onEditSet={handleEditSet}
           onDeleteSet={handleDeleteSet}
           isLoading={loadingSets}
