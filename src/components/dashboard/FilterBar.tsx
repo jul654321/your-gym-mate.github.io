@@ -1,4 +1,4 @@
-import { ChevronDown, Filter, X } from "lucide-react";
+import { Filter, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { DashboardFilters, DatePreset, ExerciseDTO } from "../../types";
 import { Modal } from "../shared/Modal";
@@ -43,17 +43,6 @@ export function FilterBar({
   }, [exercises, exerciseSearchQuery]);
 
   // Selected exercises display
-  const selectedExercisesText = useMemo(() => {
-    if (filtersForm.exerciseIds.length === 0) return "All exercises";
-    if (filtersForm.exerciseIds.length === 1) {
-      const exercise = exercises.find(
-        (ex) => ex.id === filtersForm.exerciseIds[0]
-      );
-      return exercise?.name || "1 selected";
-    }
-    return `${filtersForm.exerciseIds.length} exercises`;
-  }, [filtersForm.exerciseIds, exercises]);
-
   const isCustomDate = filtersForm.preset === "custom";
 
   return (
