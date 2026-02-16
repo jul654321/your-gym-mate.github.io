@@ -123,11 +123,16 @@ export function EditSetModal({ set, onClose }: EditSetModalProps) {
   const originalExerciseId = useMemo(() => set.exerciseId, [set.exerciseId]);
 
   const otherSetsForExercise = useMemo(() => {
-    return sessionSets.filter(
-      (loggedSet) =>
-        loggedSet.exerciseId === originalExerciseId && loggedSet.id !== set.id
-    );
-  }, [sessionSets, originalExerciseId, set.id]);
+    const targetSetType = formState.setType;
+    return sessionSets.filter((loggedSet) => {
+      const loggedSetType = loggedSet.setType ?? "main";
+      return (
+        loggedSet.exerciseId === originalExerciseId &&
+        loggedSet.id !== set.id &&
+        loggedSetType === targetSetType
+      );
+    });
+  }, [sessionSets, originalExerciseId, set.id, formState.setType]);
 
   const exerciseOptions = useMemo(() => {
     const map = new Map<string, string>();
