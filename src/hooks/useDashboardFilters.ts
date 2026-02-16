@@ -121,7 +121,8 @@ export function useDashboardFilters() {
   const filtersFromUrl = useMemo((): DashboardFilters => {
     const exerciseIdsParam = searchParams.get("exercises");
     const preset = (searchParams.get("preset") as DatePreset) || "30d";
-    const includeAlternatives = searchParams.get("includeAlternatives") !== "false";
+    const includeAlternatives =
+      searchParams.get("includeAlternatives") !== "false";
 
     const filters: DashboardFilters = {
       exerciseIds: exerciseIdsParam ? exerciseIdsParam.split(",") : [],
@@ -146,6 +147,7 @@ export function useDashboardFilters() {
     // Apply preset date range if no custom dates
     if (preset && preset !== "custom" && !filters.dateFrom && !filters.dateTo) {
       const dateRange = getDateRangeFromPreset(preset);
+
       filters.dateFrom = dateRange.from;
       filters.dateTo = dateRange.to;
     }
@@ -181,7 +183,7 @@ export function useDashboardFilters() {
       // Update preset
       if (updates.preset !== undefined) {
         newParams.set("preset", updates.preset);
-        
+
         // Apply preset date range
         if (updates.preset !== "custom") {
           const dateRange = getDateRangeFromPreset(updates.preset);

@@ -41,31 +41,65 @@ function epochMsToDate(epochMs: number): string {
 }
 
 /**
- * Groups sets by date (ISO string) and computes max weight and total volume per day
+ * Groups sets by the session date and computes max weight and total volume per day
  */
-function computeTrendPoints(sets: LoggedSetDTO[]): TrendPoint[] {
-  const pointsByDate = new Map<
+async function computeTrendPoints(
+  sets: LoggedSetDTO[],
+  db: Awaited<ReturnType<typeof getDB>>
+): Promise<TrendPoint[]> {
+  if (sets.length === 0) {
+    return [];
+  }
+
+  const statsBySession = new Map<
     string,
     { maxWeight: number; totalVolume: number }
   >();
 
   for (const set of sets) {
-    const dateKey = epochMsToDate(set.timestamp);
     const volume = set.weight * set.reps;
-
-    const existing = pointsByDate.get(dateKey);
+    const existing = statsBySession.get(set.sessionId);
     if (existing) {
       existing.maxWeight = Math.max(existing.maxWeight, set.weight);
       existing.totalVolume += volume;
     } else {
-      pointsByDate.set(dateKey, {
+      statsBySession.set(set.sessionId, {
         maxWeight: set.weight,
         totalVolume: volume,
       });
     }
   }
 
-  // Convert to array and sort by date
+  const sessionIds = Array.from(statsBySession.keys());
+  const sessions = await Promise.all(
+    sessionIds.map((id) => db.get(STORE_NAMES.sessions, id))
+  );
+
+  const pointsByDate = new Map<
+    string,
+    { maxWeight: number; totalVolume: number }
+  >();
+
+  for (const session of sessions) {
+    if (!session) {
+      continue;
+    }
+
+    const stats = statsBySession.get(session.id);
+    if (!stats) {
+      continue;
+    }
+
+    const dateKey = epochMsToDate(session.date);
+    const existing = pointsByDate.get(dateKey);
+    if (existing) {
+      existing.maxWeight = Math.max(existing.maxWeight, stats.maxWeight);
+      existing.totalVolume += stats.totalVolume;
+    } else {
+      pointsByDate.set(dateKey, { ...stats });
+    }
+  }
+
   return Array.from(pointsByDate.entries())
     .map(([date, stats]) => ({
       date,
@@ -214,23 +248,47 @@ async function fetchFilteredSets(
   filters: DashboardFilters,
   db: Awaited<ReturnType<typeof getDB>>
 ): Promise<LoggedSetDTO[]> {
-  const tx = db.transaction(STORE_NAMES.loggedSets, "readonly");
-  const store = tx.objectStore(STORE_NAMES.loggedSets);
-
   let sets: LoggedSetDTO[];
 
-  // Query by date range using timestamp index
   if (filters.dateFrom || filters.dateTo) {
-    const index = store.index("timestamp");
-    const fromMs = filters.dateFrom ? dateToEpochMs(filters.dateFrom) : 0;
+    const sessionTx = db.transaction(STORE_NAMES.sessions, "readonly");
+    const sessionStore = sessionTx.objectStore(STORE_NAMES.sessions);
+    const index = sessionStore.index("date");
+
+    const fromMs = filters.dateFrom
+      ? dateToEpochMs(filters.dateFrom)
+      : undefined;
     const toMs = filters.dateTo
       ? dateToEpochMs(filters.dateTo) + 86400000 - 1 // End of day
-      : Date.now();
+      : undefined;
 
-    const range = IDBKeyRange.bound(fromMs, toMs);
-    sets = await index.getAll(range);
+    let range: IDBKeyRange;
+    if (fromMs !== undefined && toMs !== undefined) {
+      range = IDBKeyRange.bound(fromMs, toMs);
+    } else if (fromMs !== undefined) {
+      range = IDBKeyRange.lowerBound(fromMs);
+    } else if (toMs !== undefined) {
+      range = IDBKeyRange.upperBound(toMs);
+    } else {
+      range = IDBKeyRange.lowerBound(0);
+    }
+
+    const sessionsInRange = await index.getAll(range);
+    const sessionIds = new Set(sessionsInRange.map((session) => session.id));
+    if (sessionIds.size === 0) {
+      return [];
+    }
+
+    const loggedSetsTx = db.transaction(STORE_NAMES.loggedSets, "readonly");
+    const loggedSetsStore = loggedSetsTx.objectStore(STORE_NAMES.loggedSets);
+    const sessionIndex = loggedSetsStore.index("sessionId");
+    const setsBySession = await Promise.all(
+      Array.from(sessionIds).map((sessionId) => sessionIndex.getAll(sessionId))
+    );
+    sets = setsBySession.flat();
   } else {
-    // No date filter - get all sets
+    const tx = db.transaction(STORE_NAMES.loggedSets, "readonly");
+    const store = tx.objectStore(STORE_NAMES.loggedSets);
     sets = await store.getAll();
   }
 
@@ -283,7 +341,7 @@ export function useDashboardData(filters: DashboardFilters) {
 
       // Compute all analytics in parallel
       const [trendPoints, volumePoints, prItems, totals] = await Promise.all([
-        Promise.resolve(computeTrendPoints(sets)),
+        computeTrendPoints(sets, db),
         computeVolumePoints(sets, db),
         computePRs(sets, db, filters.includeAlternatives),
         computeTotals(sets),

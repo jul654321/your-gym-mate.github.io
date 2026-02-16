@@ -9,7 +9,6 @@ export interface TooltipProps<T = unknown> {
   containerWidth: number;
   containerHeight: number;
   position?: TooltipPosition;
-  offset?: number;
   className?: string;
   children?: ReactNode;
   ariaLive?: "polite" | "assertive" | "off";
@@ -20,7 +19,6 @@ export function Tooltip<T = unknown>({
   containerWidth,
   containerHeight,
   position = "auto",
-  offset = 10,
   className = "",
   children,
   ariaLive = "polite",
@@ -30,13 +28,12 @@ export function Tooltip<T = unknown>({
     const xPercent = (data.x / containerWidth) * 100;
     const yPercent = (data.y / containerHeight) * 100;
 
-    let left = `${xPercent}%`;
-    let top = `${yPercent}%`;
+    const left = `${xPercent}%`;
+    const top = `${yPercent}%`;
     let transform = "translate(-50%, -120%)";
 
     if (position === "auto") {
       // Auto positioning based on quadrant
-      const isLeft = xPercent < 50;
       const isTop = yPercent < 50;
 
       if (isTop) {
@@ -49,13 +46,9 @@ export function Tooltip<T = unknown>({
 
       // Adjust horizontal position if near edges
       if (xPercent < 15) {
-        transform = isTop
-          ? "translate(0%, 10%)"
-          : "translate(0%, -120%)";
+        transform = isTop ? "translate(0%, 10%)" : "translate(0%, -120%)";
       } else if (xPercent > 85) {
-        transform = isTop
-          ? "translate(-100%, 10%)"
-          : "translate(-100%, -120%)";
+        transform = isTop ? "translate(-100%, 10%)" : "translate(-100%, -120%)";
       }
     } else if (position === "top") {
       transform = "translate(-50%, -120%)";
@@ -97,7 +90,7 @@ export function DefaultTooltipContent({
   return (
     <div className={className}>
       <p className="text-xs font-medium whitespace-nowrap">{label}</p>
-      <p className="text-xs text-primary">{value}</p>
+      <p className="text-xs text-primary whitespace-nowrap">{value}</p>
     </div>
   );
 }

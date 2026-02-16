@@ -41,8 +41,9 @@ export function TrendChart({
         ? points.map((p) => p.weight || 0)
         : points.map((p) => p.volume || 0);
 
-    const yMin = Math.min(...values);
-    const yMax = Math.max(...values);
+    const computedMax = Math.max(...values);
+    const yMin = 0;
+    const yMax = Math.max(computedMax, yMin);
 
     return { yMin, yMax };
   }, [points, metric]);

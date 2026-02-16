@@ -1,7 +1,7 @@
 // DashboardPage - main dashboard view with analytics and filters
 // Implements US-013, US-014, US-015, US-016
 
-import { AlertCircle, BarChart3 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -43,17 +43,6 @@ export function DashboardPage() {
     navigate(`/sessions/${sessionId}`);
   };
 
-  // Navigate to session detail and scroll to set (for PR table)
-  const handleNavigateToSet = (setId: string) => {
-    // For now, just navigate to sessions page
-    // In a full implementation, we'd query the set to get its sessionId
-    // and then navigate to that session with a hash/scroll to the set
-    console.log("Navigate to set:", setId);
-    // TODO: Implement set lookup and navigation
-    navigate("/sessions");
-  };
-
-  // Loading skeleton
   if (isLoading && !dashboardData) {
     return (
       <>
@@ -160,10 +149,7 @@ export function DashboardPage() {
             />
 
             {/* PR Table */}
-            <PRTable
-              items={dashboardData.prItems}
-              onRowClick={handleNavigateToSet}
-            />
+            <PRTable items={dashboardData.prItems} />
           </div>
         )}
 
@@ -176,23 +162,6 @@ export function DashboardPage() {
             </p>
           </div>
         )}
-
-        {/* Empty state when no data matches filters */}
-        {dashboardData &&
-          validation.valid &&
-          dashboardData.totals.totalSessions === 0 && (
-            <div className="bg-muted/30 border border-border rounded-lg p-12 text-center">
-              <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">No Data Found</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                No workout data matches your current filters. Try adjusting your
-                filter settings or reset to defaults.
-              </p>
-              <Button variant="outline" onClick={resetFilters}>
-                Reset Filters
-              </Button>
-            </div>
-          )}
       </SectionMain>
     </>
   );

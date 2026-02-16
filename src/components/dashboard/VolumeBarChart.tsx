@@ -23,9 +23,18 @@ export function VolumeBarChart({
   // Chart dimensions for tooltip positioning
   const chartWidth = 600;
   const chartHeight = 300;
-  const padding = useMemo(() => ({ top: 20, right: 20, bottom: 60, left: 50 }), []);
-  const innerWidth = useMemo(() => chartWidth - padding.left - padding.right, [chartWidth, padding]);
-  const innerHeight = useMemo(() => chartHeight - padding.top - padding.bottom, [chartHeight, padding]);
+  const padding = useMemo(
+    () => ({ top: 20, right: 20, bottom: 60, left: 50 }),
+    []
+  );
+  const innerWidth = useMemo(
+    () => chartWidth - padding.left - padding.right,
+    [chartWidth, padding]
+  );
+  const innerHeight = useMemo(
+    () => chartHeight - padding.top - padding.bottom,
+    [chartHeight, padding]
+  );
 
   // Compute y-axis max
   const yMax = useMemo(() => {
@@ -59,7 +68,15 @@ export function VolumeBarChart({
     const y = padding.top + innerHeight - barHeight;
 
     return { x, y };
-  }, [hoveredIndex, hoveredPoint, points.length, yMax, padding, innerWidth, innerHeight]);
+  }, [
+    hoveredIndex,
+    hoveredPoint,
+    points.length,
+    yMax,
+    padding,
+    innerWidth,
+    innerHeight,
+  ]);
 
   if (points.length === 0) {
     return (
@@ -120,6 +137,7 @@ export function VolumeBarChart({
                 scale={scale}
                 data={points}
                 yAccessor={(d) => d.volume}
+                xAccessor={(d) => d.date}
                 xLabelAccessor={(d) => formatDate(d.date)}
                 min={0}
                 max={yMax}

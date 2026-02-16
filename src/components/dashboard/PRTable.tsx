@@ -10,14 +10,13 @@ import { cn } from "../../lib/utils/cn";
 
 export interface PRTableProps {
   items: PRItem[];
-  onRowClick: (setId: string) => void;
   sortBy?: "weight" | "date";
 }
 
 type SortField = "weight" | "date" | "exercise";
 type SortDirection = "asc" | "desc";
 
-export function PRTable({ items, onRowClick }: PRTableProps) {
+export function PRTable({ items }: PRTableProps) {
   const [sortField, setSortField] = useState<SortField>("weight");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
@@ -101,21 +100,12 @@ export function PRTable({ items, onRowClick }: PRTableProps) {
   }
 
   return (
-    <Card>
-      {/* Header */}
-      <div className="mb-4 flex items-center gap-2">
-        <Award className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-semibold">Personal Records</h3>
-        <span className="text-sm text-muted-foreground">
-          ({items.length} exercise{items.length !== 1 ? "s" : ""})
-        </span>
-      </div>
-
+    <Card title="Personal Records">
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b">
+            <tr className="border-b border-secondary">
               <th className="text-left py-2 px-2">
                 <Button
                   variant="ghost"
@@ -155,32 +145,18 @@ export function PRTable({ items, onRowClick }: PRTableProps) {
             {sortedItems.map((item) => (
               <tr
                 key={item.setId}
-                onClick={() => onRowClick(item.setId)}
-                className="border-b last:border-b-0 hover:bg-muted cursor-pointer transition-colors"
+                className="border-b border-secondary last:border-b-0 hover:bg-muted cursor-pointer transition-colors"
                 tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onRowClick(item.setId);
-                  }
-                }}
               >
-                <td className="py-3 px-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{item.exerciseName}</span>
-                    {item.isAlternative && (
-                      <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
-                        Alt
-                      </span>
-                    )}
-                  </div>
+                <td className="py-2 pr-2 max-w-30">
+                  <span className="text-sm">{item.exerciseName}</span>
                 </td>
-                <td className="py-3 px-2 text-right">
-                  <span className="font-semibold text-primary">
+                <td className="py-2 text-right pr-2">
+                  <span className="text-sm text-primary">
                     {item.weight.toFixed(1)} kg
                   </span>
                 </td>
-                <td className="py-3 px-2 text-right text-sm text-muted-foreground">
+                <td className="py-2 text-right text-sm">
                   {formatDate(item.dateAchieved)}
                 </td>
               </tr>
