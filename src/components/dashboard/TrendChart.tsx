@@ -1,9 +1,13 @@
 // TrendChart component - displays weight/volume trends over time
-// Simple SVG-based line chart implementation
+// Refactored to use reusable chart primitives
 
 import { useState, useMemo } from "react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { ChartContainer } from "../charts/ChartContainer";
+import { Axis } from "../charts/Axis";
+import { LineSeries } from "../charts/LineSeries";
+import { Tooltip, DefaultTooltipContent } from "../charts/Tooltip";
 import type { TrendPoint } from "../../types";
 
 export interface TrendChartProps {
@@ -19,17 +23,17 @@ export function TrendChart({
 }: TrendChartProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  // Chart dimensions
-  const width = 600;
-  const height = 300;
-  const padding = { top: 20, right: 20, bottom: 40, left: 50 };
-  const chartWidth = width - padding.left - padding.right;
-  const chartHeight = height - padding.top - padding.bottom;
+  // Chart dimensions for tooltip positioning
+  const chartWidth = 600;
+  const chartHeight = 300;
+  const padding = useMemo(() => ({ top: 20, right: 20, bottom: 40, left: 50 }), []);
+  const innerWidth = useMemo(() => chartWidth - padding.left - padding.right, [chartWidth, padding]);
+  const innerHeight = useMemo(() => chartHeight - padding.top - padding.bottom, [chartHeight, padding]);
 
-  // Compute scales
-  const { xScale, yScale, yMin, yMax } = useMemo(() => {
+  // Compute min/max for current metric
+  const { yMin, yMax } = useMemo(() => {
     if (points.length === 0) {
-      return { xScale: [], yScale: [], yMin: 0, yMax: 100 };
+      return { yMin: 0, yMax: 100 };
     }
 
     const values =
@@ -39,51 +43,32 @@ export function TrendChart({
 
     const yMin = Math.min(...values);
     const yMax = Math.max(...values);
-    const yRange = yMax - yMin || 1;
 
-    const xScale = points.map((_, i) => {
-      return padding.left + (i / (points.length - 1 || 1)) * chartWidth;
-    });
+    return { yMin, yMax };
+  }, [points, metric]);
 
-    const yScale = values.map((v) => {
-      return padding.top + chartHeight - ((v - yMin) / yRange) * chartHeight;
-    });
+  const hoveredPoint = hoveredIndex !== null ? points[hoveredIndex] : null;
 
-    return { xScale, yScale, yMin, yMax };
-  }, [points, metric, chartWidth, chartHeight, padding]);
+  // Calculate tooltip position
+  const tooltipPosition = useMemo(() => {
+    if (hoveredIndex === null || !hoveredPoint) return null;
 
-  // Generate path
-  const linePath = useMemo(() => {
-    if (xScale.length === 0) return "";
-    const pathParts = xScale.map((x, i) => {
-      const command = i === 0 ? "M" : "L";
-      return `${command} ${x} ${yScale[i]}`;
-    });
-    return pathParts.join(" ");
-  }, [xScale, yScale]);
+    const value =
+      metric === "weight"
+        ? hoveredPoint.weight || 0
+        : hoveredPoint.volume || 0;
 
-  // Generate area path (filled under line)
-  const areaPath = useMemo(() => {
-    if (xScale.length === 0) return "";
-    const bottomY = padding.top + chartHeight;
-    let path = `M ${xScale[0]} ${bottomY} `;
-    xScale.forEach((x, i) => {
-      path += `L ${x} ${yScale[i]} `;
-    });
-    path += `L ${xScale[xScale.length - 1]} ${bottomY} Z`;
-    return path;
-  }, [xScale, yScale, chartHeight, padding.top]);
+    const x = points.length <= 1
+      ? padding.left + innerWidth / 2
+      : padding.left + (hoveredIndex / (points.length - 1)) * innerWidth;
 
-  // Y-axis ticks
-  const yTicks = useMemo(() => {
-    const tickCount = 5;
-    return Array.from({ length: tickCount }, (_, i) => {
-      const value = yMin + (i / (tickCount - 1)) * (yMax - yMin);
-      const y =
-        padding.top + chartHeight - (i / (tickCount - 1)) * chartHeight;
-      return { value, y };
-    });
-  }, [yMin, yMax, chartHeight, padding.top]);
+    const y =
+      padding.top +
+      innerHeight -
+      ((value - yMin) / (yMax - yMin || 1)) * innerHeight;
+
+    return { x, y };
+  }, [hoveredIndex, hoveredPoint, points.length, yMin, yMax, metric, padding, innerWidth, innerHeight]);
 
   // Format date for display
   const formatDate = (dateStr: string) => {
@@ -98,8 +83,6 @@ export function TrendChart({
     }
     return `${Math.round(value)} kg`;
   };
-
-  const hoveredPoint = hoveredIndex !== null ? points[hoveredIndex] : null;
 
   if (points.length === 0) {
     return (
@@ -139,137 +122,84 @@ export function TrendChart({
         </div>
       </div>
 
-      {/* Chart SVG */}
+      {/* Chart */}
       <div className="relative">
-        <svg
-          width="100%"
-          height={height}
-          viewBox={`0 0 ${width} ${height}`}
-          className="overflow-visible"
+        <ChartContainer
+          height={300}
+          responsive
+          padding={{ top: 20, right: 20, bottom: 40, left: 50 }}
+          ariaLabel={`${metric === "weight" ? "Weight" : "Volume"} trend over time`}
         >
-          {/* Y-axis */}
-          <line
-            x1={padding.left}
-            y1={padding.top}
-            x2={padding.left}
-            y2={padding.top + chartHeight}
-            stroke="currentColor"
-            strokeWidth="1"
-            className="text-gray-300"
-          />
-
-          {/* Y-axis ticks and labels */}
-          {yTicks.map((tick, i) => (
-            <g key={i}>
-              <line
-                x1={padding.left - 5}
-                y1={tick.y}
-                x2={padding.left}
-                y2={tick.y}
-                stroke="currentColor"
-                strokeWidth="1"
-                className="text-gray-300"
+          {(scale) => (
+            <>
+              {/* Y-axis with grid */}
+              <Axis
+                scale={scale}
+                orientation="left"
+                min={yMin}
+                max={yMax}
+                tickCount={5}
+                showGrid
               />
-              <text
-                x={padding.left - 10}
-                y={tick.y}
-                textAnchor="end"
-                dominantBaseline="middle"
-                className="text-xs fill-gray-500"
-              >
-                {Math.round(tick.value)}
-              </text>
-              {/* Grid line */}
-              <line
-                x1={padding.left}
-                y1={tick.y}
-                x2={padding.left + chartWidth}
-                y2={tick.y}
-                stroke="currentColor"
-                strokeWidth="1"
-                className="text-gray-100"
-                strokeDasharray="2,2"
+
+              {/* X-axis */}
+              <Axis
+                scale={scale}
+                orientation="bottom"
+                min={0}
+                max={points.length - 1}
+                tickCount={Math.min(6, points.length)}
+                showGrid={false}
+                formatTick={(value) => {
+                  const index = Math.round(value);
+                  return index >= 0 && index < points.length
+                    ? formatDate(points[index].date)
+                    : "";
+                }}
               />
-            </g>
-          ))}
 
-          {/* X-axis */}
-          <line
-            x1={padding.left}
-            y1={padding.top + chartHeight}
-            x2={padding.left + chartWidth}
-            y2={padding.top + chartHeight}
-            stroke="currentColor"
-            strokeWidth="1"
-            className="text-gray-300"
-          />
-
-          {/* Area fill */}
-          <path
-            d={areaPath}
-            fill="currentColor"
-            className="text-primary opacity-10"
-          />
-
-          {/* Line */}
-          <path
-            d={linePath}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className="text-primary"
-          />
-
-          {/* Data points */}
-          {xScale.map((x, i) => (
-            <circle
-              key={i}
-              cx={x}
-              cy={yScale[i]}
-              r={hoveredIndex === i ? 6 : 4}
-              fill="currentColor"
-              className="text-primary cursor-pointer"
-              onMouseEnter={() => setHoveredIndex(i)}
-              onMouseLeave={() => setHoveredIndex(null)}
-            />
-          ))}
-
-          {/* X-axis labels (show subset to avoid crowding) */}
-          {xScale
-            .filter((_, i) => i % Math.ceil(points.length / 6) === 0)
-            .map((x, i) => {
-              const pointIndex = i * Math.ceil(points.length / 6);
-              return (
-                <text
-                  key={pointIndex}
-                  x={x}
-                  y={padding.top + chartHeight + 20}
-                  textAnchor="middle"
-                  className="text-xs fill-gray-500"
-                >
-                  {formatDate(points[pointIndex].date)}
-                </text>
-              );
-            })}
-        </svg>
+              {/* Line series with area and points */}
+              <LineSeries
+                scale={scale}
+                data={points}
+                xAccessor={(d) => d.date}
+                yAccessor={(d) =>
+                  metric === "weight" ? d.weight || 0 : d.volume || 0
+                }
+                min={yMin}
+                max={yMax}
+                showArea
+                showPoints
+                showLine
+                hoveredIndex={hoveredIndex}
+                onHoverChange={setHoveredIndex}
+                ariaLabel={`${metric === "weight" ? "Weight" : "Volume"} data points`}
+              />
+            </>
+          )}
+        </ChartContainer>
 
         {/* Tooltip */}
-        {hoveredPoint && hoveredIndex !== null && (
-          <div
-            className="absolute bg-card border border-border rounded-md shadow-lg p-2 pointer-events-none z-10"
-            style={{
-              left: `${(xScale[hoveredIndex] / width) * 100}%`,
-              top: `${(yScale[hoveredIndex] / height) * 100}%`,
-              transform: "translate(-50%, -120%)",
+        {hoveredPoint && hoveredIndex !== null && tooltipPosition && (
+          <Tooltip
+            data={{
+              datum: hoveredPoint,
+              index: hoveredIndex,
+              x: tooltipPosition.x,
+              y: tooltipPosition.y,
             }}
+            containerWidth={chartWidth}
+            containerHeight={chartHeight}
           >
-            <p className="text-xs font-medium">{formatDate(hoveredPoint.date)}</p>
-            <p className="text-xs text-primary">
-              {metric === "weight"
-                ? formatValue(hoveredPoint.weight || 0)
-                : formatValue(hoveredPoint.volume || 0)}
-            </p>
-          </div>
+            <DefaultTooltipContent
+              label={formatDate(hoveredPoint.date)}
+              value={
+                metric === "weight"
+                  ? formatValue(hoveredPoint.weight || 0)
+                  : formatValue(hoveredPoint.volume || 0)
+              }
+            />
+          </Tooltip>
         )}
       </div>
     </Card>

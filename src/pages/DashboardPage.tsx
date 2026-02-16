@@ -118,11 +118,6 @@ export function DashboardPage() {
   return (
     <>
       <SectionHeader headerTitle="Dashboard">
-        <BarChart3 className="h-5 w-5 text-primary" />
-      </SectionHeader>
-
-      <SectionMain>
-        {/* Filter Bar */}
         <FilterBar
           filters={filters}
           exercises={exercises}
@@ -130,7 +125,9 @@ export function DashboardPage() {
           onReset={resetFilters}
           errors={validation.errors}
         />
+      </SectionHeader>
 
+      <SectionMain>
         {/* Dashboard Grid */}
         {dashboardData && validation.valid && (
           <div className="space-y-4">
