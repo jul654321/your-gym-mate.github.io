@@ -21,6 +21,7 @@ interface LoggedSetsListProps {
   onCopySet: (setId: string) => void;
   onEditSet: (setId: string, set: LoggedSetDTO) => void;
   onDeleteSet: (setId: string) => void;
+  onToggleSetStatus: (setId: string) => void;
   isLoading?: boolean;
   isMutating?: boolean;
 }
@@ -72,6 +73,7 @@ function ExerciseGroup({
   onCopySet,
   onEditSet,
   onDeleteSet,
+  onToggleSetStatus,
   isMutating,
   setRefs,
 }: {
@@ -80,6 +82,7 @@ function ExerciseGroup({
   onCopySet: (setId: string) => void;
   onEditSet: (setId: string, set: LoggedSetDTO) => void;
   onDeleteSet: (setId: string) => void;
+  onToggleSetStatus: (setId: string) => void;
   isMutating?: boolean;
   setRefs: MutableRefObject<Map<string, HTMLDivElement>>;
 }) {
@@ -110,6 +113,7 @@ function ExerciseGroup({
             set={set}
             onEdit={(setId) => onEditSet(setId, set)}
             onDelete={onDeleteSet}
+            onToggleStatus={onToggleSetStatus}
             isBusy={isMutating}
           />
         ))}
@@ -124,6 +128,7 @@ export function LoggedSetsList({
   onCopySet,
   onEditSet,
   onDeleteSet,
+  onToggleSetStatus,
   isLoading = false,
   isMutating = false,
 }: LoggedSetsListProps) {
@@ -236,6 +241,7 @@ export function LoggedSetsList({
                 onCopySet={onCopySet}
                 onEditSet={onEditSet}
                 onDeleteSet={onDeleteSet}
+            onToggleSetStatus={onToggleSetStatus}
                 isMutating={isMutating}
                 setRefs={setRefs}
               />

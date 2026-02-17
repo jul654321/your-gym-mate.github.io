@@ -158,11 +158,14 @@ export interface AlternativeSnapshotDTO {
 
 export type WeightUnit = "kg" | "lb";
 
+export type LoggedSetStatus = "pending" | "completed" | "skipped";
+
 export interface LoggedSetDTO {
   id: UUID;
   sessionId: UUID; // FK to sessions.id
   exerciseId: UUID; // primary exercise id
   exerciseNameSnapshot?: string; // denormalized name for fast UI
+  status?: LoggedSetStatus;
   timestamp: EpochMs; // epoch ms
   weight: number;
   weightUnit?: WeightUnit;
@@ -179,13 +182,20 @@ export interface LoggedSetDTO {
 }
 
 // LoggedSet commands: creation must include required fields and populate exerciseIds
-export type CreateLoggedSetCmd = LoggedSetDTO;
+export type CreateLoggedSetCmd = LoggedSetDTO & {
+  status: Exclude<LoggedSetStatus, "skipped">;
+};
 export type UpdateLoggedSetCmd = { id: UUID } & Partial<
   Omit<LoggedSetDTO, "id" | "createdAt">
 >;
 export type DeleteLoggedSetCmd = { id: UUID };
 
-export type SetType = "warmup" | "main" | "drop set";
+export type SetType =
+  | "warmup"
+  | "main"
+  | "drop"
+  | "drop set"
+  | "accessory";
 
 // Quick add command (optimistic quick-add flow). Caller typically pre-fills id, createdAt,
 // timestamp, and weight/reps; hooks may use useGetLastSetForExercise to prepopulate.

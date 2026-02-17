@@ -44,6 +44,7 @@ export interface SessionViewModel {
     copySet: (setId: string) => void;
     deleteSet: (setId: string) => void;
     updateSet: (setId: string, set: LoggedSetDTO) => void;
+    toggleSetStatus: (setId: string) => void;
   };
 }
 
@@ -321,6 +322,7 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
         weightUnit: DEFAULT_WEIGHT_UNIT,
         reps: 1,
         setType: "main",
+        status: "pending",
         timestamp: now,
         createdAt: now,
         exerciseIds: [exerciseId],
@@ -339,6 +341,11 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
 
       if (!set) return;
 
+      const exerciseIds = [set.exerciseId];
+      if (set.alternative?.exerciseId) {
+        exerciseIds.push(set.alternative.exerciseId);
+      }
+
       const payload: CreateLoggedSetCmd = {
         id: crypto.randomUUID() as UUID,
         sessionId,
@@ -348,9 +355,10 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
         weightUnit: set.weightUnit ?? DEFAULT_WEIGHT_UNIT,
         reps: set.reps ?? 1,
         setType: set.setType ?? "main",
+        status: "pending",
         timestamp: Date.now(),
         createdAt: Date.now(),
-        exerciseIds: [set.exerciseId],
+        exerciseIds,
       };
       createLoggedSet.mutate(payload);
     },
@@ -373,6 +381,24 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
     [sessionId, updateLoggedSet]
   );
 
+  const toggleSetStatus = useCallback(
+    (setId: string) => {
+      if (!sessionId) return;
+
+      const targetSet = accumulatedSets.find((s) => s.id === setId);
+      if (!targetSet) {
+        return;
+      }
+
+      const currentStatus = targetSet.status ?? "pending";
+      const nextStatus =
+        currentStatus === "completed" ? "pending" : "completed";
+
+      updateLoggedSet.mutate({ id: setId, status: nextStatus });
+    },
+    [sessionId, accumulatedSets, updateLoggedSet]
+  );
+
   return {
     session: sessionQuery.data,
     groupedExercises,
@@ -389,6 +415,7 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
       copySet,
       deleteSet,
       updateSet,
+      toggleSetStatus,
     },
   };
 }

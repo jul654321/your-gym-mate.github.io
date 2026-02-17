@@ -5,6 +5,7 @@ import { cn } from "../../lib/utils/cn";
 type ButtonVariant =
   | "primary"
   | "secondary"
+  | "success"
   | "ghost"
   | "outline"
   | "link"
@@ -18,6 +19,8 @@ const variantStyles: Record<ButtonVariant, string> = {
     "bg-primary text-primary-foreground hover:bg-primary-dark focus-visible:ring-primary/70 focus-visible:ring-offset-2 cursor-pointer",
   secondary:
     "bg-secondary text-secondary-foreground hover:bg-secondary focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
+  success:
+    "bg-secondary text-emerald-500 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 cursor-pointer",
   ghost:
     "bg-transparent text-muted-foreground focus-visible:ring-slate-200 focus-visible:ring-offset-2 cursor-pointer",
   outline:

@@ -1,4 +1,4 @@
-import { Book, Copy, Pencil, Trash2 } from "lucide-react";
+import { Book, Check, Copy, Pencil, Trash2 } from "lucide-react";
 import { forwardRef, useState } from "react";
 import { usePlanExercise } from "../../hooks";
 import type { LoggedSetDTO } from "../../types";
@@ -11,12 +11,13 @@ interface LoggedSetRowProps {
   onEdit: (setId: string, set: LoggedSetDTO) => void;
   onDelete: (setId: string) => void;
   onCopy: (setId: string) => void;
+  onToggleStatus: (setId: string) => void;
   isBusy?: boolean;
 }
 
 export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
   function LoggedSetRow(
-    { set, onEdit, onDelete, onCopy, isBusy = false },
+    { set, onEdit, onDelete, onCopy, onToggleStatus, isBusy = false },
     ref
   ) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -25,29 +26,65 @@ export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
     const primaryLabel =
       set.setIndex != null ? `Set ${set.setIndex + 1}` : "Set";
 
+    const statusLabel = set.status ?? "pending";
+    const isCompleted = statusLabel === "completed";
+
+    const guideLinks = planExercise?.guideLinks ?? [];
+    const hasGuideLinks = guideLinks.length > 0;
+    const guideLabel = hasGuideLinks
+      ? `${guideLinks.length} guide${guideLinks.length === 1 ? "" : "s"}`
+      : null;
+
     const formattedWeight = `${(set.weight ?? 0).toLocaleString()} ${
       set.weightUnit ?? "kg"
     }`;
 
+    const handleGuideClick = () => {
+      if (!hasGuideLinks) return;
+      const url = guideLinks[0].url;
+      if (!url) return;
+      if (typeof window !== "undefined") {
+        window.open(url, "_blank", "noopener");
+      }
+    };
+
     return (
       <div ref={ref} className="flex flex-col gap-3">
         <Card>
-          <div className="flex justify-between items-center gap-3">
-            <div className="flex-1 overflow-hidden">
-              <p className="max-w-full text-sm text-foreground whitespace-nowrap overflow-hidden text-ellipsis">
-                <span className="capitalize font-bold">{set.setType}</span>:{" "}
-                {formattedWeight} × {set.reps ?? 0}
-              </p>
-              {set.alternative && (
-                <p className="max-w-full text-xs text-primary whitespace-nowrap overflow-hidden text-ellipsis">
-                  Alt: {set.alternative.nameSnapshot ?? "Alternative"} ·{" "}
-                  {(set.alternative.weight ?? 0).toLocaleString()}{" "}
-                  {set.weightUnit ?? "kg"} × {set.alternative.reps ?? 0}
-                </p>
-              )}
+          <div className="flex justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="flex-1 overflow-hidden">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-foreground capitalize truncate">
+                    {set.setType}: {formattedWeight} × {set.reps ?? 0}
+                  </p>
+                </div>
+                {guideLabel && (
+                  <p className="text-xs text-foreground/70">{guideLabel}</p>
+                )}
+                {set.alternative && (
+                  <p className="text-xs font-medium text-primary">
+                    Alt: {set.alternative.nameSnapshot ?? "Alternative"} ·{" "}
+                    {(set.alternative.weight ?? 0).toLocaleString()}{" "}
+                    {set.weightUnit ?? "kg"} × {set.alternative.reps ?? 0}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="flex gap-2">
+              <Button
+                size="icon-small"
+                variant={isCompleted ? "success" : "secondary"}
+                onClick={() => onToggleStatus(set.id)}
+                disabled={isBusy}
+              >
+                <Check
+                  className="h-4 w-4"
+                  aria-hidden
+                  data-state={statusLabel}
+                />
+              </Button>
               <Button
                 size="icon-small"
                 variant="secondary"
@@ -75,8 +112,14 @@ export const LoggedSetRow = forwardRef<HTMLDivElement, LoggedSetRowProps>(
               >
                 <Trash2 className="h-4 w-4" aria-hidden />
               </Button>
-              {!!planExercise?.guideLinks?.length && (
-                <Button size="icon-small" variant="ghost" onClick={() => {}}>
+              {hasGuideLinks && (
+                <Button
+                  size="icon-small"
+                  variant="ghost"
+                  onClick={handleGuideClick}
+                  aria-label={`Open guide links for ${primaryLabel}`}
+                  disabled={isBusy}
+                >
                   <Book className="h-4 w-4" aria-hidden />
                 </Button>
               )}

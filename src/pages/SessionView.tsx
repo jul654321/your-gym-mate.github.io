@@ -93,6 +93,10 @@ export function SessionView() {
     actions.deleteSet(setId);
   };
 
+  const handleToggleSetStatus = (setId: string) => {
+    actions.toggleSetStatus(setId);
+  };
+
   return (
     <>
       <SessionHeader
@@ -108,6 +112,7 @@ export function SessionView() {
           onCopySet={handleCopySet}
           onEditSet={handleEditSet}
           onDeleteSet={handleDeleteSet}
+          onToggleSetStatus={handleToggleSetStatus}
           isLoading={loadingSets}
           isMutating={isMutating}
         />
