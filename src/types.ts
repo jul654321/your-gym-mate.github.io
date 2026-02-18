@@ -65,7 +65,7 @@ export interface PlanExerciseAlternativeDefaultsDTO {
   notes?: string;
 }
 
-export type WorkoutType = "Cardio" | "HighIntensity" | "Strength";
+export type WorkoutType = "Cardio" | "HighIntensity" | "Strength" | "Mobility";
 
 export interface PlanDTO {
   id: UUID;
@@ -190,12 +190,7 @@ export type UpdateLoggedSetCmd = { id: UUID } & Partial<
 >;
 export type DeleteLoggedSetCmd = { id: UUID };
 
-export type SetType =
-  | "warmup"
-  | "main"
-  | "drop"
-  | "drop set"
-  | "accessory";
+export type SetType = "warmup" | "main" | "drop" | "drop set" | "accessory";
 
 // Quick add command (optimistic quick-add flow). Caller typically pre-fills id, createdAt,
 // timestamp, and weight/reps; hooks may use useGetLastSetForExercise to prepopulate.
@@ -346,6 +341,7 @@ export interface TrendPoint {
   date: string; // ISO date
   weight?: number; // aggregated (max or avg)
   volume?: number; // aggregated sum(weight*reps)
+  reps?: number; // aggregated sum(reps)
 }
 
 export interface VolumePoint {

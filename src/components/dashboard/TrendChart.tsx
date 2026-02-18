@@ -12,8 +12,8 @@ import type { TrendPoint } from "../../types";
 
 export interface TrendChartProps {
   points: TrendPoint[];
-  metric: "weight" | "volume";
-  onMetricChange: (metric: "weight" | "volume") => void;
+  metric: "weight" | "volume" | "reps";
+  onMetricChange: (metric: "weight" | "volume" | "reps") => void;
 }
 
 export function TrendChart({
@@ -26,9 +26,18 @@ export function TrendChart({
   // Chart dimensions for tooltip positioning
   const chartWidth = 600;
   const chartHeight = 300;
-  const padding = useMemo(() => ({ top: 20, right: 20, bottom: 40, left: 50 }), []);
-  const innerWidth = useMemo(() => chartWidth - padding.left - padding.right, [chartWidth, padding]);
-  const innerHeight = useMemo(() => chartHeight - padding.top - padding.bottom, [chartHeight, padding]);
+  const padding = useMemo(
+    () => ({ top: 20, right: 20, bottom: 40, left: 50 }),
+    []
+  );
+  const innerWidth = useMemo(
+    () => chartWidth - padding.left - padding.right,
+    [chartWidth, padding]
+  );
+  const innerHeight = useMemo(
+    () => chartHeight - padding.top - padding.bottom,
+    [chartHeight, padding]
+  );
 
   // Compute min/max for current metric
   const { yMin, yMax } = useMemo(() => {
@@ -39,6 +48,8 @@ export function TrendChart({
     const values =
       metric === "weight"
         ? points.map((p) => p.weight || 0)
+        : metric === "reps"
+        ? points.map((p) => p.reps || 0)
         : points.map((p) => p.volume || 0);
 
     const computedMax = Math.max(...values);
@@ -57,11 +68,14 @@ export function TrendChart({
     const value =
       metric === "weight"
         ? hoveredPoint.weight || 0
+        : metric === "reps"
+        ? hoveredPoint.reps || 0
         : hoveredPoint.volume || 0;
 
-    const x = points.length <= 1
-      ? padding.left + innerWidth / 2
-      : padding.left + (hoveredIndex / (points.length - 1)) * innerWidth;
+    const x =
+      points.length <= 1
+        ? padding.left + innerWidth / 2
+        : padding.left + (hoveredIndex / (points.length - 1)) * innerWidth;
 
     const y =
       padding.top +
@@ -69,7 +83,17 @@ export function TrendChart({
       ((value - yMin) / (yMax - yMin || 1)) * innerHeight;
 
     return { x, y };
-  }, [hoveredIndex, hoveredPoint, points.length, yMin, yMax, metric, padding, innerWidth, innerHeight]);
+  }, [
+    hoveredIndex,
+    hoveredPoint,
+    points.length,
+    yMin,
+    yMax,
+    metric,
+    padding,
+    innerWidth,
+    innerHeight,
+  ]);
 
   // Format date for display
   const formatDate = (dateStr: string) => {
@@ -82,6 +106,9 @@ export function TrendChart({
     if (metric === "weight") {
       return `${value.toFixed(1)} kg`;
     }
+    if (metric === "reps") {
+      return `${Math.round(value)} reps`;
+    }
     return `${Math.round(value)} kg`;
   };
 
@@ -90,9 +117,7 @@ export function TrendChart({
       <Card className="flex items-center justify-center h-80">
         <div className="text-center text-muted-foreground">
           <p className="text-lg font-medium">No data available</p>
-          <p className="text-sm mt-1">
-            Adjust your filters to see trend data
-          </p>
+          <p className="text-sm mt-1">Adjust your filters to see trend data</p>
         </div>
       </Card>
     );
@@ -103,18 +128,30 @@ export function TrendChart({
       {/* Header with metric toggle */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">
-          {metric === "weight" ? "Weight" : "Volume"} Trend
+          {metric === "weight"
+            ? "Weight"
+            : metric === "reps"
+            ? "Reps"
+            : "Volume"}{" "}
+          Trend
         </h3>
         <div className="flex gap-2">
           <Button
-            variant={metric === "weight" ? "primary" : "outline"}
+            variant={metric === "weight" ? "primary" : "secondary"}
             size="sm"
             onClick={() => onMetricChange("weight")}
           >
             Weight
           </Button>
           <Button
-            variant={metric === "volume" ? "primary" : "outline"}
+            variant={metric === "reps" ? "primary" : "secondary"}
+            size="sm"
+            onClick={() => onMetricChange("reps")}
+          >
+            Reps
+          </Button>
+          <Button
+            variant={metric === "volume" ? "primary" : "secondary"}
             size="sm"
             onClick={() => onMetricChange("volume")}
           >
@@ -129,7 +166,13 @@ export function TrendChart({
           height={300}
           responsive
           padding={{ top: 20, right: 20, bottom: 40, left: 50 }}
-          ariaLabel={`${metric === "weight" ? "Weight" : "Volume"} trend over time`}
+          ariaLabel={`${
+            metric === "weight"
+              ? "Weight"
+              : metric === "reps"
+              ? "Reps"
+              : "Volume"
+          } trend over time`}
         >
           {(scale) => (
             <>
@@ -165,7 +208,11 @@ export function TrendChart({
                 data={points}
                 xAccessor={(d) => d.date}
                 yAccessor={(d) =>
-                  metric === "weight" ? d.weight || 0 : d.volume || 0
+                  metric === "weight"
+                    ? d.weight || 0
+                    : metric === "reps"
+                    ? d.reps || 0
+                    : d.volume || 0
                 }
                 min={yMin}
                 max={yMax}
@@ -174,7 +221,13 @@ export function TrendChart({
                 showLine
                 hoveredIndex={hoveredIndex}
                 onHoverChange={setHoveredIndex}
-                ariaLabel={`${metric === "weight" ? "Weight" : "Volume"} data points`}
+                ariaLabel={`${
+                  metric === "weight"
+                    ? "Weight"
+                    : metric === "reps"
+                    ? "Reps"
+                    : "Volume"
+                } data points`}
               />
             </>
           )}

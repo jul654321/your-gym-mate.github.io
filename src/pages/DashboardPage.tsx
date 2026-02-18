@@ -18,7 +18,9 @@ import { useDashboardData, useDashboardFilters, useExercises } from "../hooks";
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const [trendMetric, setTrendMetric] = useState<"weight" | "volume">("volume");
+  const [trendMetric, setTrendMetric] = useState<"weight" | "volume" | "reps">(
+    "volume"
+  );
 
   // Get filters with URL sync and validation
   const { filters, setFilters, resetFilters, validation } =

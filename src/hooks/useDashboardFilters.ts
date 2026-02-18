@@ -7,7 +7,7 @@ import type { DashboardFilters, DatePreset } from "../types";
 
 const DEFAULT_FILTERS: DashboardFilters = {
   exerciseIds: [],
-  includeAlternatives: true,
+  includeAlternatives: false,
   preset: "30d",
 };
 

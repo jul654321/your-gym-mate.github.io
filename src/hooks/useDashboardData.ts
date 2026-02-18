@@ -53,7 +53,7 @@ async function computeTrendPoints(
 
   const statsBySession = new Map<
     string,
-    { maxWeight: number; totalVolume: number }
+    { maxWeight: number; totalVolume: number; totalReps: number }
   >();
 
   for (const set of sets) {
@@ -62,10 +62,12 @@ async function computeTrendPoints(
     if (existing) {
       existing.maxWeight = Math.max(existing.maxWeight, set.weight);
       existing.totalVolume += volume;
+      existing.totalReps += set.reps;
     } else {
       statsBySession.set(set.sessionId, {
         maxWeight: set.weight,
         totalVolume: volume,
+        totalReps: set.reps,
       });
     }
   }
@@ -77,7 +79,7 @@ async function computeTrendPoints(
 
   const pointsByDate = new Map<
     string,
-    { maxWeight: number; totalVolume: number }
+    { maxWeight: number; totalVolume: number; totalReps: number }
   >();
 
   for (const session of sessions) {
@@ -105,6 +107,7 @@ async function computeTrendPoints(
       date,
       weight: stats.maxWeight,
       volume: stats.totalVolume,
+      reps: stats.totalReps,
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
 }

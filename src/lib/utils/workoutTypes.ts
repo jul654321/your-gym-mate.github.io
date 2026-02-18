@@ -5,12 +5,14 @@ export const WORKOUT_TYPE_SELECT_OPTIONS: { value: string; label: string }[] = [
   { value: "Cardio", label: "Cardio" },
   { value: "HighIntensity", label: "High-intensity training" },
   { value: "Strength", label: "Strength training" },
+  { value: "Mobility", label: "Mobility" },
 ];
 
 const WORKOUT_TYPE_LABELS: Record<WorkoutType, string> = {
   Cardio: "Cardio",
   HighIntensity: "High-intensity",
   Strength: "Strength",
+  Mobility: "Mobility",
 };
 
 export function getWorkoutTypeLabel(
