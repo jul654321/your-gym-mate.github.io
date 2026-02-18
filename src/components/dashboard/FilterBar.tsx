@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { getWeekdayShortName } from "../../lib/utils/weekdays";
 
 export interface FilterBarProps {
   filters: DashboardFilters;
@@ -164,7 +165,7 @@ export function FilterBar({
                           }
                         />
                         <span className="text-sm flex-1 text-muted-foreground">
-                          {plan.name}
+                          {plan.name} - {getWeekdayShortName(plan.weekday)}
                         </span>
                       </label>
                     ))}
