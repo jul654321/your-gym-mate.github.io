@@ -105,26 +105,34 @@ export function LineSeries<T>({
       {/* Data points */}
       {showPoints &&
         positions.map((pos, i) => (
-          <circle
-            key={`${seriesId}-point-${i}`}
-            cx={pos.x}
-            cy={pos.y}
-            r={hoveredIndex === i ? 6 : 4}
-            fill="currentColor"
-            className={`${className} cursor-pointer transition-all`}
-            onMouseEnter={() => handlePointHover(i)}
-            onMouseLeave={handlePointLeave}
-            onClick={() => handlePointClick(i)}
-            tabIndex={0}
-            role="button"
-            aria-label={`Data point ${i + 1}: ${yValues[i]}`}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                handlePointClick(i);
-              }
-            }}
-          />
+          <g className="relative" key={`${seriesId}-point-${i}`}>
+            <circle
+              cx={pos.x}
+              cy={pos.y}
+              r={16}
+              fill="transparent"
+              className="absolute z-10 left-[-8px] top-[-8px] cursor-pointer transition-all"
+              tabIndex={0}
+              role="button"
+              aria-label={`Data point ${i + 1}: ${yValues[i]}`}
+              onMouseEnter={() => handlePointHover(i)}
+              onMouseLeave={handlePointLeave}
+              onClick={() => handlePointClick(i)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handlePointClick(i);
+                }
+              }}
+            />
+            <circle
+              cx={pos.x}
+              cy={pos.y}
+              r={hoveredIndex === i ? 6 : 4}
+              fill="currentColor"
+              className={`${className} z-9 cursor-pointer transition-all`}
+            />
+          </g>
         ))}
     </g>
   );
