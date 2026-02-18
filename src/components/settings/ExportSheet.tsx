@@ -34,7 +34,7 @@ function getDateRangeFromPreset(preset: DatePresetValue) {
 
 export function ExportSheet({ isOpen, onClose }: ExportSheetProps) {
   const [preset, setPreset] = useState<DatePresetValue>("all");
-  const [includeAlternatives, setIncludeAlternatives] = useState(true);
+  const [includeAlternatives, setIncludeAlternatives] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [rowCount, setRowCount] = useState(0);
   const [error, setError] = useState<string | null>(null);

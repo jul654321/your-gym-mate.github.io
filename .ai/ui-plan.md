@@ -138,11 +138,11 @@ Overview: maps each view to purpose, hooks, data flow, components, optimistic pa
 
 - Path: `/dashboard`
 - Purpose: filterable analytics: PR table, trend lines, per-session volume bars.
-- Key info: filters (exercise multi-select, includeAlternatives toggle, date presets/custom range, min/max weight/reps), chart area, PR list, totals.
+- Key info: filters (workout plan multi-select, exercise multi-select, includeAlternatives toggle, date presets/custom range, min/max weight/reps), chart area, PR list, totals.
 - Data hooks used: `useExercises()`, `useComputePR(exerciseId, filters)`, `useComputeVolume(filters)`, `useSettings('includeAlternatives')`.
 - Data flow: filters debounced (150–300ms) → streaming aggregate hooks recompute using indexedDB cursors → update charts/tables progressively; show skeleton / progressive loading.
 - Loading/error: show spinner/skeleton in charts while streaming; errors show friendly message with Retry.
-- Key components: `FilterBar`, `TrendChart`, `PRTable`, `VolumeBarChart`, `DebouncedFilterInputs`.
+- Key components: `FilterBar` (includes workout plan multi-select), `TrendChart`, `PRTable`, `VolumeBarChart`, `DebouncedFilterInputs`.
 - Optimistic patterns: none for aggregates — they reflect persisted data; when sets change elsewhere, recompute invalidates and refreshes.
 - Accessibility & UX: charts with accessible annotations, table rows keyboard focusable, legend and toggle controls keyboard operable.
 
@@ -567,7 +567,7 @@ Performance considerations
 - US-013 View statistics dashboard
   - UI: Dashboard. Hooks: `useComputeVolume`, `useComputePR`.
 - US-014 Dashboard filters
-  - UI: FilterBar with debounced inputs. Hooks: compute hooks; filters passed as params.
+  - UI: FilterBar with workout plan multi-select plus debounced inputs. Hooks: compute hooks; filters passed as params.
 - US-015 PR calculation
   - UI: PRTable on Dashboard. Hooks: `useComputePR`.
 - US-016 Aggregate volume

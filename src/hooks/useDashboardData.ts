@@ -252,6 +252,7 @@ async function fetchFilteredSets(
   db: Awaited<ReturnType<typeof getDB>>
 ): Promise<LoggedSetDTO[]> {
   let sets: LoggedSetDTO[];
+  let sessionIdsByDate: Set<string> | null = null;
 
   if (filters.dateFrom || filters.dateTo) {
     const sessionTx = db.transaction(STORE_NAMES.sessions, "readonly");
@@ -277,16 +278,51 @@ async function fetchFilteredSets(
     }
 
     const sessionsInRange = await index.getAll(range);
-    const sessionIds = new Set(sessionsInRange.map((session) => session.id));
-    if (sessionIds.size === 0) {
+    sessionIdsByDate = new Set(sessionsInRange.map((session) => session.id));
+    if (sessionIdsByDate.size === 0) {
       return [];
     }
+  }
 
+  let sessionIdsByPlan: Set<string> | null = null;
+  if (filters.planIds.length > 0) {
+    const planSessionTx = db.transaction(STORE_NAMES.sessions, "readonly");
+    const planSessionStore = planSessionTx.objectStore(STORE_NAMES.sessions);
+    const planIndex = planSessionStore.index("sourcePlanId");
+
+    const sessionsByPlan = await Promise.all(
+      filters.planIds.map((planId) => planIndex.getAll(planId))
+    );
+    const planSessionIds = sessionsByPlan.flat().map((session) => session.id);
+    sessionIdsByPlan = new Set(planSessionIds);
+    if (sessionIdsByPlan.size === 0) {
+      return [];
+    }
+  }
+
+  let targetSessionIds: Set<string> | null = null;
+  if (sessionIdsByDate && sessionIdsByPlan) {
+    const intersection = new Set(
+      Array.from(sessionIdsByDate).filter((id) => sessionIdsByPlan!.has(id))
+    );
+    if (intersection.size === 0) {
+      return [];
+    }
+    targetSessionIds = intersection;
+  } else if (sessionIdsByDate) {
+    targetSessionIds = sessionIdsByDate;
+  } else if (sessionIdsByPlan) {
+    targetSessionIds = sessionIdsByPlan;
+  }
+
+  if (targetSessionIds) {
     const loggedSetsTx = db.transaction(STORE_NAMES.loggedSets, "readonly");
     const loggedSetsStore = loggedSetsTx.objectStore(STORE_NAMES.loggedSets);
     const sessionIndex = loggedSetsStore.index("sessionId");
     const setsBySession = await Promise.all(
-      Array.from(sessionIds).map((sessionId) => sessionIndex.getAll(sessionId))
+      Array.from(targetSessionIds).map((sessionId) =>
+        sessionIndex.getAll(sessionId)
+      )
     );
     sets = setsBySession.flat();
   } else {

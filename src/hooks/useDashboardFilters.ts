@@ -7,6 +7,7 @@ import type { DashboardFilters, DatePreset } from "../types";
 
 const DEFAULT_FILTERS: DashboardFilters = {
   exerciseIds: [],
+  planIds: [],
   includeAlternatives: false,
   preset: "30d",
 };
@@ -123,9 +124,11 @@ export function useDashboardFilters() {
     const preset = (searchParams.get("preset") as DatePreset) || "30d";
     const includeAlternatives =
       searchParams.get("includeAlternatives") !== "false";
+    const planIdsParam = searchParams.get("plans");
 
     const filters: DashboardFilters = {
       exerciseIds: exerciseIdsParam ? exerciseIdsParam.split(",") : [],
+      planIds: planIdsParam ? planIdsParam.split(",") : [],
       includeAlternatives,
       preset,
       dateFrom: searchParams.get("from") || undefined,
@@ -177,6 +180,14 @@ export function useDashboardFilters() {
           newParams.set("exercises", updates.exerciseIds.join(","));
         } else {
           newParams.delete("exercises");
+        }
+      }
+
+      if (updates.planIds !== undefined) {
+        if (updates.planIds.length > 0) {
+          newParams.set("plans", updates.planIds.join(","));
+        } else {
+          newParams.delete("plans");
         }
       }
 
@@ -264,8 +275,12 @@ export function useDashboardFilters() {
 
   // Reset filters to defaults
   const resetFilters = useCallback(() => {
-    setSearchParams(new URLSearchParams(), { replace: true });
-  }, [setSearchParams]);
+    setSearchParams(
+      new URLSearchParams(Object.fromEntries(Object.entries(DEFAULT_FILTERS))),
+      { replace: true }
+    );
+    setDebouncedFilters(DEFAULT_FILTERS);
+  }, [setSearchParams, setDebouncedFilters]);
 
   // Validation
   const validation = useMemo(

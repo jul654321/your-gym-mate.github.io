@@ -14,7 +14,12 @@ import {
 import { SectionHeader } from "../components/layouts/SectionHeader";
 import { SectionMain } from "../components/layouts/SectionMain";
 import { Button } from "../components/ui/button";
-import { useDashboardData, useDashboardFilters, useExercises } from "../hooks";
+import {
+  useDashboardData,
+  useDashboardFilters,
+  useExercises,
+  usePlans,
+} from "../hooks";
 
 export function DashboardPage() {
   const navigate = useNavigate();
@@ -31,6 +36,10 @@ export function DashboardPage() {
     sort: "name",
   });
 
+  const { data: plans = [], isLoading: plansLoading } = usePlans({
+    sort: "name",
+  });
+
   // Fetch dashboard data based on filters
   const {
     data: dashboardData,
@@ -38,7 +47,7 @@ export function DashboardPage() {
     error: dataError,
   } = useDashboardData(filters);
 
-  const isLoading = exercisesLoading || dataLoading;
+  const isLoading = exercisesLoading || dataLoading || plansLoading;
 
   // Navigate to session detail when clicking PR row or volume bar
   const handleNavigateToSession = (sessionId: string) => {
@@ -112,6 +121,7 @@ export function DashboardPage() {
         <FilterBar
           filters={filters}
           exercises={exercises}
+          plans={plans}
           onChange={setFilters}
           onReset={resetFilters}
           errors={validation.errors}

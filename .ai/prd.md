@@ -248,6 +248,7 @@ US-014
 
 1.  Filters apply immediately and update charts/tables.
 2.  Preset date ranges available: 7d, 30d, 90d, All plus custom range.
+3.  Workout Plan multi-select scopes charts/tables to sessions instantiated from the selected plans.
 
 US-015
 

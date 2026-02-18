@@ -1,6 +1,11 @@
 import { Filter, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import type { DashboardFilters, DatePreset, ExerciseDTO } from "../../types";
+import type {
+  DashboardFilters,
+  DatePreset,
+  ExerciseDTO,
+  PlanDTO,
+} from "../../types";
 import { Modal } from "../shared/Modal";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -10,6 +15,7 @@ import { Label } from "../ui/label";
 export interface FilterBarProps {
   filters: DashboardFilters;
   exercises: ExerciseDTO[];
+  plans: PlanDTO[];
   onChange: (filtersForm: Partial<DashboardFilters>) => void;
   onReset: () => void;
   errors?: string[];
@@ -26,6 +32,7 @@ const DATE_PRESETS: { value: DatePreset; label: string }[] = [
 export function FilterBar({
   filters,
   exercises,
+  plans,
   onChange,
   onReset,
   errors = [],
@@ -33,6 +40,7 @@ export function FilterBar({
   const [filtersForm, setFiltersForm] = useState(filters);
   const [isExerciseDropdownOpen, setIsExerciseDropdownOpen] = useState(false);
   const [exerciseSearchQuery, setExerciseSearchQuery] = useState("");
+  const [planSearchQuery, setPlanSearchQuery] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Filter exercises by search query
@@ -41,6 +49,12 @@ export function FilterBar({
     const query = exerciseSearchQuery.toLowerCase();
     return exercises.filter((ex) => ex.name.toLowerCase().includes(query));
   }, [exercises, exerciseSearchQuery]);
+
+  const filteredPlans = useMemo(() => {
+    if (!planSearchQuery) return plans;
+    const query = planSearchQuery.toLowerCase();
+    return plans.filter((plan) => plan.name.toLowerCase().includes(query));
+  }, [plans, planSearchQuery]);
 
   // Selected exercises display
   const isCustomDate = filtersForm.preset === "custom";
@@ -64,7 +78,10 @@ export function FilterBar({
             <Button
               key="reset"
               variant="ghost"
-              onClick={onReset}
+              onClick={() => {
+                onReset();
+                setIsExpanded(false);
+              }}
               className="mr-2"
             >
               Reset
@@ -73,8 +90,8 @@ export function FilterBar({
               key="apply"
               variant="primary"
               onClick={() => {
-                setIsExpanded(false);
                 onChange(filtersForm);
+                setIsExpanded(false);
               }}
             >
               Apply
@@ -82,6 +99,80 @@ export function FilterBar({
           ]}
         >
           <div className="flex flex-col gap-4">
+            {/* Workout Plan Multi-Select */}
+            <div className="space-y-2">
+              <Label htmlFor="plan-search">Workout Plans</Label>
+              <Input
+                id="plan-search"
+                placeholder="Search plans..."
+                value={planSearchQuery}
+                onChange={(event) => setPlanSearchQuery(event.target.value)}
+                className="h-9"
+              />
+              <div className="overflow-y-auto max-h-48">
+                {filteredPlans.length === 0 ? (
+                  <div className="p-4 text-sm text-muted-foreground text-center">
+                    No plans available
+                  </div>
+                ) : (
+                  <>
+                    <Label className="flex items-center gap-3 px-4 py-2 hover:bg-muted cursor-pointer">
+                      <Checkbox
+                        checked={
+                          filteredPlans.length > 0 &&
+                          filteredPlans.every((plan) =>
+                            filtersForm.planIds.includes(plan.id)
+                          )
+                        }
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ) =>
+                          event.target.checked
+                            ? setFiltersForm({
+                                ...filtersForm,
+                                planIds: filteredPlans.map((plan) => plan.id),
+                              })
+                            : setFiltersForm({
+                                ...filtersForm,
+                                planIds: [],
+                              })
+                        }
+                      />
+                      <span className="text-sm text-bold flex-1 text-muted-foreground">
+                        Select all
+                      </span>
+                    </Label>
+                    {filteredPlans.map((plan) => (
+                      <label
+                        key={plan.id}
+                        className="flex items-center gap-3 px-4 py-2 hover:bg-muted cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={filtersForm.planIds.includes(plan.id)}
+                          onChange={(event) =>
+                            event.target.checked
+                              ? setFiltersForm({
+                                  ...filtersForm,
+                                  planIds: [...filtersForm.planIds, plan.id],
+                                })
+                              : setFiltersForm({
+                                  ...filtersForm,
+                                  planIds: filtersForm.planIds.filter(
+                                    (id) => id !== plan.id
+                                  ),
+                                })
+                          }
+                        />
+                        <span className="text-sm flex-1 text-muted-foreground">
+                          {plan.name}
+                        </span>
+                      </label>
+                    ))}
+                  </>
+                )}
+              </div>
+            </div>
+
             {/* Exercise Multi-Select */}
             <div className="space-y-2">
               <Label htmlFor="exercise-select">Exercises</Label>

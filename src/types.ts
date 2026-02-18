@@ -327,6 +327,7 @@ export type DatePreset = "7d" | "30d" | "90d" | "all" | "custom";
 
 export interface DashboardFilters {
   exerciseIds: UUID[]; // selected exercise ids (empty = all)
+  planIds: UUID[]; // selected plan ids (empty = all)
   includeAlternatives: boolean; // default true
   dateFrom?: string; // ISO date string
   dateTo?: string; // ISO date string
