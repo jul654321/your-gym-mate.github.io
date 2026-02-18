@@ -10,6 +10,31 @@ import { LineSeries } from "../charts/LineSeries";
 import { Tooltip, DefaultTooltipContent } from "../charts/Tooltip";
 import type { TrendPoint } from "../../types";
 
+function getMetricValue(
+  point: TrendPoint,
+  metric: "weight" | "volume" | "reps"
+): number {
+  switch (metric) {
+    case "weight":
+      return point.weight ?? 0;
+    case "reps":
+      return point.reps ?? 0;
+    case "volume":
+      return point.volume ?? 0;
+  }
+}
+
+function getMetricLabel(metric: "weight" | "volume" | "reps"): string {
+  switch (metric) {
+    case "weight":
+      return "Weight";
+    case "reps":
+      return "Reps";
+    case "volume":
+      return "Volume";
+  }
+}
+
 export interface TrendChartProps {
   points: TrendPoint[];
   metric: "weight" | "volume" | "reps";
@@ -45,12 +70,7 @@ export function TrendChart({
       return { yMin: 0, yMax: 100 };
     }
 
-    const values =
-      metric === "weight"
-        ? points.map((p) => p.weight || 0)
-        : metric === "reps"
-        ? points.map((p) => p.reps || 0)
-        : points.map((p) => p.volume || 0);
+    const values = points.map((p) => getMetricValue(p, metric));
 
     const computedMax = Math.max(...values);
     const yMin = 0;
@@ -65,12 +85,7 @@ export function TrendChart({
   const tooltipPosition = useMemo(() => {
     if (hoveredIndex === null || !hoveredPoint) return null;
 
-    const value =
-      metric === "weight"
-        ? hoveredPoint.weight || 0
-        : metric === "reps"
-        ? hoveredPoint.reps || 0
-        : hoveredPoint.volume || 0;
+    const value = getMetricValue(hoveredPoint, metric);
 
     const x =
       points.length <= 1
@@ -103,13 +118,14 @@ export function TrendChart({
 
   // Format value for display
   const formatValue = (value: number) => {
-    if (metric === "weight") {
-      return `${value.toFixed(1)} kg`;
+    switch (metric) {
+      case "weight":
+        return `${value.toFixed(1)} kg`;
+      case "reps":
+        return `${Math.round(value)} reps`;
+      case "volume":
+        return `${Math.round(value)} kg`;
     }
-    if (metric === "reps") {
-      return `${Math.round(value)} reps`;
-    }
-    return `${Math.round(value)} kg`;
   };
 
   if (points.length === 0) {
@@ -127,14 +143,7 @@ export function TrendChart({
     <Card>
       {/* Header with metric toggle */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">
-          {metric === "weight"
-            ? "Weight"
-            : metric === "reps"
-            ? "Reps"
-            : "Volume"}{" "}
-          Trend
-        </h3>
+        <h3 className="text-lg font-semibold">{getMetricLabel(metric)} Trend</h3>
         <div className="flex gap-2">
           <Button
             variant={metric === "weight" ? "primary" : "secondary"}
@@ -166,13 +175,7 @@ export function TrendChart({
           height={300}
           responsive
           padding={{ top: 20, right: 20, bottom: 40, left: 50 }}
-          ariaLabel={`${
-            metric === "weight"
-              ? "Weight"
-              : metric === "reps"
-              ? "Reps"
-              : "Volume"
-          } trend over time`}
+          ariaLabel={`${getMetricLabel(metric)} trend over time`}
         >
           {(scale) => (
             <>
@@ -207,13 +210,7 @@ export function TrendChart({
                 scale={scale}
                 data={points}
                 xAccessor={(d) => d.date}
-                yAccessor={(d) =>
-                  metric === "weight"
-                    ? d.weight || 0
-                    : metric === "reps"
-                    ? d.reps || 0
-                    : d.volume || 0
-                }
+                yAccessor={(d) => getMetricValue(d, metric)}
                 min={yMin}
                 max={yMax}
                 showArea
@@ -221,13 +218,7 @@ export function TrendChart({
                 showLine
                 hoveredIndex={hoveredIndex}
                 onHoverChange={setHoveredIndex}
-                ariaLabel={`${
-                  metric === "weight"
-                    ? "Weight"
-                    : metric === "reps"
-                    ? "Reps"
-                    : "Volume"
-                } data points`}
+                ariaLabel={`${getMetricLabel(metric)} data points`}
               />
             </>
           )}
@@ -245,14 +236,10 @@ export function TrendChart({
             containerWidth={chartWidth}
             containerHeight={chartHeight}
           >
-            <DefaultTooltipContent
-              label={formatDate(hoveredPoint.date)}
-              value={
-                metric === "weight"
-                  ? formatValue(hoveredPoint.weight || 0)
-                  : formatValue(hoveredPoint.volume || 0)
-              }
-            />
+              <DefaultTooltipContent
+                label={formatDate(hoveredPoint.date)}
+                value={formatValue(getMetricValue(hoveredPoint, metric))}
+              />
           </Tooltip>
         )}
       </div>
