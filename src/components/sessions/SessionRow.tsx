@@ -3,6 +3,7 @@ import type { MouseEvent } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDeleteSession, useUpdateSession } from "../../hooks";
+import { startOfDay } from "../../lib/date/week";
 import { getWorkoutTypeLabel } from "../../lib/utils/workoutTypes";
 import type { SessionDTO } from "../../types";
 import { ConfirmDeleteModal } from "../shared/ConfirmDeleteModal";
@@ -19,6 +20,8 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
   const updateSession = useUpdateSession();
   const deleteSession = useDeleteSession();
   const workoutTypeLabel = getWorkoutTypeLabel(session.workoutType ?? null);
+  const isToday =
+    startOfDay(session.date).getTime() === startOfDay(new Date()).getTime();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -63,7 +66,12 @@ export function SessionRow({ session, disabled = false }: SessionRowProps) {
         onClick={handleNavigate}
         role="listitem"
         clickable
-        cardTitle={session.name || "Untitled Session"}
+        cardHeader={
+          <>
+            {session.name || "Untitled Session"}
+            {isToday && <span className="text-xs text-primary">Today</span>}
+          </>
+        }
         cardFooter={
           <>
             <div className="flex flex-col">

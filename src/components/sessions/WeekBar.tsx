@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { startOfDay, startOfWeek } from "../../lib/date/week";
 import { Button } from "../ui/button";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { cn } from "../../lib/utils/cn";
 
 interface WeekBarProps {
   referenceDate: number | Date;
@@ -84,6 +85,7 @@ export function WeekBar({
           const hasSession = hasSessionForDate(dayStart);
           const dayLabel = LARGE_DATE_FORMATTER.format(date);
           const dotStatus = hasSession ? "has sessions" : "no sessions";
+          const isToday = dayStart === startOfDay(new Date()).getTime();
 
           return (
             <button
@@ -92,16 +94,22 @@ export function WeekBar({
               onClick={() => onDayClick(dayStart)}
               aria-pressed={isSelected}
               aria-label={`${dayLabel} — ${dotStatus}`}
-              className={`flex flex-1 min-w-[40px] flex-col items-center rounded-xl border p-2 text-center shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+              className={cn(
+                "flex flex-1 min-w-[40px] flex-col items-center rounded-xl border p-2 text-center shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                 isSelected
                   ? "border-primary bg-primary/10 font-semibold text-primary shadow-primary/50"
                   : "border-transparent bg-secondary text-secondary-foreground hover:border-secondary hover:text-secondary-foreground"
-              }`}
+              )}
             >
               <span className="text-xs text-muted-foreground">
                 {WEEKDAY_FORMATTER.format(date)}
               </span>
-              <span className="text-lg mt-1 font-semibold leading-tight">
+              <span
+                className={cn(
+                  "text-lg mt-1 font-semibold leading-tight",
+                  isToday && "text-primary"
+                )}
+              >
                 {date.getDate()}
               </span>
               <span

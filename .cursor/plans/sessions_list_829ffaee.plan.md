@@ -41,10 +41,8 @@ Guard: render only when `useDbInit().ready === true`. If `upgrading === true`, s
 
 - `SessionsPage` (route container)
   - `DBStatusBanner` (re-usable)
-  - `FilterBar` (date range, status filter, search)
   - `SessionList` (list container)
     - `SessionRow` (per-session item)
-  - `CreateSessionFAB` (create ad-hoc session)
   - `InstantiateFromPlanSheet` (sheet/modal to choose plan)
   - `UndoSnackbar` (global/visible on deletes)
 
@@ -53,19 +51,11 @@ Guard: render only when `useDbInit().ready === true`. If `upgrading === true`, s
 ### SessionsPage
 
 - Description: Route container for `/sessions`. Loads sessions via `useSessions()` and supplies state/handlers to child components.
-- Main elements: page header, `FilterBar`, `SessionList`, `CreateSessionFAB`.
+- Main elements: page header, `SessionList`.
 - Handled interactions: apply filters (date range, status), navigate to session detail (`/sessions/:id`), open instantiate sheet, show DB status.
 - Validation: no input validation besides ensuring date range is valid (from <= to).
 - Types used: `Session`, `SessionListQueryParams`.
 - Props: none (route container).
-
-### FilterBar
-
-- Description: Filters sessions by status, date range, and free-text search.
-- Elements: status toggle (All/Active/Completed), date presets (7d/30d/90d/All), custom date picker, search input.
-- Events: onChange filter callbacks (debounced 150–300ms).
-- Validation: date range validity; search string length (>= 2 chars to trigger remote search? local only — no remote).
-- Props: `{ onChange: (params: SessionListQueryParams) => void, initial?: SessionListQueryParams }`.
 
 ### SessionList
 
@@ -89,14 +79,6 @@ Guard: render only when `useDbInit().ready === true`. If `upgrading === true`, s
   - Status toggle: allowed unless `useDbInit().upgrading === true` (guard)
 - Types: `Session`, `SessionSummaryVM` (ViewModel with calculated fields: volume, setCount)
 - Props: `{ session: Session, onRename?: (id, name) => void, onToggleStatus?: (id,status) => void, onDelete?: (id) => void }`.
-
-### CreateSessionFAB
-
-- Description: Floating action button to create ad-hoc session or open InstantiateFromPlanSheet.
-- Elements: center FAB with +, split action or sheet with options: New Session, Start from Plan.
-- Events: onCreate -> `useCreateSession()`; onInstantiate -> open plan sheet and call `useInstantiateSessionFromPlan()`.
-- Validation: session name required when creating ad-hoc (fallback: auto name like "Session — {date}").
-- Props: none.
 
 ### InstantiateFromPlanSheet
 
@@ -178,8 +160,6 @@ Guard: render only when `useDbInit().ready === true`. If `upgrading === true`, s
 - US-004 Instantiate a session from a plan
   - UI: `InstantiateFromPlanSheet` -> call `useInstantiateSessionFromPlan(planId)` -> create session (denormalized exercises) -> navigate to `/sessions/:id`.
   - Ensure acceptance criteria: new session shows exercises with defaults (display in Session Detail); session saved locally and listed in sessions (invalidate `['sessions']`).
-- US-005 Create ad-hoc session
-  - UI: `CreateSessionFAB` -> `useCreateSession()` -> optimistic add to `['sessions']` -> navigate to session detail.
 - US-006 Start/mark active/completed
   - UI: `SessionRow` status toggle -> `useUpdateSession()` -> update `status` and invalidate list.
 - US-017 Edit/delete sessions

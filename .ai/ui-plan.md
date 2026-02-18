@@ -85,7 +85,7 @@ Overview: maps each view to purpose, hooks, data flow, components, optimistic pa
 - Data hooks used: `useSessions({ page?, pageSize?, status?, dateRange? })`, `useComputeVolume({ sessionId })` (optional per-row cached volume).
 - Data flow: read sessions via index `status_date` with cursor-based pagination ("Load more"); fetch per-session summary aggregates lazily.
 - Loading/error: skeleton rows on loading; db errors show retry CTA.
-- Key components: `SessionRow`, `CreateSessionFAB`, `FilterBar`.
+- Key components: `SessionRow`.
 - Optimistic patterns: create session optimistic add to top of list; rename/status toggle immediate update; delete session moves to `undo_trash` via transactional write with Undo.
 - Accessibility & UX: swipe-to-delete with confirm modal; clear update of status changes.
 

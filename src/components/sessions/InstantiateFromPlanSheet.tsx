@@ -64,7 +64,7 @@ export function InstantiateFromPlanSheet({
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="relative w-full max-w-2xl rounded-t-3xl bg-white p-6 shadow-2xl">
+      <div className="relative w-full max-w-2xl rounded-t-3xl p-6 shadow-2xl">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-muted-foreground">
