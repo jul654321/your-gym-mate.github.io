@@ -29,25 +29,40 @@ function parseSelectedDateParam(value: string | null): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
+
+function getWeekOffsetForDate(baseWeekStart: Date, dateMs?: number): number {
+  if (!dateMs) {
+    return 0;
+  }
+
+  const selectedWeekStart = startOfWeek(new Date(dateMs)).getTime();
+  const diff = baseWeekStart.getTime() - selectedWeekStart;
+
+  return Number.isFinite(diff) ? Math.round(diff / MS_PER_WEEK) : 0;
+}
+
 export function SessionsPage() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const selectedDateParam = useMemo(
+    () => parseSelectedDateParam(searchParams.get("selectedDate")),
+    [searchParams]
+  );
+  const baseWeekStart = useMemo(() => startOfWeek(new Date()), []);
+  const [weekOffset, setWeekOffset] = useState(() =>
+    getWeekOffsetForDate(baseWeekStart, selectedDateParam)
+  );
   const { ready, upgrading } = useDbInit();
   const [isNewSessionOpen, setIsNewSessionOpen] = useState(false);
   const [isPlanSheetOpen, setIsPlanSheetOpen] = useState(false);
   const [creationError, setCreationError] = useState<string | null>(null);
-  const [weekOffset, setWeekOffset] = useState(0);
-  const [selectedDate, setSelectedDate] = useState<number | undefined>(() =>
-    parseSelectedDateParam(searchParams.get("selectedDate"))
-  );
   const [modalInitialDate, setModalInitialDate] = useState<
     number | undefined
   >();
   const navigate = useNavigate();
   const createSession = useCreateSession();
   const disableActions = !ready || upgrading;
-
-  const baseWeekStart = useMemo(() => startOfWeek(new Date()), []);
   const currentWeekReference = useMemo(() => {
     const reference = new Date(baseWeekStart);
     reference.setDate(reference.getDate() - weekOffset * 7);
@@ -60,11 +75,6 @@ export function SessionsPage() {
   const { data: weekSessions = [] } = useSessions({
     dateRange: { from: weekFrom, to: weekTo },
   });
-
-  useEffect(() => {
-    const parsed = parseSelectedDateParam(searchParams.get("selectedDate"));
-    setSelectedDate((prev) => (prev === parsed ? prev : parsed));
-  }, [searchParams]);
 
   const updateSelectedDateQueryParam = (dateMs?: number) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -116,10 +126,10 @@ export function SessionsPage() {
   );
 
   const sessionListParams = useMemo(() => {
-    if (selectedDate) {
+    if (selectedDateParam) {
       return {
-        from: startOfDay(selectedDate).toISOString(),
-        to: endOfDay(selectedDate).toISOString(),
+        from: startOfDay(selectedDateParam).toISOString(),
+        to: endOfDay(selectedDateParam).toISOString(),
       };
     }
 
@@ -127,27 +137,23 @@ export function SessionsPage() {
       from: startOfDay(currentWeekReference).toISOString(),
       to: endOfWeek(currentWeekReference).toISOString(),
     };
-  }, [selectedDate, currentWeekReference]);
+  }, [selectedDateParam, currentWeekReference]);
 
   const handleDayClick = (dateMs: number) => {
     const dayStart = startOfDay(dateMs).getTime();
+    const nextSelected = selectedDateParam === dayStart ? undefined : dayStart;
 
-    const nextSelected = selectedDate === dayStart ? undefined : dayStart;
-
-    setSelectedDate(nextSelected);
     updateSelectedDateQueryParam(nextSelected);
     setModalInitialDate(dayStart);
   };
 
   const handlePrevWeek = () => {
     setWeekOffset((prev) => prev + 1);
-    setSelectedDate(undefined);
     updateSelectedDateQueryParam(undefined);
   };
 
   const handleNextWeek = () => {
     setWeekOffset((prev) => prev - 1);
-    setSelectedDate(undefined);
     updateSelectedDateQueryParam(undefined);
   };
 
@@ -227,7 +233,7 @@ export function SessionsPage() {
       <SectionMain>
         <WeekBar
           referenceDate={currentWeekReference}
-          selectedDate={selectedDate}
+        selectedDate={selectedDateParam}
           onDayClick={handleDayClick}
           onPrevWeek={handlePrevWeek}
           onNextWeek={handleNextWeek}
