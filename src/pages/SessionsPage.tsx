@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { InstantiateFromPlanSheet } from "../components/sessions/InstantiateFromPlanSheet";
 import { NewSessionModal } from "../components/sessions/NewSessionModal";
@@ -19,14 +19,27 @@ export type SessionsPageLocationState = {
   openNewSession?: boolean;
 } & Record<string, unknown>;
 
+function parseSelectedDateParam(value: string | null): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 export function SessionsPage() {
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { ready, upgrading } = useDbInit();
   const [isNewSessionOpen, setIsNewSessionOpen] = useState(false);
   const [isPlanSheetOpen, setIsPlanSheetOpen] = useState(false);
   const [creationError, setCreationError] = useState<string | null>(null);
   const [weekOffset, setWeekOffset] = useState(0);
-  const [selectedDate, setSelectedDate] = useState<number | undefined>();
+  const [selectedDate, setSelectedDate] = useState<number | undefined>(() =>
+    parseSelectedDateParam(searchParams.get("selectedDate"))
+  );
   const [modalInitialDate, setModalInitialDate] = useState<
     number | undefined
   >();
@@ -47,6 +60,23 @@ export function SessionsPage() {
   const { data: weekSessions = [] } = useSessions({
     dateRange: { from: weekFrom, to: weekTo },
   });
+
+  useEffect(() => {
+    const parsed = parseSelectedDateParam(searchParams.get("selectedDate"));
+    setSelectedDate((prev) => (prev === parsed ? prev : parsed));
+  }, [searchParams]);
+
+  const updateSelectedDateQueryParam = (dateMs?: number) => {
+    const nextParams = new URLSearchParams(searchParams);
+
+    if (dateMs !== undefined) {
+      nextParams.set("selectedDate", dateMs.toString());
+    } else {
+      nextParams.delete("selectedDate");
+    }
+
+    setSearchParams(nextParams, { replace: true });
+  };
 
   useEffect(() => {
     const state = location.state as SessionsPageLocationState | null;
@@ -102,18 +132,23 @@ export function SessionsPage() {
   const handleDayClick = (dateMs: number) => {
     const dayStart = startOfDay(dateMs).getTime();
 
-    setSelectedDate((prev) => (prev === dayStart ? undefined : dayStart));
+    const nextSelected = selectedDate === dayStart ? undefined : dayStart;
+
+    setSelectedDate(nextSelected);
+    updateSelectedDateQueryParam(nextSelected);
     setModalInitialDate(dayStart);
   };
 
   const handlePrevWeek = () => {
     setWeekOffset((prev) => prev + 1);
     setSelectedDate(undefined);
+    updateSelectedDateQueryParam(undefined);
   };
 
   const handleNextWeek = () => {
     setWeekOffset((prev) => prev - 1);
     setSelectedDate(undefined);
+    updateSelectedDateQueryParam(undefined);
   };
 
   const handleCreateSession = (
