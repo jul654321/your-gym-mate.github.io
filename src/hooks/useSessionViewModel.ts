@@ -15,11 +15,14 @@ import type {
   UUID,
   CreateLoggedSetCmd,
   WeightUnit,
+  PlanExerciseGuideLinkDTO,
+  PlanExerciseDTO,
 } from "../types";
 
 export interface GroupedExerciseVM {
   exerciseId: string;
   exerciseName: string;
+  exerciseGuideLinks: PlanExerciseGuideLinkDTO[];
   sets: LoggedSetDTO[];
 }
 
@@ -56,9 +59,19 @@ function getDisplayName(
   return exercisesById.get(exerciseId) ?? fallback ?? "Exercise";
 }
 
+function getExerciseGuideLinks(
+  exerciseId: string,
+  planExercises: PlanExerciseDTO[]
+): PlanExerciseGuideLinkDTO[] {
+  return (
+    planExercises.find((pe) => pe.exerciseId === exerciseId)?.guideLinks ?? []
+  );
+}
+
 export interface BuildGroupedExercisesOptions {
   sets: LoggedSetDTO[];
   exercisesById: Map<string, string>;
+  planExercises: PlanExerciseDTO[];
   exerciseOrder?: string[];
   altToMainMap?: Map<string, string>;
 }
@@ -66,6 +79,7 @@ export interface BuildGroupedExercisesOptions {
 export function buildGroupedExercises({
   sets,
   exercisesById,
+  planExercises,
   exerciseOrder,
   altToMainMap,
 }: BuildGroupedExercisesOptions): GroupedExerciseVM[] {
@@ -79,6 +93,7 @@ export function buildGroupedExercises({
       exercisesById,
       set.exerciseNameSnapshot
     );
+    const exerciseGuideLinks = getExerciseGuideLinks(key, planExercises);
 
     if (current) {
       current.sets.push(set);
@@ -88,6 +103,7 @@ export function buildGroupedExercises({
     groups.set(key, {
       exerciseId: key,
       exerciseName,
+      exerciseGuideLinks,
       sets: [set],
     });
   }
@@ -157,6 +173,7 @@ export function buildGroupedExercises({
       placeholders.push({
         exerciseId,
         exerciseName: getDisplayName(exerciseId, exercisesById),
+        exerciseGuideLinks: [],
         sets: [],
       });
     }
@@ -243,12 +260,14 @@ export function useSessionViewModel(sessionId?: string): SessionViewModel {
       buildGroupedExercises({
         sets: accumulatedSets,
         exercisesById,
+        planExercises: planQuery.data?.planExercises ?? [],
         exerciseOrder: sessionQuery.data?.exerciseOrder,
         altToMainMap,
       }),
     [
       accumulatedSets,
       exercisesById,
+      planQuery.data?.planExercises,
       sessionQuery.data?.exerciseOrder,
       altToMainMap,
     ]

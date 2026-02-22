@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Link2, Plus } from "lucide-react";
 import {
   Fragment,
   useCallback,
@@ -9,7 +9,7 @@ import {
   type MutableRefObject,
 } from "react";
 import type { GroupedExerciseVM } from "../../hooks/useSessionViewModel";
-import type { LoggedSetDTO } from "../../types";
+import type { LoggedSetDTO, PlanExerciseGuideLinkDTO } from "../../types";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { ExercisePickerModal } from "./ExercisePickerModal";
@@ -24,18 +24,23 @@ interface LoggedSetsListProps {
   onToggleSetStatus: (setId: string) => void;
   isLoading?: boolean;
   isMutating?: boolean;
+  onOpenGuideLinksModal: (exerciseId: string) => void;
 }
 
 function ExerciseHeader({
   exerciseName,
+  guideLinks,
   setCount,
   onAdd,
   isBusy,
+  onOpenGuideLinksModal,
 }: {
   exerciseName: string;
+  guideLinks: PlanExerciseGuideLinkDTO[];
   setCount: number;
   onAdd: () => void;
   isBusy?: boolean;
+  onOpenGuideLinksModal: () => void;
 }) {
   return (
     <>
@@ -49,6 +54,16 @@ function ExerciseHeader({
               {setCount} Set{setCount === 1 ? "" : "s"}
             </p>
           </div>
+
+          {guideLinks.length > 0 && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={onOpenGuideLinksModal}
+            >
+              <Link2 className="h-4 w-4" aria-hidden />
+            </Button>
+          )}
 
           <Button
             size="sm"
@@ -76,6 +91,7 @@ function ExerciseGroup({
   onToggleSetStatus,
   isMutating,
   setRefs,
+  onOpenGuideLinksModal,
 }: {
   group: GroupedExerciseVM;
   onAddSet: (exerciseId: string) => void;
@@ -85,6 +101,7 @@ function ExerciseGroup({
   onToggleSetStatus: (setId: string) => void;
   isMutating?: boolean;
   setRefs: MutableRefObject<Map<string, HTMLDivElement>>;
+  onOpenGuideLinksModal: (exerciseId: string) => void;
 }) {
   if (!group.sets.length) {
     return null;
@@ -94,9 +111,11 @@ function ExerciseGroup({
     <section className="flex flex-col gap-3">
       <ExerciseHeader
         exerciseName={group.exerciseName}
+        guideLinks={group.exerciseGuideLinks}
         setCount={group.sets.length}
         onAdd={() => onAddSet(group.exerciseId)}
         isBusy={isMutating}
+        onOpenGuideLinksModal={() => onOpenGuideLinksModal(group.exerciseId)}
       />
       <div className="flex flex-col gap-3">
         {group.sets.map((set) => (
@@ -131,6 +150,7 @@ export function LoggedSetsList({
   onToggleSetStatus,
   isLoading = false,
   isMutating = false,
+  onOpenGuideLinksModal,
 }: LoggedSetsListProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const setRefs = useRef(new Map<string, HTMLDivElement>());
@@ -241,9 +261,10 @@ export function LoggedSetsList({
                 onCopySet={onCopySet}
                 onEditSet={onEditSet}
                 onDeleteSet={onDeleteSet}
-            onToggleSetStatus={onToggleSetStatus}
+                onToggleSetStatus={onToggleSetStatus}
                 isMutating={isMutating}
                 setRefs={setRefs}
+                onOpenGuideLinksModal={onOpenGuideLinksModal}
               />
             </Fragment>
           ))}

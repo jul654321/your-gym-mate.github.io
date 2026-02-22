@@ -233,7 +233,7 @@ export function SessionsPage() {
       <SectionMain>
         <WeekBar
           referenceDate={currentWeekReference}
-        selectedDate={selectedDateParam}
+          selectedDate={selectedDateParam}
           onDayClick={handleDayClick}
           onPrevWeek={handlePrevWeek}
           onNextWeek={handleNextWeek}

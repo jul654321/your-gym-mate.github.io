@@ -5,14 +5,18 @@ import { useSessionViewModel } from "../hooks/useSessionViewModel";
 import { SessionHeader } from "../components/sessionDetail/SessionHeader";
 import { LoggedSetsList } from "../components/sessionDetail/LoggedSetsList";
 import { EditSetModal } from "../components/sessionDetail/EditSetModal.tsx";
-import type { LoggedSetDTO } from "../types";
+import type { LoggedSetDTO, PlanExerciseGuideLinkDTO } from "../types";
 import { SectionMain } from "../components/layouts/SectionMain.tsx";
+import { GuideLinksModal } from "../components/shared/GuideLinksModal.tsx";
 
 export function SessionView() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { ready } = useDbInit();
   const viewModel = useSessionViewModel(sessionId);
   const [editingSet, setEditingSet] = useState<LoggedSetDTO | null>(null);
+  const [guideLinks, setGuideLinks] = useState<
+    PlanExerciseGuideLinkDTO[] | undefined
+  >(undefined);
 
   if (!sessionId) {
     return (
@@ -97,6 +101,32 @@ export function SessionView() {
     actions.toggleSetStatus(setId);
   };
 
+  const handleOpenGuideLinksModal = (exerciseId: string) => {
+    const exerciseGuideLinks = groupedExercises.find(
+      (exercise) => exercise.exerciseId === exerciseId
+    )?.exerciseGuideLinks;
+
+    if (!exerciseGuideLinks) {
+      return;
+    }
+
+    if (exerciseGuideLinks.length === 1) {
+      const url = exerciseGuideLinks[0].url;
+
+      if (!url) {
+        return;
+      }
+
+      if (typeof window !== "undefined") {
+        window.open(url, "_blank", "noopener");
+      }
+
+      return;
+    }
+
+    setGuideLinks(exerciseGuideLinks);
+  };
+
   return (
     <>
       <SessionHeader
@@ -113,6 +143,7 @@ export function SessionView() {
           onEditSet={handleEditSet}
           onDeleteSet={handleDeleteSet}
           onToggleSetStatus={handleToggleSetStatus}
+          onOpenGuideLinksModal={handleOpenGuideLinksModal}
           isLoading={loadingSets}
           isMutating={isMutating}
         />
@@ -124,6 +155,12 @@ export function SessionView() {
           />
         )}
       </SectionMain>
+      {guideLinks && (
+        <GuideLinksModal
+          guideLinks={guideLinks}
+          onClose={() => setGuideLinks(undefined)}
+        />
+      )}
     </>
   );
 }
