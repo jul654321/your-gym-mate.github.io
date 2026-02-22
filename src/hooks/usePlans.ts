@@ -330,20 +330,20 @@ export function useInstantiateSessionFromPlan() {
         .at(0);
 
       const lastSetByExercise = new Map<string, LoggedSetDTO>();
+
       if (lastSession) {
         const lastSessionSets = await loggedSetsStore
           .index("sessionId")
           .getAll(lastSession.id);
+
         for (const set of lastSessionSets) {
           const existing = lastSetByExercise.get(set.exerciseId);
 
-          if (
-            !existing ||
-            ((set.timestamp ?? 0) > (existing.timestamp ?? 0) &&
-              set.setType === "main")
-          ) {
-            lastSetByExercise.set(set.exerciseId, set);
+          if (set.setType !== "main" || existing) {
+            continue;
           }
+
+          lastSetByExercise.set(set.exerciseId, set);
         }
       }
 
