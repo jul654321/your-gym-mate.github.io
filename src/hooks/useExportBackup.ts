@@ -27,9 +27,9 @@ export interface SessionExportRow extends Record<string, unknown> {
   setType: SetType;
   timestamp: number;
   orderIndex: number | "";
-  workoutType: WorkoutType | null | "";
+  workoutType: WorkoutType | null | string;
   exerciseOrder: string;
-  setStatus: LoggedSetStatus | "";
+  setStatus: LoggedSetStatus | string;
   setIndex: number | "";
   notes: string;
   alternativeExerciseId: string;

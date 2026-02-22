@@ -63,6 +63,7 @@ describe("buildGroupedExercises", () => {
       sets,
       exercisesById,
       exerciseOrder: ["ex-plan", "ex-extra"],
+      planExercises: [],
     });
 
     expect(grouped.map((group) => group.exerciseId)).toEqual([
@@ -94,6 +95,7 @@ describe("buildGroupedExercises", () => {
       sets,
       exercisesById,
       exerciseOrder: ["ex-plan", "ex-empty"],
+      planExercises: [],
     });
 
     expect(grouped[1]).toMatchObject({
@@ -125,6 +127,7 @@ describe("buildGroupedExercises", () => {
     const grouped = buildGroupedExercises({
       sets,
       exercisesById,
+      planExercises: [],
       exerciseOrder: ["ex-plan"],
     });
 
@@ -158,6 +161,7 @@ describe("buildGroupedExercises", () => {
     const grouped = buildGroupedExercises({
       sets,
       exercisesById,
+      planExercises: [],
       exerciseOrder: ["ex-main"],
       altToMainMap,
     });
