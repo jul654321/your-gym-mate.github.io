@@ -23,11 +23,14 @@ export function ImportPickerView({
   validationError,
   isImporting,
   importError,
+  lastImport,
   handleFileChange,
   handleImport,
   handleUndo,
   handleClose,
   progressMessage,
+  importMode,
+  fullBackupPreview,
 }: ImportPickerLogicResult) {
   return (
     <Modal
@@ -37,7 +40,7 @@ export function ImportPickerView({
         <Button
           key="undo"
           onClick={handleUndo}
-          disabled={isImporting}
+          disabled={isImporting || importMode === "json" || !lastImport}
           variant="secondary"
         >
           {isImporting ? "Undoing..." : "Undo"}
@@ -54,16 +57,16 @@ export function ImportPickerView({
     >
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Upload a Gym Mate CSV, validate it, and import your sessions
+          Upload a Gym Mate CSV or JSON backup, validate it, and import your data
           transactionally.
         </p>
 
         <Label className="flex flex-col gap-3">
-          Select Gym Mate CSV
+          Select Gym Mate export
           <input
             key={inputKey}
             type="file"
-            accept=".csv"
+            accept=".csv,.json"
             onChange={handleFileChange}
             disabled={isImporting}
             className="rounded-lg border border-gray-200 p-3 text-sm text-gray-700 focus:border-primary focus:outline-none placeholder:text-muted-foreground"
@@ -89,51 +92,85 @@ export function ImportPickerView({
           </Select>
         </div>
 
-        <Card theme="secondary">
-          <div className="flex flex-col gap-3">
-            {validationError && (
-              <p className="mt-2 text-sm text-red-600">{validationError}</p>
-            )}
-
-            <div>
-              <p className="text-sm font-medium text-card-foreground">
-                Validation
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {validRows.length} valid row
-                {validRows.length === 1 ? "" : "s"} · {invalidRows.length} issue
-                {invalidRows.length === 1 ? "" : "s"}
-              </p>
-              {invalidRows.length > 0 && (
-                <ul className="mt-2 space-y-1 text-xs text-red-600">
-                  {invalidRows.slice(0, MAX_PREVIEW_ISSUES).map((row) => (
-                    <li key={row.rowIndex}>
-                      Row {row.rowIndex}: {row.issues.join("; ")}
-                    </li>
-                  ))}
-                  {invalidRows.length > MAX_PREVIEW_ISSUES && (
-                    <li>
-                      ...and {invalidRows.length - MAX_PREVIEW_ISSUES} more rows
-                      with issues.
-                    </li>
-                  )}
-                </ul>
+        {importMode === "csv" ? (
+          <Card theme="secondary">
+            <div className="flex flex-col gap-3">
+              {validationError && (
+                <p className="mt-2 text-sm text-red-600">{validationError}</p>
               )}
-            </div>
 
-            <div>
-              <p className="text-sm font-medium text-card-foreground">
-                Duplicates
-              </p>
-              <p className="text-xs text-muted-foreground">
-                ID matches: {duplicateReport.idMatches.length}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Name + date matches: {duplicateReport.nameDateMatches.length}
-              </p>
+              <div>
+                <p className="text-sm font-medium text-card-foreground">
+                  Validation
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {validRows.length} valid row
+                  {validRows.length === 1 ? "" : "s"} · {invalidRows.length} issue
+                  {invalidRows.length === 1 ? "" : "s"}
+                </p>
+                {invalidRows.length > 0 && (
+                  <ul className="mt-2 space-y-1 text-xs text-red-600">
+                    {invalidRows.slice(0, MAX_PREVIEW_ISSUES).map((row) => (
+                      <li key={row.rowIndex}>
+                        Row {row.rowIndex}: {row.issues.join("; ")}
+                      </li>
+                    ))}
+                    {invalidRows.length > MAX_PREVIEW_ISSUES && (
+                      <li>
+                        ...and {invalidRows.length - MAX_PREVIEW_ISSUES} more rows
+                        with issues.
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </div>
+
+              <div>
+                <p className="text-sm font-medium text-card-foreground">
+                  Duplicates
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  ID matches: {duplicateReport.idMatches.length}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Name + date matches: {duplicateReport.nameDateMatches.length}
+                </p>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        ) : (
+          <Card theme="secondary">
+            <div className="flex flex-col gap-3">
+              {validationError && (
+                <p className="mt-2 text-sm text-red-600">{validationError}</p>
+              )}
+              <div>
+                <p className="text-sm font-medium text-card-foreground">
+                  Full backup preview
+                </p>
+                {fullBackupPreview ? (
+                  <p className="text-xs text-muted-foreground">
+                    {fullBackupPreview.exerciseCount} exercise
+                    {fullBackupPreview.exerciseCount === 1 ? "" : "s"} ·{" "}
+                    {fullBackupPreview.planCount} plan
+                    {fullBackupPreview.planCount === 1 ? "" : "s"} ·{" "}
+                    {fullBackupPreview.sessionCount} session
+                    {fullBackupPreview.sessionCount === 1 ? "" : "s"} ·{" "}
+                    {fullBackupPreview.loggedSetCount} set
+                    {fullBackupPreview.loggedSetCount === 1 ? "" : "s"} ·{" "}
+                    {fullBackupPreview.settingCount} setting
+                    {fullBackupPreview.settingCount === 1 ? "" : "s"}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Select a Gym Mate JSON backup to preview what will be
+                    imported.
+                  </p>
+                )}
+              </div>
+            </div>
+          </Card>
+        )}
 
         <Card theme="secondary">
           <p>{progressMessage}</p>

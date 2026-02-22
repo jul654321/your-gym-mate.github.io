@@ -1,10 +1,12 @@
 import { getDB, STORE_NAMES, withTransaction } from "../db";
 import type {
   LoggedSetDTO,
+  LoggedSetStatus,
   SessionDTO,
   SessionStatus,
   SetType,
   WeightUnit,
+  WorkoutType,
 } from "../../types";
 import type { SessionExportRow } from "../../hooks/useExportBackup";
 
@@ -145,6 +147,14 @@ function toSessionStatus(value?: string): SessionStatus {
   return normalized === "active" ? "active" : "completed";
 }
 
+const VALID_SET_TYPES: SetType[] = [
+  "warmup",
+  "main",
+  "drop",
+  "drop set",
+  "accessory",
+];
+
 export function buildSessionRow(
   cells: Record<string, string>
 ): SessionExportRow {
@@ -160,7 +170,7 @@ export function buildSessionRow(
     exerciseId: cells["Exercise ID"]?.trim() ?? "",
     exerciseName: cells["Exercise name"]?.trim() ?? "",
     weight: toNumber(cells["Weight"]),
-    weightUnit: (cells["Unit"]?.trim() as WeightUnit) ?? "",
+    weightUnit: (cells["Unit"]?.trim() as WeightUnit) || undefined,
     reps: toNumber(cells["Reps"]),
     setType: (cells["Set type"]?.trim() as SetType) ?? "main",
     timestamp: parseEpochMs(cells["Set timestamp"]),
@@ -172,6 +182,10 @@ export function buildSessionRow(
     alternativeReps: toOptionalNumber(cells["Alternative reps"]),
     setCreatedAt: parseEpochMs(cells["Set created"]),
     setUpdatedAt: parseOptionalEpochMs(cells["Set updated"]),
+    workoutType: cells["Workout type"]?.trim() || "",
+    exerciseOrder: cells["Exercise order"]?.trim() ?? "",
+    setStatus: cells["Set status"]?.trim() ?? "",
+    setIndex: toOptionalNumber(cells["Set index"]),
   };
 }
 
@@ -191,6 +205,18 @@ export function validateRow(row: SessionExportRow): string[] {
   }
   if (!Number.isFinite(row.reps)) {
     issues.push("Reps is missing or not a number");
+  }
+  if (
+    !Number.isFinite(row.sessionDate) &&
+    !Number.isFinite(row.sessionCreatedAt)
+  ) {
+    issues.push("Session date is missing or unparseable");
+  }
+  if (!row.sessionId) {
+    issues.push("Session ID is missing; rows will be grouped by name and date");
+  }
+  if (row.setType && !VALID_SET_TYPES.includes(row.setType)) {
+    issues.push(`Unknown set type: "${row.setType}"`);
   }
   return issues;
 }
@@ -312,6 +338,18 @@ function createSessionPayload(
       : row.sessionCreatedAt,
     status: row.sessionStatus,
     sourcePlanId: row.sourcePlanId || undefined,
+    workoutType: (row.workoutType as WorkoutType) || undefined,
+    exerciseOrder: (() => {
+      if (!row.exerciseOrder) {
+        return undefined;
+      }
+      try {
+        const parsed = JSON.parse(row.exerciseOrder);
+        return Array.isArray(parsed) ? parsed : undefined;
+      } catch {
+        return undefined;
+      }
+    })(),
     createdAt: Number.isFinite(row.sessionCreatedAt)
       ? row.sessionCreatedAt
       : Date.now(),
@@ -327,9 +365,11 @@ function createLoggedSetPayload(
 ): LoggedSetDTO {
   const altExerciseId = row.alternativeExerciseId || undefined;
   const altSnapshot =
-    altExerciseId || row.alternativeExerciseName
+    // Only create an alternative snapshot when we have a resolvable exercise ID.
+    // A name without an ID cannot be resolved; fabricating one corrupts multiEntry indexes.
+    altExerciseId
       ? {
-          exerciseId: altExerciseId ?? createUUID(),
+          exerciseId: altExerciseId,
           nameSnapshot: row.alternativeExerciseName || undefined,
           weight:
             typeof row.alternativeWeight === "number"
@@ -357,6 +397,8 @@ function createLoggedSetPayload(
     weightUnit: row.weightUnit || undefined,
     reps: row.reps,
     setType: row.setType ?? "main",
+    status: (row.setStatus as LoggedSetStatus) || undefined,
+    setIndex: typeof row.setIndex === "number" ? row.setIndex : undefined,
     timestamp: Number.isFinite(row.timestamp) ? row.timestamp : Date.now(),
     orderIndex: typeof row.orderIndex === "number" ? row.orderIndex : undefined,
     notes: row.notes || undefined,

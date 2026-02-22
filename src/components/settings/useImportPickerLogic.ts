@@ -17,6 +17,8 @@ import {
 } from "../../lib/utils/importBackup";
 import { useGetSetting, useUpdateSetting } from "../../hooks/useSettings";
 import { STORE_NAMES, withTransaction } from "../../lib/db";
+import { importFullBackup, validateFullBackup } from "../../lib/utils/importFullBackup";
+import type { FullBackupPreview, FullBackupV1 } from "../../lib/utils/importFullBackup";
 
 interface ImportHistoryEntry extends ImportSummary {
   importedAt: number;
@@ -41,6 +43,8 @@ export interface ImportPickerLogicResult {
   isImporting: boolean;
   importError: string | null;
   lastImport: ImportSummary | null;
+  importMode: "csv" | "json";
+  fullBackupPreview: FullBackupPreview | null;
   handleFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleImport: () => Promise<void>;
   handleUndo: () => Promise<void>;
@@ -63,6 +67,11 @@ export function useImportPickerLogic({
     idMatches: [],
     nameDateMatches: [],
   });
+  const [importMode, setImportMode] = useState<"csv" | "json">("csv");
+  const [fullBackupPreview, setFullBackupPreview] =
+    useState<FullBackupPreview | null>(null);
+  const [fullBackupPayload, setFullBackupPayload] =
+    useState<FullBackupV1 | null>(null);
   const [sessionLookup, setSessionLookup] = useState<SessionLookup | null>(
     null
   );
@@ -115,6 +124,9 @@ export function useImportPickerLogic({
     setStatusMessage(null);
     setImportError(null);
     setDuplicateStrategy("skip");
+    setImportMode("csv");
+    setFullBackupPreview(null);
+    setFullBackupPayload(null);
     setInputKey((value) => value + 1);
     setSelectedFileLabel("No file selected yet");
   }, []);
@@ -135,18 +147,28 @@ export function useImportPickerLogic({
       setStatusMessage(null);
       setImportError(null);
       setLastImport(null);
-      void parseFile(file);
+      const isJson =
+        file.name.toLowerCase().endsWith(".json") ||
+        file.type === "application/json";
+      if (isJson) {
+        void parseJsonFile(file);
+      } else {
+        void parseCsvFile(file);
+      }
       event.target.value = "";
     },
     []
   );
 
-  async function parseFile(file: File) {
+  async function parseCsvFile(file: File) {
     setValidationError(null);
     setValidationLiveMessage("Parsing CSV…");
     setParsedRows([]);
     setDuplicateReport({ idMatches: [], nameDateMatches: [] });
 
+    setImportMode("csv");
+    setFullBackupPreview(null);
+    setFullBackupPayload(null);
     try {
       const text = await file.text();
       const rows = parseCsvText(text);
@@ -228,8 +250,57 @@ export function useImportPickerLogic({
     }
   }
 
+  async function parseJsonFile(file: File) {
+    setValidationError(null);
+    setValidationLiveMessage("Parsing JSON backup…");
+    setParsedRows([]);
+    setDuplicateReport({ idMatches: [], nameDateMatches: [] });
+    setSessionLookup(null);
+    setImportMode("json");
+    setFullBackupPreview(null);
+    setFullBackupPayload(null);
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const backup = validateFullBackup(parsed);
+      const preview: FullBackupPreview = {
+        exerciseCount: backup.exercises.length,
+        planCount: backup.plans.length,
+        sessionCount: backup.sessions.length,
+        loggedSetCount: backup.loggedSets.length,
+        settingCount: backup.settings.length,
+      };
+      setFullBackupPayload(backup);
+      setFullBackupPreview(preview);
+
+      const summaryMessage = [
+        `${preview.exerciseCount} exercise${preview.exerciseCount === 1 ? "" : "s"}`,
+        `${preview.planCount} plan${preview.planCount === 1 ? "" : "s"}`,
+        `${preview.sessionCount} session${preview.sessionCount === 1 ? "" : "s"}`,
+        `${preview.loggedSetCount} set${preview.loggedSetCount === 1 ? "" : "s"}`,
+        `${preview.settingCount} setting${preview.settingCount === 1 ? "" : "s"}`,
+      ].join(", ");
+      setValidationLiveMessage(`Parsed full backup: ${summaryMessage}.`);
+    } catch (error) {
+      setValidationError(
+        error instanceof Error
+          ? error.message
+          : "Failed to parse the JSON backup file."
+      );
+    }
+  }
+
   const handleImport = async () => {
-    if (isImporting || !validRows.length) {
+    if (isImporting) {
+      return;
+    }
+
+    if (importMode === "csv" && !validRows.length) {
+      return;
+    }
+
+    if (importMode === "json" && !fullBackupPayload) {
       return;
     }
 
@@ -239,35 +310,54 @@ export function useImportPickerLogic({
     setStatusMessage(null);
 
     try {
-      const lookup = sessionLookup ?? (await gatherSessionLookup());
-      const summary = await importPayloads({
-        rows: validRows.map((row) => row.data),
-        duplicateStrategy,
-        filename: selectedFileLabel,
-        lookup,
-        onProgress: (percent) => setImportProgress(percent),
-      });
+      if (importMode === "csv") {
+        const lookup = sessionLookup ?? (await gatherSessionLookup());
+        const summary = await importPayloads({
+          rows: validRows.map((row) => row.data),
+          duplicateStrategy,
+          filename: selectedFileLabel,
+          lookup,
+          onProgress: (percent) => setImportProgress(percent),
+        });
 
-      setLastImport(summary);
-      setStatusMessage(
-        `Imported ${summary.rowCount} row${summary.rowCount === 1 ? "" : "s"}.`
-      );
-      setValidationLiveMessage(
-        `Ready to import ${readyRowsCount} row${
-          readyRowsCount === 1 ? "" : "s"
-        }.`
-      );
+        setLastImport(summary);
+        setStatusMessage(
+          `Imported ${summary.rowCount} row${summary.rowCount === 1 ? "" : "s"}.`
+        );
+        setValidationLiveMessage(
+          `Ready to import ${readyRowsCount} row${
+            readyRowsCount === 1 ? "" : "s"
+          }.`
+        );
 
-      const historyEntry: ImportHistoryEntry = {
-        ...summary,
-        importedAt: Date.now(),
-        duplicateStrategy,
-      };
-      const nextHistory = [...(importHistory ?? []), historyEntry];
-      updateSetting.mutate({
-        key: "importHistory",
-        value: nextHistory,
-      });
+        const historyEntry: ImportHistoryEntry = {
+          ...summary,
+          importedAt: Date.now(),
+          duplicateStrategy,
+        };
+        const nextHistory = [...(importHistory ?? []), historyEntry];
+        updateSetting.mutate({
+          key: "importHistory",
+          value: nextHistory,
+        });
+      } else {
+        const summary = await importFullBackup(
+          fullBackupPayload!,
+          duplicateStrategy,
+          (percent) => setImportProgress(percent)
+        );
+
+        setStatusMessage(
+          `Imported ${summary.exerciseCount} exercise${
+            summary.exerciseCount === 1 ? "" : "s"
+          }, ${summary.planCount} plan${summary.planCount === 1 ? "" : "s"}, ${summary.sessionCount
+          } session${summary.sessionCount === 1 ? "" : "s"}, ${summary.loggedSetCount
+          } set${summary.loggedSetCount === 1 ? "" : "s"}, and ${summary.settingCount
+          } setting${summary.settingCount === 1 ? "" : "s"}.`
+        );
+        setFullBackupPreview(null);
+        setFullBackupPayload(null);
+      }
     } catch (error) {
       setImportError(
         error instanceof Error
@@ -282,7 +372,7 @@ export function useImportPickerLogic({
   };
 
   const handleUndo = async () => {
-    if (!lastImport || isImporting) {
+    if (importMode === "json" || !lastImport || isImporting) {
       return;
     }
 
@@ -331,8 +421,23 @@ export function useImportPickerLogic({
     }
   };
 
+  const jsonPreviewMessage = fullBackupPreview
+    ? `Full backup contains ${fullBackupPreview.exerciseCount} exercise${
+        fullBackupPreview.exerciseCount === 1 ? "" : "s"
+      }, ${fullBackupPreview.planCount} plan${
+        fullBackupPreview.planCount === 1 ? "" : "s"
+      }, ${fullBackupPreview.sessionCount} session${
+        fullBackupPreview.sessionCount === 1 ? "" : "s"
+      }, ${fullBackupPreview.loggedSetCount} set${
+        fullBackupPreview.loggedSetCount === 1 ? "" : "s"
+      }, and ${fullBackupPreview.settingCount} setting${
+        fullBackupPreview.settingCount === 1 ? "" : "s"
+      }.`
+    : "Select a Gym Mate JSON backup to preview what will be imported.";
   const progressMessage = isImporting
     ? `Working through ${importProgress}%…`
+    : importMode === "json"
+    ? statusMessage ?? jsonPreviewMessage
     : statusMessage ||
       `Parsed ${parsedRows.length} row${
         parsedRows.length === 1 ? "" : "s"
@@ -352,6 +457,8 @@ export function useImportPickerLogic({
     isImporting,
     importError,
     lastImport,
+    importMode,
+    fullBackupPreview,
     handleFileChange,
     handleImport,
     handleUndo,

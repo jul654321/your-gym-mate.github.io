@@ -2,10 +2,12 @@ import { CSVStreamer, type CsvColumn } from "../lib/csv/CSVStreamer";
 import { getDB, STORE_NAMES } from "../lib/db";
 import type {
   LoggedSetDTO,
+  LoggedSetStatus,
   SessionDTO,
   SessionStatus,
   SetType,
   WeightUnit,
+  WorkoutType,
 } from "../types";
 
 export interface SessionExportRow extends Record<string, unknown> {
@@ -20,11 +22,15 @@ export interface SessionExportRow extends Record<string, unknown> {
   exerciseId: string;
   exerciseName: string;
   weight: number;
-  weightUnit?: WeightUnit;
+  weightUnit: WeightUnit | undefined;
   reps: number;
   setType: SetType;
   timestamp: number;
   orderIndex: number | "";
+  workoutType: WorkoutType | null | "";
+  exerciseOrder: string;
+  setStatus: LoggedSetStatus | "";
+  setIndex: number | "";
   notes: string;
   alternativeExerciseId: string;
   alternativeExerciseName: string;
@@ -67,6 +73,12 @@ export const SESSION_EXPORT_COLUMNS: CsvColumn<SessionExportRow>[] = [
         : "",
   },
   { header: "Session status", key: "sessionStatus" },
+  { header: "Workout type", key: "workoutType" },
+  {
+    header: "Exercise order",
+    key: "exerciseOrder",
+    formatter: (value) => (typeof value === "string" ? value : ""),
+  },
   { header: "Source plan ID", key: "sourcePlanId" },
   { header: "Set ID", key: "setId" },
   { header: "Exercise ID", key: "exerciseId" },
@@ -84,6 +96,8 @@ export const SESSION_EXPORT_COLUMNS: CsvColumn<SessionExportRow>[] = [
         : "",
   },
   { header: "Order index", key: "orderIndex" },
+  { header: "Set status", key: "setStatus" },
+  { header: "Set index", key: "setIndex" },
   { header: "Notes", key: "notes" },
   { header: "Alternative exercise ID", key: "alternativeExerciseId" },
   { header: "Alternative name", key: "alternativeExerciseName" },
@@ -186,6 +200,10 @@ function createRow(
     sessionCreatedAt: session.createdAt,
     sessionUpdatedAt: session.updatedAt ?? "",
     sessionStatus: session.status,
+    workoutType: session.workoutType ?? "",
+    exerciseOrder: session.exerciseOrder?.length
+      ? JSON.stringify(session.exerciseOrder)
+      : "",
     sourcePlanId: session.sourcePlanId ?? "",
     setId: set.id,
     exerciseId: set.exerciseId,
@@ -196,6 +214,8 @@ function createRow(
     setType: set.setType,
     timestamp: set.timestamp,
     orderIndex: set.orderIndex ?? "",
+    setStatus: set.status ?? "",
+    setIndex: set.setIndex ?? "",
     notes: set.notes ?? "",
     alternativeExerciseId: alternative?.exerciseId ?? "",
     alternativeExerciseName: alternative?.nameSnapshot ?? "",
