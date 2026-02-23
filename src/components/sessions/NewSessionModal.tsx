@@ -178,7 +178,10 @@ export function NewSessionModal({
             <option value="">None</option>
             {plans.map((plan) => (
               <option key={plan.id} value={plan.id}>
-                {plan.name} - {getWeekdayShortName(plan.weekday)}
+                {plan.name}{" "}
+                {plan.workoutType
+                  ? `- ${getWeekdayShortName(plan.weekday)}`
+                  : ""}
               </option>
             ))}
           </Select>
