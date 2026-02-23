@@ -10,3 +10,4 @@ export * from "./useSessionViewModel";
 export * from "./useSettings";
 export * from "./useDashboardFilters";
 export * from "./useDashboardData";
+export * from "./useExerciseReferenceCheck";

@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import { getDB } from "../lib/db";
-import { seedSampleExercises } from "../lib/seedData";
 
 interface UseDbInitResult {
   isInitialized: boolean;
@@ -29,9 +28,6 @@ export function useDbInit(): UseDbInitResult {
       try {
         setIsLoading(true);
         await getDB();
-
-        // Seed sample exercises for testing
-        await seedSampleExercises();
 
         if (mounted) {
           setIsInitialized(true);

@@ -14,6 +14,10 @@ import { PageShell } from "./components/layouts/PageShell";
 import { SessionsPage } from "./pages/SessionsPage";
 import { SessionView } from "./pages/SessionView";
 import { SettingsPage } from "./pages/SettingsPage";
+import { SettingsMain } from "./pages/settings/SettingsMain";
+import { ExercisesListPage } from "./pages/settings/ExercisesListPage";
+import { BackupPage } from "./pages/settings/BackupPage";
+import { AdvancedSettingsPage } from "./pages/settings/AdvancedSettingsPage";
 import { DashboardPage } from "./pages/DashboardPage";
 
 function App() {
@@ -90,7 +94,13 @@ function App() {
             <Route path="/sessions/:sessionId" element={<SessionView />} />
             <Route path="/plans" element={<PlansPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings/*" element={<SettingsPage />}>
+              <Route index element={<SettingsMain />} />
+              <Route path="exercises" element={<ExercisesListPage />} />
+              <Route path="backup" element={<BackupPage />} />
+              <Route path="advanced" element={<AdvancedSettingsPage />} />
+              <Route path="*" element={<Navigate to="exercises" replace />} />
+            </Route>
           </Routes>
         </PageShell>
       </Router>

@@ -10,7 +10,6 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Modal } from "../shared/Modal";
 import { useCreateExercise, useExercises } from "../../hooks";
-import { v4 as uuidv4 } from "uuid";
 import { cn } from "../../lib/utils/cn";
 import { Label } from "../ui/label";
 
@@ -75,16 +74,13 @@ export function ExercisePickerModal({
       if (!canCreateExercise || createExerciseMutation.isPending) {
         return;
       }
-      const id = uuidv4();
       try {
         await createExerciseMutation.mutateAsync({
-          id,
           name: trimmedNewExerciseName,
           createdAt: Date.now(),
         });
         setNewExerciseName("");
         setQuery("");
-        handleExerciseSelect(id);
       } catch (error) {
         console.error("Failed to create exercise", error);
       }

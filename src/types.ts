@@ -29,9 +29,43 @@ export interface ExerciseDTO {
   updatedAt?: EpochMs;
 }
 
+export interface ExerciseRefCounts {
+  plans: number;
+  sessions: number;
+  loggedSets: number;
+}
+
+export interface ExerciseViewModel extends ExerciseDTO {
+  refCounts?: ExerciseRefCounts;
+}
+
+export interface ExerciseReferencePlan {
+  planId: UUID;
+  planName: string;
+}
+
+export interface ExerciseReferenceSession {
+  sessionId: UUID;
+  sessionName?: string;
+  sampleLoggedSetId?: UUID;
+}
+
+export interface ExerciseReferenceCheckResult {
+  exerciseId: UUID;
+  plans: ExerciseReferencePlan[];
+  sessions: ExerciseReferenceSession[];
+  loggedSetsCount: number;
+}
+
 // Commands / payloads for exercise hooks
-// Create requires client-generated id per schema validation.
-export type CreateExerciseCmd = ExerciseDTO;
+export type CreateExerciseCmd = {
+  name: string;
+  category?: string;
+  equipment?: string[];
+  notes?: string;
+  guideLinks?: PlanExerciseGuideLinkDTO[];
+  createdAt?: EpochMs;
+};
 export type UpdateExerciseCmd = { id: UUID } & Partial<
   Omit<ExerciseDTO, "id" | "createdAt">
 >;
