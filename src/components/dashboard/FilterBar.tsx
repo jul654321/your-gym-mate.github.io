@@ -166,7 +166,7 @@ export function FilterBar({
                         />
                         <span className="text-sm flex-1 text-muted-foreground">
                           {plan.name}{" "}
-                          {plan.workoutType
+                          {plan.weekday
                             ? `- ${getWeekdayShortName(plan.weekday)}`
                             : ""}
                         </span>
