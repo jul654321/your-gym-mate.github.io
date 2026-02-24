@@ -12,6 +12,8 @@ import type {
   TotalsViewModel,
   LoggedSetDTO,
   ExerciseDTO,
+  ExerciseType,
+  UUID,
 } from "../types";
 
 const QUERY_KEY = "dashboard";
@@ -45,7 +47,8 @@ function epochMsToDate(epochMs: number): string {
  */
 async function computeTrendPoints(
   sets: LoggedSetDTO[],
-  db: Awaited<ReturnType<typeof getDB>>
+  db: Awaited<ReturnType<typeof getDB>>,
+  exerciseTypeMap: Map<UUID, ExerciseType>
 ): Promise<TrendPoint[]> {
   if (sets.length === 0) {
     return [];
@@ -57,17 +60,20 @@ async function computeTrendPoints(
   >();
 
   for (const set of sets) {
-    const volume = set.weight * set.reps;
+    const volume =
+      set.weight *
+      set.reps *
+      volumeMultiplier(set.exerciseId, exerciseTypeMap);
     const existing = statsBySession.get(set.sessionId);
     if (existing) {
       existing.maxWeight = Math.max(existing.maxWeight, set.weight);
       existing.totalVolume += volume;
-      existing.totalReps += set.reps;
+      existing.totalReps += set.reps * volumeMultiplier(set.exerciseId, exerciseTypeMap);
     } else {
       statsBySession.set(set.sessionId, {
         maxWeight: set.weight,
         totalVolume: volume,
-        totalReps: set.reps,
+        totalReps: set.reps * volumeMultiplier(set.exerciseId, exerciseTypeMap),
       });
     }
   }
@@ -117,12 +123,16 @@ async function computeTrendPoints(
  */
 async function computeVolumePoints(
   sets: LoggedSetDTO[],
-  db: Awaited<ReturnType<typeof getDB>>
+  db: Awaited<ReturnType<typeof getDB>>,
+  exerciseTypeMap: Map<UUID, ExerciseType>
 ): Promise<VolumePoint[]> {
   const volumeBySession = new Map<string, number>();
 
   for (const set of sets) {
-    const volume = set.weight * set.reps;
+    const volume =
+      set.weight *
+      set.reps *
+      volumeMultiplier(set.exerciseId, exerciseTypeMap);
     const existing = volumeBySession.get(set.sessionId);
     volumeBySession.set(set.sessionId, (existing || 0) + volume);
   }
@@ -225,12 +235,18 @@ async function computePRs(
 /**
  * Computes total statistics
  */
-async function computeTotals(sets: LoggedSetDTO[]): Promise<TotalsViewModel> {
+async function computeTotals(
+  sets: LoggedSetDTO[],
+  exerciseTypeMap: Map<UUID, ExerciseType>
+): Promise<TotalsViewModel> {
   let totalVolume = 0;
   const sessionIds = new Set<string>();
 
   for (const set of sets) {
-    totalVolume += set.weight * set.reps;
+    totalVolume +=
+      set.weight *
+      set.reps *
+      volumeMultiplier(set.exerciseId, exerciseTypeMap);
     sessionIds.add(set.sessionId);
   }
 
@@ -365,6 +381,35 @@ async function fetchFilteredSets(
   return sets;
 }
 
+function buildExerciseTypeMap(
+  db: Awaited<ReturnType<typeof getDB>>,
+  sets: LoggedSetDTO[]
+): Promise<Map<UUID, ExerciseType>> {
+  const map = new Map<UUID, ExerciseType>();
+  const exerciseIds = Array.from(new Set(sets.map((set) => set.exerciseId)));
+  if (!exerciseIds.length) {
+    return Promise.resolve(map);
+  }
+
+  return Promise.all(
+    exerciseIds.map((id) => db.get(STORE_NAMES.exercises, id))
+  ).then((exercises) => {
+    for (const exercise of exercises) {
+      if (exercise) {
+        map.set(exercise.id, exercise.exerciseType ?? "Bilateral");
+      }
+    }
+    return map;
+  });
+}
+
+function volumeMultiplier(
+  exerciseId: UUID,
+  map: Map<UUID, ExerciseType>
+): number {
+  return map.get(exerciseId) === "Unilateral" ? 2 : 1;
+}
+
 /**
  * Main hook for dashboard data
  * Returns aggregated analytics based on filters
@@ -378,12 +423,13 @@ export function useDashboardData(filters: DashboardFilters) {
       // Fetch filtered sets
       const sets = await fetchFilteredSets(filters, db);
 
-      // Compute all analytics in parallel
+      const exerciseTypeMap = await buildExerciseTypeMap(db, sets);
+
       const [trendPoints, volumePoints, prItems, totals] = await Promise.all([
-        computeTrendPoints(sets, db),
-        computeVolumePoints(sets, db),
+        computeTrendPoints(sets, db, exerciseTypeMap),
+        computeVolumePoints(sets, db, exerciseTypeMap),
         computePRs(sets, db, filters.includeAlternatives),
-        computeTotals(sets),
+        computeTotals(sets, exerciseTypeMap),
       ]);
 
       return {

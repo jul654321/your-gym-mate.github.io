@@ -8,7 +8,6 @@ interface LineSeriesProps<T> extends LineSeriesConfig<T> {
   scale: ChartScale;
   min: number;
   max: number;
-  hoveredIndex?: number | null;
   onHoverChange?: (index: number | null) => void;
 }
 
@@ -25,7 +24,6 @@ export function LineSeries<T>({
   ariaLabel,
   onPointHover,
   onPointClick,
-  hoveredIndex,
   onHoverChange,
 }: LineSeriesProps<T>) {
   const seriesId = useId();
@@ -128,7 +126,7 @@ export function LineSeries<T>({
             <circle
               cx={pos.x}
               cy={pos.y}
-              r={hoveredIndex === i ? 6 : 4}
+              r={4}
               fill="currentColor"
               className={`${className} z-9 cursor-pointer transition-all`}
             />

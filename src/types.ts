@@ -18,6 +18,8 @@ export type Pagination = {
 
 // === Exercises ===
 // Mirrors `exercises` object store schema.
+export type ExerciseType = "Unilateral" | "Bilateral";
+
 export interface ExerciseDTO {
   id: UUID; // primary key (uuid)
   name: string;
@@ -27,6 +29,7 @@ export interface ExerciseDTO {
   guideLinks?: PlanExerciseGuideLinkDTO[];
   createdAt: EpochMs;
   updatedAt?: EpochMs;
+  exerciseType?: ExerciseType; // defaults to Bilateral when not provided
 }
 
 export interface ExerciseRefCounts {
@@ -65,6 +68,7 @@ export type CreateExerciseCmd = {
   notes?: string;
   guideLinks?: PlanExerciseGuideLinkDTO[];
   createdAt?: EpochMs;
+  exerciseType?: ExerciseType;
 };
 export type UpdateExerciseCmd = { id: UUID } & Partial<
   Omit<ExerciseDTO, "id" | "createdAt">

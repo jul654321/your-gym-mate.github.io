@@ -188,6 +188,7 @@ export function useCreateExercise() {
         guideLinks: cmd.guideLinks,
         createdAt: now,
         updatedAt: now,
+      exerciseType: cmd.exerciseType ?? "Bilateral",
       };
 
       const db = await getDB();
@@ -206,6 +207,7 @@ export function useCreateExercise() {
         createdAt: Date.now(),
         updatedAt: Date.now(),
         refCounts: buildRefCountsSkeleton(),
+        exerciseType: cmd.exerciseType ?? "Bilateral",
       };
 
       updateExerciseCache(queryClient, (items) => [optimistic, ...items]);

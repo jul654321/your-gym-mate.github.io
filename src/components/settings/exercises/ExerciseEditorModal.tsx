@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../../ui/button";
 import { Modal } from "../../shared/Modal";
-import type { CreateExerciseCmd } from "../../../types";
+import type { CreateExerciseCmd, ExerciseType } from "../../../types";
 
 export interface ExerciseEditorPayload {
   name: string;
   category?: string;
   equipment?: string[];
   notes?: string;
+  exerciseType?: ExerciseType;
 }
 
 interface ExerciseEditorModalProps {
@@ -29,6 +30,8 @@ export function ExerciseEditorModal({
   const [category, setCategory] = useState("");
   const [equipmentText, setEquipmentText] = useState("");
   const [notes, setNotes] = useState("");
+  const [exerciseType, setExerciseType] =
+    useState<ExerciseType>("Bilateral");
 
   useEffect(() => {
     if (!open) {
@@ -41,6 +44,7 @@ export function ExerciseEditorModal({
       Array.isArray(exercise?.equipment) ? exercise.equipment.join(", ") : ""
     );
     setNotes(exercise?.notes ?? "");
+    setExerciseType(exercise?.exerciseType ?? "Bilateral");
   }, [exercise, open]);
 
   const trimmedName = name.trim();
@@ -66,6 +70,7 @@ export function ExerciseEditorModal({
       category: category.trim() || undefined,
       equipment: equipment.length > 0 ? equipment : undefined,
       notes: notes.trim() || undefined,
+      exerciseType,
     });
   };
 
@@ -144,6 +149,34 @@ export function ExerciseEditorModal({
             className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/60"
           />
         </label>
+        <fieldset className="space-y-2 text-sm">
+          <legend className="font-semibold text-foreground">Type</legend>
+          <div className="grid grid-cols-2 gap-2">
+            {(["Bilateral", "Unilateral"] as ExerciseType[]).map((type) => {
+              const isSelected = exerciseType === type;
+              return (
+                <label
+                  key={type}
+                  className={`flex items-center justify-center rounded-md border px-3 py-2 text-xs font-medium ${
+                    isSelected
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-background text-foreground"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="exercise-type"
+                    value={type}
+                    checked={isSelected}
+                    onChange={() => setExerciseType(type)}
+                    className="sr-only"
+                  />
+                  {type}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
       </div>
     </Modal>
   );

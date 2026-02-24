@@ -143,7 +143,9 @@ export function TrendChart({
     <Card>
       {/* Header with metric toggle */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">{getMetricLabel(metric)} Trend</h3>
+        <h3 className="text-lg font-semibold">
+          {getMetricLabel(metric)} Trend
+        </h3>
         <div className="flex gap-2">
           <Button
             variant={metric === "weight" ? "primary" : "secondary"}
@@ -216,7 +218,6 @@ export function TrendChart({
                 showArea
                 showPoints
                 showLine
-                hoveredIndex={hoveredIndex}
                 onHoverChange={setHoveredIndex}
                 ariaLabel={`${getMetricLabel(metric)} data points`}
               />
@@ -236,10 +237,10 @@ export function TrendChart({
             containerWidth={chartWidth}
             containerHeight={chartHeight}
           >
-              <DefaultTooltipContent
-                label={formatDate(hoveredPoint.date)}
-                value={formatValue(getMetricValue(hoveredPoint, metric))}
-              />
+            <DefaultTooltipContent
+              label={formatDate(hoveredPoint.date)}
+              value={formatValue(getMetricValue(hoveredPoint, metric))}
+            />
           </Tooltip>
         )}
       </div>

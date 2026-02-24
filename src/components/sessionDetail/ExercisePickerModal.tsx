@@ -160,8 +160,15 @@ export function ExercisePickerModal({
                 onClick={() => handleExerciseSelect(exercise.id)}
                 onKeyDown={(event) => handleExerciseKeyDown(event, exercise.id)}
                 onFocus={() => setSelectedExerciseId(exercise.id)}
-              >
-                {exercise.name}
+                >
+                  <div className="flex items-center justify-between">
+                    <span>{exercise.name}</span>
+                    {exercise.exerciseType === "Unilateral" && (
+                      <span className="rounded-full border border-primary/60 bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary">
+                        Unilateral
+                      </span>
+                    )}
+                  </div>
               </button>
             ))
           ) : (

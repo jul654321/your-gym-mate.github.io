@@ -12,6 +12,7 @@ import {
 } from "../../hooks/useExercises";
 import type {
   ExerciseReferenceCheckResult,
+  ExerciseType,
   ExerciseViewModel,
 } from "../../types";
 import { Pencil, Plus, Trash2 } from "lucide-react";
@@ -32,7 +33,6 @@ export function ExercisesListPage() {
   const [isReferenceModalOpen, setIsReferenceModalOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const {
     data: exercises = [],
@@ -143,6 +143,7 @@ export function ExercisesListPage() {
     category?: string;
     equipment?: string[];
     notes?: string;
+    exerciseType?: ExerciseType;
   }) => {
     if (editorExercise) {
       updateMutation.mutate(
@@ -152,10 +153,10 @@ export function ExercisesListPage() {
           category: payload.category,
           equipment: payload.equipment,
           notes: payload.notes,
+          exerciseType: payload.exerciseType,
         },
         {
-          onSuccess: (updated) => {
-            setStatusMessage(`Updated ${updated.name}`);
+          onSuccess: () => {
             closeEditor();
           },
         }
@@ -169,11 +170,11 @@ export function ExercisesListPage() {
         category: payload.category,
         equipment: payload.equipment,
         notes: payload.notes,
+        exerciseType: payload.exerciseType,
         createdAt: Date.now(),
       },
       {
-        onSuccess: (created) => {
-          setStatusMessage(`Added ${created.name}`);
+        onSuccess: () => {
           closeEditor();
         },
       }
@@ -202,7 +203,6 @@ export function ExercisesListPage() {
       { id: pendingDeleteExercise.id },
       {
         onSuccess: () => {
-          setStatusMessage(`${pendingDeleteExercise.name} deleted`);
           resetDeleteFlow();
         },
         onError: (error) => {
@@ -238,11 +238,6 @@ export function ExercisesListPage() {
           Add exercise
         </Button>
       </div>
-      {statusMessage && (
-        <p className="rounded-full border border-primary/50 bg-primary/10 px-4 py-2 text-xs text-primary">
-          {statusMessage}
-        </p>
-      )}
 
       <div className="flex flex-wrap gap-3">
         <Label htmlFor="exercise-search">Search exercises</Label>
@@ -270,9 +265,13 @@ export function ExercisesListPage() {
               cardHeader={
                 <div className="w-full flex items-center justify-between">
                   <div>
-                    <p className="text-md">{exercise.name}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <p className="text-md">{exercise.name}</p>
+                    </div>
+                    <p className="text-xs text-primary">
                       {exercise.category ?? "Uncategorized"}
+                      {" / "}
+                      {exercise.exerciseType ?? "Bilateral"}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
