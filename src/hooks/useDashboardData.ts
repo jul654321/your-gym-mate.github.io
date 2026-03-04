@@ -61,14 +61,13 @@ async function computeTrendPoints(
 
   for (const set of sets) {
     const volume =
-      set.weight *
-      set.reps *
-      volumeMultiplier(set.exerciseId, exerciseTypeMap);
+      set.weight * set.reps * volumeMultiplier(set.exerciseId, exerciseTypeMap);
     const existing = statsBySession.get(set.sessionId);
     if (existing) {
       existing.maxWeight = Math.max(existing.maxWeight, set.weight);
       existing.totalVolume += volume;
-      existing.totalReps += set.reps * volumeMultiplier(set.exerciseId, exerciseTypeMap);
+      existing.totalReps +=
+        set.reps * volumeMultiplier(set.exerciseId, exerciseTypeMap);
     } else {
       statsBySession.set(set.sessionId, {
         maxWeight: set.weight,
@@ -130,9 +129,7 @@ async function computeVolumePoints(
 
   for (const set of sets) {
     const volume =
-      set.weight *
-      set.reps *
-      volumeMultiplier(set.exerciseId, exerciseTypeMap);
+      set.weight * set.reps * volumeMultiplier(set.exerciseId, exerciseTypeMap);
     const existing = volumeBySession.get(set.sessionId);
     volumeBySession.set(set.sessionId, (existing || 0) + volume);
   }
@@ -244,9 +241,7 @@ async function computeTotals(
 
   for (const set of sets) {
     totalVolume +=
-      set.weight *
-      set.reps *
-      volumeMultiplier(set.exerciseId, exerciseTypeMap);
+      set.weight * set.reps * volumeMultiplier(set.exerciseId, exerciseTypeMap);
     sessionIds.add(set.sessionId);
   }
 
@@ -310,20 +305,25 @@ async function fetchFilteredSets(
       filters.planIds.map((planId) => planIndex.getAll(planId))
     );
     const planSessionIds = sessionsByPlan.flat().map((session) => session.id);
+
     sessionIdsByPlan = new Set(planSessionIds);
+
     if (sessionIdsByPlan.size === 0) {
       return [];
     }
   }
 
   let targetSessionIds: Set<string> | null = null;
+
   if (sessionIdsByDate && sessionIdsByPlan) {
     const intersection = new Set(
       Array.from(sessionIdsByDate).filter((id) => sessionIdsByPlan!.has(id))
     );
+
     if (intersection.size === 0) {
       return [];
     }
+
     targetSessionIds = intersection;
   } else if (sessionIdsByDate) {
     targetSessionIds = sessionIdsByDate;
@@ -337,13 +337,16 @@ async function fetchFilteredSets(
     const sessionIndex = loggedSetsStore.index("sessionId");
     const setsBySession = await Promise.all(
       Array.from(targetSessionIds).map((sessionId) =>
-        sessionIndex.getAll(sessionId)
+        sessionIndex
+          .getAll(sessionId)
+          .then((sets) => sets.filter((set) => set.setType === "main"))
       )
     );
     sets = setsBySession.flat();
   } else {
     const tx = db.transaction(STORE_NAMES.loggedSets, "readonly");
     const store = tx.objectStore(STORE_NAMES.loggedSets);
+
     sets = await store.getAll();
   }
 
