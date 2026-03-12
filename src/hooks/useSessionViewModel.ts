@@ -76,6 +76,10 @@ export interface BuildGroupedExercisesOptions {
   altToMainMap?: Map<string, string>;
 }
 
+function getSetTypePriority(set: LoggedSetDTO): number {
+  return set.setType?.toLowerCase() === "warmup" ? 0 : 1;
+}
+
 export function buildGroupedExercises({
   sets,
   exercisesById,
@@ -111,6 +115,12 @@ export function buildGroupedExercises({
   const normalizeGroup = (group: GroupedExerciseVM): GroupedExerciseVM => ({
     ...group,
     sets: [...group.sets].sort((a, b) => {
+      const priorityA = getSetTypePriority(a);
+      const priorityB = getSetTypePriority(b);
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+
       const indexA = a.setIndex ?? a.timestamp ?? 0;
       const indexB = b.setIndex ?? b.timestamp ?? 0;
       return indexA - indexB;
